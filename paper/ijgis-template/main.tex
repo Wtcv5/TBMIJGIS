@@ -1,0 +1,153 @@
+\newif\ifijgisclass
+\IfFileExists{tGIS2e.cls}{\ijgisclasstrue}{\ijgisclassfalse}
+
+\ifijgisclass
+  \documentclass{tGIS2e}
+\else
+  \documentclass[11pt,a4paper]{article}
+\fi
+
+\ifijgisclass
+  \usepackage{graphicx}
+  \usepackage{booktabs}
+  \usepackage{amsmath,amssymb}
+  \usepackage{multirow}
+  \usepackage{url}
+  \usepackage{algorithm}
+  \usepackage{algorithmic}
+  \usepackage{subcaption}
+  \citestyle{tGIS}
+\else
+  \usepackage[margin=1in]{geometry}
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{lmodern}
+  \usepackage{graphicx}
+  \usepackage{booktabs}
+  \usepackage{amsmath,amssymb}
+  \usepackage{multirow}
+  \usepackage{url}
+  \usepackage[numbers,sort&compress]{natbib}
+  \usepackage{algorithm}
+  \usepackage{algorithmic}
+  \usepackage{subcaption}
+  \usepackage[hidelinks]{hyperref}
+  \newcommand{\name}[1]{#1}
+  \newcommand{\affil}[1]{#1}
+  \newcommand{\correspondence}[1]{\par\noindent\textbf{Correspondence:} #1}
+  \newenvironment{keywords}{\par\noindent\textbf{Keywords: }}{\par}
+  \newcommand{\jvol}[1]{}
+  \newcommand{\jnum}[1]{}
+  \newcommand{\jyear}[1]{}
+  \newcommand{\jmonth}[1]{}
+  \newcommand{\DOI}[1]{}
+  \newcommand{\received}[1]{}
+  \newcommand{\revised}[1]{}
+  \newcommand{\accepted}[1]{}
+  \newcommand{\pubyear}[1]{}
+  \newcommand{\pagerange}[1]{}
+\fi
+
+\usepackage{placeins}
+\graphicspath{{../../experiments/outputs/figures/}}
+
+\title{Spatially Explicit Rock--TBM Interaction Graph Sequences for Response-Consistent Interpretation of TBM Excavation Processes}
+
+\author{
+\name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
+Second Author\textsuperscript{b}} \\
+\affil{\textsuperscript{a}Department of XXX, University A, City, Country; \\
+\textsuperscript{b}Institute of YYY, University B, City, Country}
+}
+
+\jvol{00}
+\jnum{00}
+\jyear{2026}
+\jmonth{Month}
+\DOI{00.0000/0000000000000000}
+\received{00 Month 2026}
+\revised{00 Month 2026}
+\accepted{00 Month 2026}
+\pubyear{2026}
+\pagerange{1--20}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Existing representations of rock--TBM interaction during excavation treat monitoring
+responses as temporal sequences, which preserve temporal dependence but lack the
+spatial explicitness needed to resolve where interactions occur, which machine
+components are implicated, and how interaction structure evolves along chainage.
+This study proposes a response-supervised, geometry-constrained graph sequence
+framework for spatially explicit representation and interpretable learning of
+rock--TBM interaction.  The framework introduces three key innovations:
+(i)~a heterogeneous graph-sequence representation that formalizes TSP-derived
+rock voxels and parameterized TBM surface nodes as spatial entities with explicit
+candidate interaction relations; (ii)~a geometry-constrained edge construction
+strategy based on spatial proximity, signed-normal consistency, active-zone
+filtering, and excavation-state constraints, which restricts learning to spatially
+plausible rock--machine relations rather than unconstrained connectivity; and
+(iii)~a graph-to-surface interpretation route that projects learned edge relevance
+onto TBM surface and chainage spaces to produce response-consistent hotspot maps
+and interaction-evolution views.  Rather than relying on sparse jamming labels or
+manually calibrated contact forces, the framework uses continuously recorded
+monitoring responses to supervise the relative importance of geometry-screened
+candidate relations, enabling interpretable spatial learning under incomplete
+observability.  The evaluation compares the framework against monitoring-only
+sequence models, TSP-augmented sequence models, tabular baselines, and structural
+graph ablations.  Spatial consistency indicators---including Moran's $I$,
+component-level coefficient of variation, and attention--geology
+correlation---suggest that geometry-constrained graph construction produces
+spatially structured and geologically aligned interaction patterns that degrade
+when geometric constraints are removed.  By unifying geological sensing, machine
+geometry, monitoring response, and spatial interpretation within a constrained
+graph sequence, the framework offers a spatially explicit approach to excavation
+interaction analysis that complements existing temporal prediction methods.
+\end{abstract}
+
+\begin{keywords}
+spatial representation; heterogeneous graph sequence; rock--machine interaction;
+geometry-constrained edge construction; response supervision; interpretable
+geospatial learning; TBM excavation; spatial interpretation
+\end{keywords}
+
+\ifijgisclass\else
+\correspondence{First Author. Email: first.author@example.com}
+\fi
+
+\section{Introduction}
+\input{sections/introduction}
+
+\section{Methodology}
+\input{sections/methods}
+
+\section{Experiments and results}
+\label{sec:results}
+\input{sections/study_area}
+\input{sections/results}
+
+\section{Discussion}
+\input{sections/discussion}
+
+\section{Conclusion}
+\input{sections/conclusion}
+
+\section*{Acknowledgements}
+\input{sections/acknowledgements}
+
+\section*{Disclosure statement}
+No potential conflict of interest was reported by the author(s).
+
+\section*{Funding}
+This research received no external funding.
+
+\section*{Data availability statement}
+State where the data, code, and materials can be accessed, and note any restrictions
+if applicable.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

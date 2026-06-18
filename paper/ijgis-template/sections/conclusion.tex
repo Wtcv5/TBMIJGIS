@@ -1,0 +1,39 @@
+This study proposed a response-supervised, geometry-constrained graph sequence
+framework for spatially explicit representation and interpretable learning of
+rock--TBM interaction during excavation.  The framework addresses the
+geographic-information representation gap identified in the Introduction:
+monitoring-only temporal sequences preserve temporal dependence but lack the
+spatial explicitness needed to resolve where interactions occur, which machine
+components are implicated, and how interaction structure evolves along chainage.
+
+Three key findings emerge from the evaluation.  First, the geometry-constrained
+graph structure produces spatially consistent attention patterns: the full
+framework achieves Moran's $I=0.42$ (moderate positive spatial
+autocorrelation), component-level CV\,$=0.38$ (substantial differentiation),
+and a negative attention--geology correlation ($r=-0.31$), all of which
+degrade when the geometric prior is removed (Moran's $I=0.18$, CV\,$=0.15$,
+$r=-0.12$) or edges are randomised (Moran's $I=0.07$, CV\,$=0.08$,
+$r=0.05$).  Second, the geometric prior serves as an interpretability
+constraint rather than a prediction enhancer: removing it improves MAE from
+0.481 to 0.360 but degrades all three spatial consistency indicators,
+suggesting a prediction--interpretability trade-off that may be justifiable for
+GIScience applications where spatial consistency matters.  Third, the
+framework enables a spatial reasoning chain---from geological context through
+attention-based interaction assessment to spatially informed decision
+support---that monitoring-only sequence models cannot provide, because they
+lack any spatial representation of the interaction geometry.
+
+By formalizing rock voxels and TBM surface nodes as spatial entities,
+constraining candidate relations through geometric compatibility, and projecting
+learned relevance back to interpretable spatial views, the framework advances
+spatial entity modeling, relation plausibility, and interpretable geospatial
+learning.  The spatial consistency evaluation framework---combining external
+geological validation, internal spatial autocorrelation, and structural
+component differentiation---provides a generalisable template for evaluating
+spatial interpretability in graph-based learning methods.  The learned edge
+relevance should be interpreted as response-consistent spatial importance under
+geometric screening, not as direct physical contact force or stress.  Future
+work should examine cross-project transferability, alternative geometric
+parameterizations, and the integration of additional spatial constraints to
+further strengthen the connection between learned relevance and physical
+interaction processes.

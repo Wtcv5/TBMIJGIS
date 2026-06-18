@@ -1,0 +1,5 @@
+interface:
+  display_name: "IJGIS Scientific Figures"
+  short_description: "Polish IJGIS-style scientific figures"
+  default_prompt: "Use $ijgis-scientific-figures to audit and improve manuscript figures for IJGIS-style publication quality."
+

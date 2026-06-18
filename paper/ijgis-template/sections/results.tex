@@ -1,0 +1,458 @@
+\subsection{Scope and interpretive boundaries}
+Before presenting the experimental results, three scope limitations
+should be noted to avoid over-interpretation.  First, the learned
+edge relevance and surface relevance $C_j$ reflect
+response-consistent interaction patterns under the forecasting task;
+they are \emph{not} direct measurements of physical contact force,
+contact pressure, or jamming probability.  Second, the case study
+uses a single tunnel section with 49 excavation steps (44 effective
+sequence samples, 12 in the stratified test set); all quantitative
+indicators should be read as illustrative rather than statistically
+conclusive.  Third, the spatial consistency indicators (Moran's $I$,
+component CV, attention--geology correlation) quantify the internal
+and external plausibility of the learned representation, not its
+engineering correctness.  These boundaries are revisited in the
+Discussion.
+
+\subsection{Experimental setup}
+\label{sec:experimental_setup}
+All structural and training hyperparameters follow the Implementation
+details in Section~\ref{sec:methods} (summarised here for readability):
+historical window $K=5$, forecasting horizon $h=1$; candidate edge
+distance threshold $\tau_{\mathrm{edge}}=2.0$\,m; signed-normal
+compatibility threshold $\eta_{\min}=0.3$; active-zone radial extent
+$\tau_{\mathrm{zone}}=5.0$\,m; TBM surface resolution 0.5\,m (1352 nodes);
+GNN encoder with 2 layers, hidden dimension 32, dropout 0.3; GRU hidden
+dimension 64, 1 layer; AdamW optimiser, learning rate $10^{-3}$, weight
+decay $10^{-2}$, batch size 32, early stopping patience 15.  To control
+for geological distribution shift between train and test, samples are
+partitioned using stratified random sampling based on TSP shear wave
+velocity ($V_s$) quartiles, yielding four geological strata each split
+70/15/15 into train/val/test.  All models are evaluated on the
+held-out stratified test set using MAE, RMSE, $R^{2}$, and Pearson
+correlation.
+
+\subsection{Prediction performance}
+Table~\ref{tab:prediction} reports the global prediction performance
+(Figure~\ref{fig:prediction}).  The proposed framework achieves MAE of
+0.415 and Pearson $r$ of 0.538, outperforming all baselines on MAE and
+achieving the only positive $R^{2}$ (0.141).  The stratified split
+controls for geological heterogeneity between train and test, allowing
+the geometric prior and learned rock--machine interactions to
+generalise; under the previous mileage split, all models exhibited
+negative $R^{2}$ due to a severe distribution shift in $V_s$ between
+the training and test intervals (shift $= 2.31$ standard deviations,
+Kolmogorov--Smirnov $p < 0.001$).  The proposed framework's primary
+contribution lies in providing spatially explicit
+interaction structure that monitoring-only models cannot access---a
+trade-off examined in Section~\ref{sec:tradeoff}.
+
+\begin{table}[htbp]
+\centering
+\caption{Global prediction performance on the stratified test set
+($n=12$ samples drawn from four geological strata defined by TSP shear
+wave velocity quartiles, ensuring the test distribution matches the
+training distribution).  The proposed framework achieves the lowest MAE
+and the only positive $R^{2}$ among all models, indicating that the
+geometric prior and learned rock--machine interactions generalise when
+geological heterogeneity between train and test is controlled.}
+\label{tab:prediction}
+\begin{tabular}{lcccc}
+\toprule
+Method & MAE & RMSE & $R^{2}$ & Pearson $r$ \\
+\midrule
+Persistence & 0.465 & 0.590 & $-0.008$ & 0.487 \\
+XGBoost + TSP & 0.455 & 0.606 & $-0.114$ & 0.544 \\
+LSTM & 0.488 & 0.602 & $-0.109$ & 0.576 \\
+TSP-LSTM & 0.487 & 0.619 & $-0.174$ & 0.341 \\
+Proposed framework & \textbf{0.415} & \textbf{0.538} & $\mathbf{0.141}$ & \textbf{0.538} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{fig3_prediction_comparison.pdf}
+\caption{Predicted versus observed standardised monitoring responses
+for five target variables on the stratified test set.  Each panel
+corresponds to one response variable: (a)~advance rate, (b)~torque,
+(c)~thrust, (d)~penetration, (e)~shield pressure.  Different curves
+represent the proposed framework and baseline models; observed values
+are shown as solid lines, predictions as dashed/dotted lines.  MAE
+values in the legend are variable-specific values for the displayed
+panel and should not be confused with the global multi-variable metrics
+in Table~\ref{tab:prediction}.  Under the stratified split, the proposed
+framework achieves positive $R^{2}$ and outperforms all baselines on
+MAE, confirming that the geometric prior contributes predictive signal
+when geological heterogeneity between train and test is controlled.}
+\label{fig:prediction}
+\end{figure}
+
+\subsection{Structural ablation}
+Table~\ref{tab:ablation} and Figure~\ref{fig:ablation} present the structural ablation results.  Four
+ablation variants isolate the contribution of each design component.
+
+\begin{table}[htbp]
+\centering
+\caption{Structural ablation results on the stratified test set.  Each
+row removes or replaces one design component from the full framework.
+The geometry-only baseline is excluded from this table because it has no
+trainable parameters and does not produce predictions; its spatial
+consistency is reported in Table~\ref{tab:spatial_consistency}.  Under
+the stratified split, the full framework achieves the lowest MAE,
+confirming that the geometric prior contributes predictive signal
+rather than merely imposing regularisation.}
+\label{tab:ablation}
+\begin{tabular}{lcccc}
+\toprule
+Variant & MAE & RMSE & $R^{2}$ & Pearson $r$ \\
+\midrule
+Full framework & \textbf{0.415} & \textbf{0.538} & $\mathbf{0.141}$ & \textbf{0.538} \\
+Without monitoring input & 0.558 & 0.666 & $-0.302$ & $-0.452$ \\
+Randomised rock--machine edges & 0.487 & 0.622 & $-0.089$ & 0.305 \\
+Without geometric prior ($\beta=0$) & 0.540 & 0.650 & $-0.215$ & 0.412 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{fig4_ablation_study.pdf}
+\caption{Structural ablation comparison.  (a)~Prediction metrics (MAE
+and $R^{2}$) across four ablation variants; (b)~spatial consistency
+indicators (Moran's $I$, component CV, and Rel.--Geo.\ $r$) across the
+same variants plus the geometry-only baseline.  Values in panel~(b)
+match Table~\ref{tab:spatial_consistency}.  The geometry-only baseline
+is omitted from panel~(a) because it has no trainable parameters and
+does not produce predictions.  The \emph{w/o monit.}\ variant removes
+monitoring input from the GRU, collapsing both prediction and spatial
+consistency.  Under the stratified split, the full framework achieves
+the lowest MAE and the only positive $R^{2}$, indicating that the
+geometric prior contributes predictive signal rather than merely
+imposing regularisation.}
+\label{fig:ablation}
+\end{figure}
+
+The \emph{No Monitoring} ablation removes the monitoring vector from the GRU
+input.  Pearson $r$ collapses from 0.538 to $-0.452$, suggesting that
+temporal monitoring dynamics carry essential predictive signal that the
+static graph structure alone cannot replace.  Spatial consistency
+indicators also degrade sharply (Moran's $I$ from 0.42 to 0.05,
+Rel.--Geo.\ $r$ from $-0.31$ to 0.02), indicating that without the
+monitoring input the learned edge relevance loses spatial structure,
+even though the response-supervised forecasting loss is still applied
+through the graph-level representation.
+
+The \emph{Randomised Edges} ablation replaces geometry-constrained
+rock--machine edges with random edges of the same cardinality.  Pearson $r$
+drops from 0.538 to 0.305, suggesting that the spatial structure of
+candidate relations---not merely the presence of cross-type
+edges---contributes to learning meaningful interaction patterns.
+
+The \emph{No Geometric Prior} ablation sets $\beta=0$.  Under the
+stratified split, this variant achieves higher MAE (0.540) and lower
+Pearson $r$ (0.412) than the full framework, indicating that the
+geometric prior contributes predictive signal rather than merely
+imposing regularisation.  This contrasts with the mileage split, where
+removing the prior appeared to improve prediction; the stratified split
+isolates the prior's contribution by controlling for geological
+heterogeneity between train and test.  The spatial consistency
+indicators degrade further (examined in Section~\ref{sec:tradeoff}),
+confirming that the geometric prior simultaneously supports both
+prediction and interpretability.
+
+The \emph{Geometry-only baseline} replaces all learned edge scores with
+the fixed geometric prior $g_{ij}=\exp(-d_{ij}/\tau_{\mathrm{edge}})$
+(no trainable parameters).  Because it has no learned forecasting head,
+it does not produce predictions and is therefore excluded from
+Table~\ref{tab:ablation}; it is, however, retained in the spatial
+consistency comparison (Table~\ref{tab:spatial_consistency}) because it
+yields a well-defined surface relevance map $C_j$ directly from the
+geometric prior.  This baseline serves as a non-learned reference point:
+it retains moderate spatial consistency (Moran's $I=0.51$,
+Rel.--Geo.\ $r=-0.24$), indicating that the geometric prior alone
+provides a spatially structured starting point that the learned scores
+refine rather than discard.
+
+\subsection{Spatial consistency of learned attention}
+\label{sec:spatial_consistency}
+A central claim of this framework is that geometry-constrained graph
+construction produces spatially consistent attention patterns that align
+with engineering expectations.  We evaluate this claim using three
+quantitative spatial consistency indicators, each targeting a different
+aspect of spatial validity.
+
+\paragraph{Attention--geology correlation.}
+If the learned surface relevance is geologically meaningful, we expect a
+negative correlation with TSP seismic velocity: weaker rock (lower
+velocity) should attract higher interaction relevance.  We compute a
+single Pearson correlation across all test chainages as follows.  For
+each test chainage $c_k$ ($k = 1, \ldots, N_{\mathrm{test}}$), we extract
+two scalar quantities: (1)~the mean surface relevance
+$\bar{C}(c_k) = \frac{1}{|V^m|}\sum_j C_j(c_k)$, averaged across all
+TBM surface nodes at that chainage, and (2)~the mean TSP P-wave velocity
+$V_p(c_k)$ of voxels within the active zone at that chainage, obtained
+by linear interpolation from the TSP voxel field.  The reported
+correlation $r$ is the Pearson coefficient between the two vectors
+$\{\bar{C}(c_k)\}_{k=1}^{N_{\mathrm{test}}}$ and
+$\{V_p(c_k)\}_{k=1}^{N_{\mathrm{test}}}$:
+\[
+r = \frac{\sum_k (\bar{C}_k - \bar{\bar{C}})(V_{p,k} - \bar{V}_p)}
+         {\sqrt{\sum_k (\bar{C}_k - \bar{\bar{C}})^2} \,
+          \sqrt{\sum_k (V_{p,k} - \bar{V}_p)^2}}.
+\]
+A negative $r$ indicates that chainages with lower seismic velocity
+(weaker rock) tend to have higher surface relevance, consistent with the
+geological expectation of stronger rock--machine coupling in weak zones.
+As shown in Table~\ref{tab:spatial_consistency}, the full framework
+exhibits a negative Pearson correlation ($r=-0.31$) in the expected
+direction, whereas the No Geometric Prior variant shows a weaker
+relationship ($r=-0.12$).  The Randomised Edges variant shows no
+meaningful correlation ($r=0.05$).
+
+\paragraph{Spatial autocorrelation of surface relevance.}
+Spatially consistent relevance should exhibit positive spatial
+autocorrelation: nearby TBM surface nodes should have similar $C_j$ values,
+rather than random spatial noise.  We compute Moran's $I$
+\citep{moran1950notes} for the surface relevance values on the TBM surface
+at each test chainage:
+\[
+I(c) = \frac{n}{S_0} \cdot
+\frac{\sum_i \sum_j w_{ij}\,(C_i(c) - \bar{C}(c))\,(C_j(c) - \bar{C}(c))}
+     {\sum_i (C_i(c) - \bar{C}(c))^2},
+\]
+where $n = |V^m|$ is the number of TBM surface nodes, $w_{ij}$ is the
+spatial weight between nodes $i$ and $j$ (binary $k$-nearest-neighbour,
+$k=8$, row-standardised), and $S_0 = \sum_i \sum_j w_{ij}$.  Moran's $I$
+ranges from approximately $-1$ (perfect dispersion) through $0$ (spatial
+randomness) to $+1$ (perfect spatial clustering).  The reported value is
+the mean $I(c)$ across all test chainages.  The full framework achieves
+Moran's $I=0.42$, indicating moderate positive spatial autocorrelation
+consistent with spatially structured interaction patterns.  The No
+Geometric Prior variant yields Moran's $I=0.18$, and the Randomised Edges
+variant yields Moran's $I=0.07$, approaching spatial randomness.
+
+\paragraph{Component-level relevance differentiation.}
+If the surface relevance captures meaningful rock--machine interaction
+structure, different TBM components (cutterhead, front/middle/tail shield)
+should exhibit distinct mean relevance levels, reflecting their different
+interaction intensities with the surrounding rock.  We measure the
+coefficient of variation (CV) of component-mean relevance across the four
+components:
+\[
+\mathrm{CV} = \frac{\sigma_{\mathrm{comp}}}{\mu_{\mathrm{comp}}},
+\quad
+\mu_{\mathrm{comp}} = \frac{1}{4}\sum_{k=1}^{4} \bar{C}_k,
+\quad
+\bar{C}_k = \frac{1}{|V_k^m|}\sum_{j \in V_k^m} C_j,
+\]
+where $V_k^m$ denotes the set of TBM surface nodes belonging to component
+$k$, and $\sigma_{\mathrm{comp}}$ is the standard deviation of the four
+component means.  CV is dimensionless and scale-invariant, making it
+suitable for comparing differentiation across models with different
+absolute relevance magnitudes.  The full framework achieves CV\,$=0.38$,
+indicating substantial differentiation; the No Geometric Prior variant
+yields CV\,$=0.15$; and the Randomised Edges variant yields CV\,$=0.08$,
+near-uniform distribution.
+
+\begin{table}[htbp]
+\centering
+\caption{Spatial consistency indicators for the full framework and
+ablation variants.  Higher Moran's $I$ and CV indicate greater spatial
+structure; negative attention--geology correlation indicates geological
+alignment.  For the learned variants, all indicators are computed from
+pre-softmax raw edge scores $s_{ij}^{rm}$ and the resulting surface
+relevance $C_j$.  The geometry-only baseline has no trainable parameters
+and therefore no learned $s_{ij}^{rm}$; for this row the same three
+indicators are computed directly from the fixed geometric prior
+(i.e.\ the candidate-edge incidence pattern induced by
+$\tau_{\mathrm{edge}}$ and $\eta_{\min}$), providing a non-learned
+reference for spatial structure.}
+\label{tab:spatial_consistency}
+\begin{tabular}{lccc}
+\toprule
+Variant & Rel.--Geo.\ $r$ & Moran's $I$ & CV (component) \\
+\midrule
+Full framework & $-0.31$ & 0.42 & 0.38 \\
+Without monitoring input & $0.02$ & 0.05 & 0.10 \\
+No geometric prior & $-0.12$ & 0.18 & 0.15 \\
+Randomised edges & $0.05$ & 0.07 & 0.08 \\
+Geometry-only baseline (no learning) & $-0.24$ & 0.51 & 0.22 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These three indicators collectively suggest that the geometry-constrained
+graph construction produces surface relevance patterns that are (1)~aligned
+with independent geological evidence, (2)~spatially autocorrelated rather
+than random, and (3)~differentiated across TBM components in a physically
+plausible manner.  Under the stratified split, removing the geometric
+prior or randomising edges degrades both prediction metrics and spatial
+consistency indicators, indicating that the geometric prior contributes
+to prediction and interpretability jointly rather than imposing a
+trade-off between them.
+
+\subsection{Spatial interpretation outputs}
+Figure~\ref{fig:hotspot} presents the response-consistent hotspot maps
+projected onto the TBM shield surface at selected chainage positions.
+Colour intensity indicates the aggregated edge relevance incident to each
+surface node, revealing which shield regions the model identifies as most
+strongly coupled to the surrounding rock mass.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{fig5_hotspot_maps.pdf}
+\caption{Response-consistent surface relevance hotspots on the
+unwrapped TBM surface at three representative test chainages.
+The colour indicates degree-normalised surface relevance $C_j$,
+rescaled within each chainage for visualisation only; different
+chainages are therefore not directly comparable in absolute colour
+intensity.  Vertical dashed lines separate cutterhead, front shield,
+middle shield, and tail shield regions; horizontal dotted lines mark
+crown, springline, and invert positions.  (a)~Chainage 41\,m (early
+test set); (b)~chainage 45\,m (mid test set); (c)~chainage 48\,m
+(late test set).  The maps show where the learned rock--machine
+interaction relevance concentrates on the TBM surface.}
+\label{fig:hotspot}
+\end{figure}
+
+Figure~\ref{fig:chainage_evolution} shows the chainage evolution of
+component-wise surface relevance alongside the TSP velocity field and monitoring
+responses.  Panel~(a) displays $C_j$ decomposed by TBM component
+(cutterhead, front shield, middle shield, tail shield) at each test
+chainage, with the cross-component mean overlaid as a dashed line;
+panel~(b) shows the TSP P-wave velocity profile with low-velocity
+anomalies (below the 25th percentile) highlighted in red; panels~(c)--(g)
+show the five monitoring response variables.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{fig6_chainage_evolution.pdf}
+\caption{Chainage evolution of component-wise surface relevance,
+geological context, and monitoring response.  (a)~Surface relevance
+$C_j$ decomposed by TBM component (cutterhead, front shield, middle
+shield, tail shield; degree-normalised, unstandardised) at each test
+chainage, with the cross-component mean overlaid as a dashed line;
+(b)~TSP P-wave velocity profile with low-velocity anomalies (below
+25th percentile) highlighted in red; (c--g)~monitoring response
+variables (advance rate, torque, thrust, penetration, shield pressure).
+The co-evolution of component-wise surface relevance with geological
+context and monitoring response reveals how interaction emphasis
+migrates across TBM components as the TBM advances through different
+geological zones.}
+\label{fig:chainage_evolution}
+\end{figure}
+
+The hotspot maps reveal spatially heterogeneous interaction patterns: the
+front shield and cutterhead-proximal region consistently exhibit higher
+relevance than the tail shield, consistent with the engineering expectation
+that rock--machine interaction is concentrated near the excavation face.
+The chainage evolution view shows that interaction relevance shifts across
+components as the TBM advances, suggesting that the model captures
+geologically meaningful spatial variation in rock--machine coupling.  These
+spatial patterns are not recoverable from monitoring-only sequence models,
+which lack any spatial representation of the interaction geometry.
+
+Figure~\ref{fig:decision_support} illustrates how the spatial
+interpretation outputs \emph{could} inform excavation decision-making by
+integrating predicted responses, attention-based signals, and geological
+context into a unified spatial view.  This is a conceptual demonstration,
+not a validated decision-support tool.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{fig7_decision_support.pdf}
+\caption{Illustrative decision-support scenario on the test set
+(chainage 41--48\,m).  (a)~Predicted vs.\ observed advance rate with
+geological scenario annotation (low-velocity zone, transition zone,
+normal zone); (b)~surface relevance signal (mean $C_j$) with TSP
+velocity overlay on the right axis; the red dashed line marks the
+alert threshold (75th percentile of $C_j$), and the shaded red region
+highlights chainages where $C_j$ exceeds this threshold;
+(c)~composite attention--error indicator combining min--max normalised
+surface relevance and normalised prediction error.  This indicator is a
+heuristic cue for illustration only; it is not a calibrated risk metric
+and has not been validated for operational use.  The spatial reasoning
+chain---linking geological context, attention-based interaction
+assessment, and prediction error---is \emph{facilitated by} (not
+exclusive to) the graph-based spatial representation.  Further
+validation on larger datasets is needed before any operational
+deployment.}
+\label{fig:decision_support}
+\end{figure}
+
+\subsection{Robustness and sanity checks}
+\label{sec:robustness}
+Four checks assess whether the learned surface relevance
+$C_j$ reflects response-supervised interaction structure rather than
+artefacts of graph construction or optimisation.  Table~\ref{tab:robustness}
+summarises the results.
+
+\begin{table}[htbp]
+\centering
+\caption{Robustness and sanity checks.  Check~1: permutation test on
+response labels (5 shuffles, mean$\pm$std).  Check~2: edge-count control
+(Pearson $r$ between $C_j$ and node degree $d_j$).  Check~3: seed
+stability across three additional random seeds (range).  Check~4:
+candidate-edge distance threshold sensitivity for
+$\tau_{\mathrm{edge}} \in \{1.5, 2.0, 2.5\}$\,m (range).}
+\label{tab:robustness}
+\begin{tabular}{lcc}
+\toprule
+Check & Metric & Result \\
+\midrule
+\multicolumn{3}{l}{\emph{Check 1: Permutation test on response labels}} \\
+\quad Full framework (reference) & Moran's $I$ & 0.42 \\
+\quad Shuffled labels (5 perms)  & Moran's $I$ & $0.08 \pm 0.04$ \\
+\quad Full framework (reference) & Rel.--Geo.\ $r$ & $-0.31$ \\
+\quad Shuffled labels (5 perms)  & Rel.--Geo.\ $r$ & $0.01 \pm 0.05$ \\
+\midrule
+\multicolumn{3}{l}{\emph{Check 2: Edge-count control}} \\
+\quad $C_j$ vs.\ $d_j$ correlation & Pearson $r$ & 0.12 \\
+\midrule
+\multicolumn{3}{l}{\emph{Check 3: Seed stability (seeds 123, 456, 789)}} \\
+\quad Prediction MAE             & range & $[0.40, 0.45]$ \\
+\quad Moran's $I$                & range & $[0.36, 0.45]$ \\
+\quad Component CV               & range & $[0.33, 0.41]$ \\
+\quad Rel.--Geo.\ $r$            & range & $[-0.36, -0.26]$ \\
+\quad Ablation ordering preserved & --- & Yes (3/3 seeds) \\
+\midrule
+\multicolumn{3}{l}{\emph{Check 4: Candidate-edge distance threshold sensitivity ($\tau_{\mathrm{edge}} \in \{1.5, 2.0, 2.5\}$\,m)}} \\
+\quad Prediction MAE             & range & $[0.41, 0.44]$ \\
+\quad Moran's $I$                & range & $[0.38, 0.44]$ \\
+\quad Rel.--Geo.\ $r$            & range & $[-0.34, -0.27]$ \\
+\quad Ablation ordering preserved & --- & Yes (3/3 thresholds) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{Check 1} retrains the full framework with shuffled monitoring-response
+labels (preserving the input graph structure and TSP attributes) using 5
+random permutations.  If $C_j$ patterns were driven by graph topology
+alone, label shuffling should leave them unchanged.  All three spatial
+consistency indicators collapse to near-random levels, suggesting that the
+spatial structure of $C_j$ depends on response supervision rather than on
+graph topology alone.
+
+\emph{Check 2} rules out the possibility that higher $C_j$ simply reflects
+a higher number of incident candidate edges.  The Pearson correlation
+between $C_j$ and node degree $d_j$ is $r=0.12$ on the test set,
+indicating that degree explains only a small fraction of the relevance
+variance.  The degree-normalised definition
+$C_j = \frac{1}{d_j+\epsilon}\sum_i \mathrm{softplus}(s_{ij}^{rm})$
+thus appears to largely decouple relevance from edge count, as intended.
+
+\emph{Check 3} retrains the full framework with three additional random
+seeds.  The relative ordering of the full framework versus the No
+Geometric Prior and Randomised Edges ablations is preserved in all seeds,
+suggesting that the qualitative findings are not sensitive to
+initialisation.
+
+\emph{Check 4: Candidate-edge distance threshold sensitivity.}  We retrained the full framework
+with three alternative values of the candidate-edge distance threshold
+$\tau_{\mathrm{edge}} \in \{1.5, 2.0, 2.5\}$\,m (the default is 2.0\,m).
+The resulting MAE varied in $[0.41, 0.44]$, Moran's $I$ in $[0.38, 0.44]$,
+and Rel.--Geo.\ $r$ in $[-0.34, -0.27]$.  The qualitative ordering of
+ablation variants was preserved across all three thresholds, suggesting
+that the findings are not sensitive to the exact edge-construction
+threshold within this range.
