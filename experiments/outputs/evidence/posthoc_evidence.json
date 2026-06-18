@@ -1,0 +1,114 @@
+{
+  "config": "config\\stratified.yaml",
+  "run_dir": "outputs\\mvp4_stratified",
+  "checkpoint": "outputs\\mvp4_stratified\\best_graph_model.pt",
+  "split_counts": {
+    "train": 28,
+    "val": 4,
+    "test": 12,
+    "effective_samples": 44
+  },
+  "prediction_metrics_from_checkpoint": {
+    "mae": 0.4171432554721832,
+    "rmse": 0.540062427520752,
+    "r2": 0.13307417929172516,
+    "pearson": 0.5672188838129177,
+    "spearman": 0.53098082800778
+  },
+  "surface_evidence": {
+    "full_model": {
+      "attention_geology_pearson_r": 0.06675000417649918,
+      "attention_geology_pearson_p": 0.8367043794338633,
+      "attention_geology_spearman_r": 0.2937062937062937,
+      "attention_geology_spearman_p": 0.35414764123292175,
+      "morans_i_mean": 0.9248376988381489,
+      "morans_i_std": 0.07568289346098549,
+      "component_cv_mean": 0.192726477359732,
+      "component_cv_std": 0.1709749916520893,
+      "degree_control_pearson_r_mean": 0.043343402792119484,
+      "degree_control_pearson_r_std": 0.4121320234631274
+    },
+    "geometry_only": {
+      "attention_geology_pearson_r": 0.6227155225812813,
+      "attention_geology_pearson_p": 0.03055890976190179,
+      "morans_i_mean": 0.1699024853027553,
+      "morans_i_std": 0.39446558981460506,
+      "component_cv_mean": 0.1053936027456075,
+      "component_cv_std": 0.20638810539333224
+    },
+    "per_chainage": [
+      {
+        "chainage": 5.0,
+        "mean_relevance": 0.6569312214851379,
+        "geometry_only_mean_relevance": 0.20036017894744873,
+        "tsp_vp": 4324.7830810546875
+      },
+      {
+        "chainage": 6.0,
+        "mean_relevance": 0.76734858751297,
+        "geometry_only_mean_relevance": 0.23078827559947968,
+        "tsp_vp": 4337.331298828125
+      },
+      {
+        "chainage": 9.0,
+        "mean_relevance": 1.0206248760223389,
+        "geometry_only_mean_relevance": 0.30476585030555725,
+        "tsp_vp": 4407.9207763671875
+      },
+      {
+        "chainage": 13.0,
+        "mean_relevance": 1.1385254859924316,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4507.41357421875
+      },
+      {
+        "chainage": 17.0,
+        "mean_relevance": 1.246649980545044,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4549.8831787109375
+      },
+      {
+        "chainage": 18.0,
+        "mean_relevance": 1.2798206806182861,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4545.67333984375
+      },
+      {
+        "chainage": 30.0,
+        "mean_relevance": 2.2800111770629883,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4364.67431640625
+      },
+      {
+        "chainage": 35.0,
+        "mean_relevance": 2.87754225730896,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4391.7747802734375
+      },
+      {
+        "chainage": 36.0,
+        "mean_relevance": 2.975135564804077,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4423.8314208984375
+      },
+      {
+        "chainage": 41.0,
+        "mean_relevance": 3.3093879222869873,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4529.8204345703125
+      },
+      {
+        "chainage": 44.0,
+        "mean_relevance": 3.5522425174713135,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4443.4732666015625
+      },
+      {
+        "chainage": 45.0,
+        "mean_relevance": 3.6545774936676025,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4394.565185546875
+      }
+    ]
+  }
+}

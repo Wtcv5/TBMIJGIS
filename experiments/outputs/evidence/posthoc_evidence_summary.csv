@@ -1,0 +1,17 @@
+variant,metric,value
+full_model,attention_geology_pearson_r,0.06675000417649918
+full_model,attention_geology_pearson_p,0.8367043794338633
+full_model,attention_geology_spearman_r,0.2937062937062937
+full_model,attention_geology_spearman_p,0.35414764123292175
+full_model,morans_i_mean,0.9248376988381489
+full_model,morans_i_std,0.07568289346098549
+full_model,component_cv_mean,0.192726477359732
+full_model,component_cv_std,0.1709749916520893
+full_model,degree_control_pearson_r_mean,0.043343402792119484
+full_model,degree_control_pearson_r_std,0.4121320234631274
+geometry_only,attention_geology_pearson_r,0.6227155225812813
+geometry_only,attention_geology_pearson_p,0.03055890976190179
+geometry_only,morans_i_mean,0.1699024853027553
+geometry_only,morans_i_std,0.39446558981460506
+geometry_only,component_cv_mean,0.1053936027456075
+geometry_only,component_cv_std,0.20638810539333224

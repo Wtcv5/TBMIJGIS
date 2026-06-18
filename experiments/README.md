@@ -58,6 +58,17 @@ completed trial:
 python scripts/run_model_search.py --final-ablation
 ```
 
+## Evidence Chain
+
+Post-hoc spatial evidence for the current formal checkpoint is generated with:
+
+```powershell
+python scripts/collect_evidence.py --config config/stratified.yaml --run-dir outputs/mvp4_stratified --output-dir outputs/evidence
+```
+
+See [EVIDENCE_PROTOCOL.md](EVIDENCE_PROTOCOL.md) for the current reproducibility
+protocol.
+
 ## Source Modules
 
 ```text

@@ -12,6 +12,9 @@ venv/
 # Experiment artifacts
 experiments/outputs/*
 !experiments/outputs/README.md
+!experiments/outputs/evidence/
+!experiments/outputs/evidence/*.json
+!experiments/outputs/evidence/*.csv
 *.pt
 
 # Notebook checkpoints
