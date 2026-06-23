@@ -1,319 +1,192 @@
 \subsection{Scope and interpretive boundaries}
-Before presenting the experimental results, three scope limitations
-should be noted to avoid over-interpretation.  First, the learned
-edge relevance and surface relevance $C_j$ reflect
-response-consistent interaction patterns under the forecasting task;
-they are \emph{not} direct measurements of physical contact force,
-contact pressure, or jamming probability.  Second, the case study
-uses a single tunnel section with 49 excavation steps (44 effective
-sequence samples, 8 in the forward test set); all quantitative
-indicators should be read as illustrative rather than statistically
-conclusive.  Third, the spatial consistency indicators (Moran's $I$,
-component CV, attention--geology correlation) quantify the internal
-and external plausibility of the learned representation, not its
-engineering correctness.  These boundaries are revisited in the
-Discussion.
+The experiments evaluate a spatial representation rather than a universally
+superior forecasting model. Three case runs are used: BSLL DyK1017+205 with
+one-step prediction, BSLL DyK1017+205 with a three-step prediction horizon, and
+SJLS Dyk1252+411 with an external TSP-derived velocity field. The learned edge
+and surface relevance values are response-consistent model diagnostics; they
+are not direct measurements of contact force, contact pressure, jamming
+probability, or engineering risk.
 
 \subsection{Experimental setup}
 \label{sec:experimental_setup}
-All structural and training hyperparameters follow the Implementation
-details in Section~\ref{sec:methods} (summarised here for readability):
-historical window $K=5$, forecasting horizon $h=1$; candidate edge
-distance threshold $\tau_{\mathrm{edge}}=2.0$\,m; signed-normal
-compatibility threshold $\eta_{\min}=0.3$; active-zone radial extent
-$\tau_{\mathrm{zone}}=5.0$\,m; TBM surface resolution 0.5\,m (1352 nodes);
-GNN encoder with 2 layers, hidden dimension 32, dropout 0.3; GRU hidden
-dimension 64, 1 layer; AdamW optimiser, learning rate $10^{-3}$, weight
-decay $10^{-2}$, batch size 32, early stopping patience 15.  Samples are
-partitioned in chainage order into 30 training, 6 validation, and 8 test
-samples.  All models are evaluated on the held-out future test interval
-using MAE, RMSE, $R^{2}$, and Pearson correlation.
+All formal runs use a mileage-ordered split so that testing is performed on a
+later continuous tunnel interval. The BSLL one-step run contains 30 training
+samples and 8 test samples (target chainages 41--48\,m). The BSLL three-step
+run contains 29 training samples and 7 test samples (target chainages
+42--48\,m). The SJLS run contains 76 training samples and 17 test samples
+(target chainages 99--115\,m). The graph construction uses
+$\tau_{\mathrm{edge}}=2.0$\,m, $\eta_{\min}=0.3$, and
+$\tau_{\mathrm{zone}}=5.0$\,m. The temporal history window is $K=5$.
 
-\subsection{Prediction performance}
-Table~\ref{tab:prediction} reports the global prediction performance
-(Figure~\ref{fig:prediction}).  The proposed framework achieves MAE 0.435,
-RMSE 0.545, $R^{2}=-0.463$, and Pearson $r=0.507$.  Its MAE is comparable
-to LSTM (0.429) and TSP-LSTM (0.436), but higher than Persistence (0.415).
-All models have negative $R^{2}$ on the future interval, consistent with the
-strong geological distribution shift between training and test chainages.
-Paired permutation tests find no significant MAE difference between the full
-framework and any baseline ($p\geq0.393$).  The results therefore do not
-establish a predictive advantage; the framework is evaluated primarily for
-the additional spatial representation and diagnostic outputs unavailable to
-monitoring-only models.
+\subsection{Forward prediction across the two tunnel cases}
+Table~\ref{tab:case_prediction} reports the case-level forward prediction
+metrics. The results support a cautious interpretation. In BSLL, the one-step
+graph-sequence model obtains MAE 0.415, essentially matching Persistence
+(0.415) and the random-edge variant (0.415). The three-step BSLL run similarly
+remains close to Persistence (0.462 versus 0.462), while the random-edge
+variant is slightly lower in MAE (0.461). These BSLL results do not support a
+claim of predictive superiority.
+
+The SJLS case gives a more favourable but still small effect. The full model
+obtains MAE 0.2553, slightly lower than Persistence (0.2554), randomised edges
+(0.2559), and the no-prior variant (0.2570). The Pearson correlation is high
+($r=0.960$), but $R^2$ remains negative because the mileage-ordered test
+interval is a demanding extrapolation setting. Thus the SJLS result is best
+read as a small response-consistency advantage under the external TSP case, not
+as a large accuracy breakthrough.
 
 \begin{table}[htbp]
 \centering
-\caption{Global prediction performance on the mileage-ordered future test
-interval ($n=8$, target chainages 41--48\,m).  Negative $R^{2}$ values for
-all models indicate limited forward generalisation under geological shift.}
-\label{tab:prediction}
-\begin{tabular}{lcccc}
+\small
+\caption{Forward prediction results for the semantic case runs. MAE and RMSE
+are computed on standardised multivariate response targets. The random-edge
+column reports the corresponding graph-topology ablation.}
+\label{tab:case_prediction}
+\begin{tabular}{lcccccc}
 \toprule
-Method & MAE & RMSE & $R^{2}$ & Pearson $r$ \\
+Case & Test $n$ & Full MAE & Full RMSE & $R^2$ & Persistence MAE & Random-edge MAE \\
 \midrule
-Persistence & \textbf{0.415} & 0.593 & $-0.621$ & 0.487 \\
-XGBoost + TSP & 0.505 & 0.679 & $-1.654$ & 0.519 \\
-LSTM & 0.429 & \textbf{0.531} & $-0.356$ & 0.591 \\
-TSP-LSTM & 0.436 & 0.536 & $-0.397$ & \textbf{0.625} \\
-Proposed framework & 0.435 & 0.545 & $-0.463$ & 0.507 \\
+BSLL h=1 & 8  & 0.415 & 0.593 & $-0.621$ & 0.415 & 0.415 \\
+BSLL h=3 & 7  & 0.462 & 0.554 & $-0.631$ & 0.462 & 0.461 \\
+SJLS h=1 & 17 & \textbf{0.255} & 0.347 & $-0.482$ & 0.255 & 0.256 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Figure~\ref{fig:prediction} illustrates the prediction comparison for the
+representative BSLL one-step run. The figure should be interpreted as a
+diagnostic example rather than as the central evidence for the paper.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{fig3_prediction_comparison.pdf}
-\caption{Global MAE comparison on the mileage-ordered future test interval.
-The proposed framework is competitive with the sequence baselines but does
-not outperform Persistence.}
+\caption{Prediction comparison for the BSLL one-step run on the
+mileage-ordered future interval. The graph-sequence framework is comparable to
+temporal baselines but does not establish a predictive advantage in this case.}
 \label{fig:prediction}
 \end{figure}
 
-\subsection{Structural ablation}
-Table~\ref{tab:ablation} and Figure~\ref{fig:ablation} present the structural ablation results.  Four
-ablation variants isolate the contribution of each design component.
+\subsection{Graph ablations and the role of geometry}
+The ablations separate two questions that should not be conflated: whether the
+graph-sequence representation improves prediction, and whether
+geometry-constrained relations produce interpretable spatial diagnostics.
+Prediction evidence for the first question is mixed. In SJLS, removing the
+geometric prior increases MAE from 0.2553 to 0.2570, and randomising
+rock--machine edges increases MAE to 0.2559. This supports a small
+geometry-sensitive effect in the external TSP case. In BSLL, however,
+randomised edges are comparable to or slightly better than the full model. The
+BSLL ablation therefore should not be used to claim that constrained topology
+improves forecasting accuracy.
 
 \begin{table}[htbp]
 \centering
-\caption{Structural ablation results on the mileage-ordered future test set.  Each
-row removes or replaces one design component from the full framework.
-The geometry-only baseline is excluded from this table because it has no
-trainable parameters and does not produce predictions; its spatial
-consistency is reported in Table~\ref{tab:spatial_consistency}.}
-\label{tab:ablation}
-\begin{tabular}{lcccc}
+\caption{Geometry-related ablation summary. The SJLS case shows a small
+advantage for the full geometry-aware model, whereas BSLL mainly supports the
+availability of graph-based interpretation rather than a robust accuracy gain.}
+\label{tab:geometry_ablation}
+\begin{tabular}{lccc}
 \toprule
-Variant & MAE & RMSE & $R^{2}$ & Pearson $r$ \\
+Case & Full MAE & Random-edge MAE & No-prior MAE \\
 \midrule
-Full framework & 0.435 & 0.545 & $-0.463$ & 0.507 \\
-Without monitoring input & 0.475 & 0.562 & $-0.737$ & 0.360 \\
-Randomised rock--machine edges & \textbf{0.413} & \textbf{0.509} & $\mathbf{-0.264}$ & \textbf{0.580} \\
-Without geometric prior ($\beta=0$) & 0.519 & 0.614 & $-0.967$ & $-0.186$ \\
+BSLL h=1 & 0.415 & \textbf{0.415} & 0.415 \\
+BSLL h=3 & 0.462 & \textbf{0.461} & 0.461 \\
+SJLS h=1 & \textbf{0.255} & 0.256 & 0.257 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Figure~\ref{fig:ablation} shows the BSLL ablation pattern. Its main value is
+negative evidence: it prevents overclaiming and clarifies that the paper's
+stronger contribution lies in spatially explicit representation and
+interpretation.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{fig4_ablation_study.pdf}
-\caption{RMSE comparison across structural ablations on the mileage-ordered
-future test interval.  The random-edge variant performs better than the full
-framework on this small shifted test set, so the ablation does not support a
-predictive benefit from the constrained edge topology.}
+\caption{Ablation comparison for the BSLL one-step run. The random-edge
+variant is not worse in this small shifted test interval, so the BSLL result
+does not support a strong topology-accuracy claim.}
 \label{fig:ablation}
 \end{figure}
 
-The \emph{No Monitoring} ablation removes the monitoring vector from the GRU
-input.  Pearson $r$ decreases from 0.507 to 0.360, suggesting that
-temporal monitoring dynamics carry essential predictive signal that the
-static graph structure alone cannot replace.
-
-The \emph{Randomised Edges} ablation replaces geometry-constrained
-rock--machine edges with random edges of the same cardinality.  This variant
-improves MAE from 0.435 to 0.413 and Pearson $r$ from 0.507 to 0.580.
-Consequently, the current forward experiment does not demonstrate that the
-geometry-constrained topology improves prediction.
-
-The \emph{No Geometric Prior} ablation sets $\beta=0$.  Its MAE increases
-to 0.519 and Pearson $r$ becomes negative ($-0.186$), indicating that the
-prior remains useful within the learned topology even though the topology
-itself does not outperform randomised edges.  Spatial consistency is examined
-separately below using evidence regenerated from the saved checkpoint.
-
-The \emph{Geometry-only baseline} replaces all learned edge scores with
-the fixed geometric prior $g_{ij}=\exp(-d_{ij}/\tau_{\mathrm{edge}})$
-(no trainable parameters).  Because it has no learned forecasting head,
-it does not produce predictions and is therefore excluded from
-Table~\ref{tab:ablation}; it is, however, retained in the spatial
-consistency comparison (Table~\ref{tab:spatial_consistency}) because it
-yields a well-defined surface relevance map $C_j$ directly from the
-geometric prior.  This baseline serves as a non-learned reference point:
-it provides a fixed non-learned spatial reference for evaluating whether
-the learned relevance refines or simply mirrors the candidate-edge geometry.
-
-\subsection{Spatial consistency of learned attention}
+\subsection{Spatial consistency of learned surface relevance}
 \label{sec:spatial_consistency}
-A central claim of this framework is that geometry-constrained graph
-construction can produce spatially consistent attention patterns that
-remain inspectable in TBM surface space.  We evaluate this claim using three
-quantitative spatial consistency indicators, each targeting a different
-aspect of spatial validity.
+The interpretation evidence is more consistent across cases.
+Table~\ref{tab:spatial_consistency} reports four post-hoc indicators computed
+from the saved checkpoints. Surface relevance is positively spatially
+autocorrelated in all three runs: Moran's $I=0.546$ for BSLL h=1, 0.302 for
+BSLL h=3, and 0.300 for SJLS. This indicates spatially organised relevance
+fields rather than random surface noise. The degree-control correlations are
+negative in all cases ($-0.229$, $-0.324$, and $-0.456$), which argues against
+a trivial explanation in which nodes appear important only because they have
+more incident candidate edges.
 
-\paragraph{Attention--geology correlation.}
-We quantify whether the mean surface relevance
-$\bar{C}(c_k)=|V^m|^{-1}\sum_j C_j(c_k)$ co-varies with the TSP P-wave
-velocity interpolated at the same test chainages.  This check is treated
-as an external plausibility indicator, not as a required success
-criterion: in a response-supervised setting, learned relevance may also
-reflect machine operating state and temporal response history.  The
-post-hoc checkpoint evidence shows strong inverse co-variation on the eight
-contiguous test chainages (Pearson $r=-0.988$, $p<0.001$; Spearman
-$r=-1.000$).  The geometry-only reference has a positive but non-significant
-correlation (Pearson $r=0.549$, $p=0.159$).  Because chainage, relevance,
-and geological velocity all vary monotonically over this short interval,
-the learned correlation is treated as a local diagnostic rather than causal
-validation.
-
-\paragraph{Spatial autocorrelation of surface relevance.}
-Spatially consistent relevance should exhibit positive spatial
-autocorrelation: nearby TBM surface nodes should have similar $C_j$ values,
-rather than random spatial noise.  We compute Moran's $I$
-\citep{moran1950notes} for the surface relevance values on the TBM surface
-at each test chainage:
-\[
-I(c) = \frac{n}{S_0} \cdot
-\frac{\sum_i \sum_j w_{ij}\,(C_i(c) - \bar{C}(c))\,(C_j(c) - \bar{C}(c))}
-     {\sum_i (C_i(c) - \bar{C}(c))^2},
-\]
-where $n = |V^m|$ is the number of TBM surface nodes, $w_{ij}$ is the
-spatial weight between nodes $i$ and $j$ (binary $k$-nearest-neighbour,
-$k=8$, row-standardised), and $S_0 = \sum_i \sum_j w_{ij}$.  Moran's $I$
-ranges from approximately $-1$ (perfect dispersion) through $0$ (spatial
-randomness) to $+1$ (perfect spatial clustering).  The reported value is
-the mean $I(c)$ across all test chainages.  The full framework achieves
-Moran's $I=0.529$, indicating positively clustered surface relevance.  The
-geometry-only baseline yields a near-zero negative mean Moran's $I$
-($-0.054$), suggesting that the learned scores are not merely a direct copy
-of the fixed geometric prior.
-
-\paragraph{Component-level relevance differentiation.}
-If the surface relevance captures meaningful rock--machine interaction
-structure, different TBM components (cutterhead, front/middle/tail shield)
-should exhibit distinct mean relevance levels, reflecting their different
-interaction intensities with the surrounding rock.  We measure the
-coefficient of variation (CV) of component-mean relevance across the four
-components:
-\[
-\mathrm{CV} = \frac{\sigma_{\mathrm{comp}}}{\mu_{\mathrm{comp}}},
-\quad
-\mu_{\mathrm{comp}} = \frac{1}{4}\sum_{k=1}^{4} \bar{C}_k,
-\quad
-\bar{C}_k = \frac{1}{|V_k^m|}\sum_{j \in V_k^m} C_j,
-\]
-where $V_k^m$ denotes the set of TBM surface nodes belonging to component
-$k$, and $\sigma_{\mathrm{comp}}$ is the standard deviation of the four
-component means.  CV is dimensionless and scale-invariant, making it
-suitable for comparing differentiation across models with different
-absolute relevance magnitudes.  The full framework achieves mean
-CV\,$=0.018$, higher than the geometry-only baseline (0.006) but still small,
-indicating weak component-level differentiation on the future interval.
-
-\paragraph{Degree-control check.}
-Because rock--machine candidate edges are spatially constrained, nodes
-with more incident edges could appear more relevant simply because of
-edge count.  We therefore correlate degree-normalised relevance $C_j$
-with incident candidate-edge degree $d_j$ across TBM surface nodes.  The
-mean Pearson correlation is $r=-0.225$.  The negative association indicates
-that relevance is not a direct positive proxy for candidate-edge count, while
-also showing that degree normalisation does not make the two quantities fully
-independent.
+The geology association differs by case. BSLL shows a strong negative
+association between mean surface relevance and local TSP velocity ($r=-0.989$
+for h=1 and $r=-0.688$ for h=3), whereas SJLS shows a strong positive
+association ($r=0.870$). The signs should not be interpreted as universal
+physical rules; they indicate that learned relevance co-varies with the local
+TSP field within each tunnel setting. The strongest response-linked
+association also differs: AdvanceRate for BSLL and Torque for SJLS. This
+case-specific behaviour shows that the graph-to-surface route can expose
+different response-relevance patterns rather than producing a single generic
+hotspot template.
 
 \begin{table}[htbp]
 \centering
-\caption{Post-hoc spatial evidence regenerated from the saved checkpoint.
-Higher Moran's $I$ and component CV indicate greater spatial structure.
-Rel.--Geo.\ $r$ is the Pearson correlation between mean surface relevance
-and TSP P-wave velocity across test chainages.  Degree-control $r$
-correlates $C_j$ with incident candidate-edge degree and should be close
-to zero if relevance is not merely edge-count driven.}
+\caption{Post-hoc spatial interpretation evidence. Rel.--Geo.\ $r$ is the
+Pearson correlation between mean surface relevance and TSP $V_p$ across test
+chainages. Degree $r$ correlates surface relevance with incident candidate-edge
+degree; negative values indicate that relevance is not a direct positive proxy
+for edge count.}
 \label{tab:spatial_consistency}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-Variant & Rel.--Geo.\ $r$ & Moran's $I$ & CV & Degree $r$ \\
+Case & Moran's $I$ & Geometry-only $I$ & CV & Degree $r$ & Rel.--Geo.\ $r$ \\
 \midrule
-Full framework & $-0.988$ & 0.529 & 0.018 & $-0.225$ \\
-Geometry-only baseline & 0.549 & $-0.054$ & 0.006 & -- \\
+BSLL h=1 & 0.546 & $-0.054$ & 0.018 & $-0.229$ & $-0.989$ \\
+BSLL h=3 & 0.302 & $-0.054$ & 0.005 & $-0.324$ & $-0.688$ \\
+SJLS h=1 & 0.300 & 0.196 & 0.014 & $-0.456$ & 0.870 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-These indicators support a narrow interpretation: the saved model produces
-positively clustered surface relevance with a strong chainage-local inverse
-association with TSP velocity, but only weak differentiation among TBM
-components.  The results do not establish physical interaction correctness
-or geological causality.
-
 \subsection{Spatial interpretation outputs}
-Figure~\ref{fig:hotspot} presents a response-consistent hotspot map
-projected onto the TBM shield surface at a future-test chainage.
-Colour intensity indicates the aggregated edge relevance incident to each
-surface node.  The limited colour contrast is consistent with the small
-component CV and indicates weak localisation in this checkpoint.
+Figures~\ref{fig:hotspot} and~\ref{fig:chainage_evolution} show representative
+BSLL interpretation outputs. The hotspot map projects response-supervised
+surface relevance onto the TBM geometry, while the chainage view tracks mean
+surface relevance together with monitoring responses over the future interval.
+These outputs are the main added information supplied by the graph-sequence
+representation: monitoring-only baselines can predict response variables but
+cannot map model relevance back to TBM surface components or rock--machine
+candidate relations.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig5_hotspot_maps.pdf}
-\caption{Response-consistent surface relevance hotspot for the sample
-targeting chainage 41\,m, extracted from its final input graph snapshot.
-The colour indicates degree-normalised surface relevance $C_j$,
-rescaled within each chainage for visualisation only; different
-chainages are therefore not directly comparable in absolute colour
-intensity.  The near-uniform map indicates limited hotspot localisation for
-this checkpoint.}
+\caption{Representative response-consistent TBM surface relevance map for the
+BSLL one-step run. Colour intensity indicates degree-normalised surface
+relevance and is used as a diagnostic visualisation, not as a measured contact
+pressure field.}
 \label{fig:hotspot}
 \end{figure}
-
-Figure~\ref{fig:chainage_evolution} shows the checkpoint-derived mean surface
-relevance across the mileage-ordered future test interval.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{fig6_chainage_evolution.pdf}
-\caption{Checkpoint-derived relevance and monitoring responses along the
-contiguous future test interval (41--48\,m).  The top panel shows mean
-degree-normalised surface relevance; the remaining panels show standardised
-advance rate, torque, thrust, penetration, and shield pressure.}
+\caption{Representative chainage evolution of surface relevance and monitoring
+responses for the BSLL one-step run. The view illustrates how the learned
+diagnostic can be traced along excavation progress.}
 \label{fig:chainage_evolution}
 \end{figure}
 
-The surface map shows limited component contrast, while the chainage-indexed
-evolution view shows a smooth increase in mean relevance across the future
-test interval.  These
-views should be interpreted as spatial diagnostics of the saved model rather
-than as ground-truth interaction fields.  Monitoring-only sequence
-models cannot produce equivalent surface maps because they do not represent
-rock voxels, TBM surface components, or rock--machine candidate relations.
-
-\subsection{Robustness and sanity checks}
+\subsection{Robustness and remaining checks}
 \label{sec:robustness}
-Table~\ref{tab:robustness} summarises the checks that are currently
-backed by regenerated evidence files.  The reported values are produced
-by reloading the saved checkpoint, rebuilding the same mileage-ordered test
-set, and recomputing prediction and spatial evidence.  Additional
-multi-seed, label-shuffle, and threshold-sensitivity experiments are
-defined in the reproducibility protocol but are not reported here until
-their output files are generated.
-
-\begin{table}[htbp]
-\centering
-\caption{Traceable robustness and sanity checks regenerated from the
-saved checkpoint.  The evidence source is
-\texttt{outputs/evidence/posthoc\_evidence.json}.}
-\label{tab:robustness}
-\begin{tabular}{llc}
-\toprule
-Check & Metric & Result \\
-\midrule
-Checkpoint replay & MAE & 0.435 \\
-Checkpoint replay & RMSE & 0.545 \\
-Checkpoint replay & $R^2$ & $-0.463$ \\
-Surface clustering & mean Moran's $I$ & 0.529 \\
-Component differentiation & mean CV & 0.018 \\
-Edge-count control & mean Pearson $r(C_j,d_j)$ & $-0.225$ \\
-Geometry-only reference & mean Moran's $I$ & $-0.054$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\emph{Checkpoint replay} verifies that the saved graph-sequence model
-reproduces the reported prediction metrics when the test set is rebuilt
-from the configuration file.  The \emph{edge-count control} rules out the
-possibility that higher $C_j$ simply reflects a higher number of incident
-candidate edges.  The degree-normalised definition
-$C_j = \frac{1}{d_j+\epsilon}\sum_i \mathrm{softplus}(s_{ij}^{rm})$
-reduces direct positive edge-count inflation in the current checkpoint.
-Seed stability, label
-permutation, and candidate-edge threshold sensitivity remain required
-follow-up checks before making stronger claims about robustness across
-training initialisations or graph construction parameters.
+The current evidence supports three bounded claims: the framework remains
+competitive with temporal baselines, SJLS shows a small geometry-sensitive
+accuracy effect, and all three saved checkpoints produce spatially organised
+surface relevance. It does not support claims of statistically significant
+global accuracy improvement, measured physical interaction recovery, or
+operational risk calibration. Multi-seed stability, label permutation,
+threshold sensitivity, spatial detrending, and additional cross-project
+validation remain necessary before stronger robustness claims can be made.

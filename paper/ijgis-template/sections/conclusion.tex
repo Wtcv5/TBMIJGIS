@@ -1,28 +1,24 @@
 This study proposed a response-supervised, geometry-constrained graph sequence
-framework for spatially explicit representation of rock--TBM interaction.  The
-method formalises TSP voxels and TBM surface components as heterogeneous spatial
-entities, screens candidate relations by geometric compatibility, and projects
-learned relevance back to TBM surface and chainage views.
+framework for spatially explicit rock--TBM interaction representation. The
+method formalises TSP-derived rock voxels and TBM surface components as
+heterogeneous spatial entities, screens candidate rock--machine relations by
+geometric compatibility, and projects learned relevance back to TBM surface and
+chainage views.
 
-The mileage-ordered evaluation provides a direct test on a later continuous
-tunnel interval.  The proposed framework obtains MAE 0.435, RMSE 0.545, and
-$R^2=-0.463$.  Its prediction performance is comparable to the sequence
-baselines, but no statistically significant advantage is established.  The
-random-edge ablation performs better on the small future test set, so the
-current results also do not demonstrate a predictive benefit from the
-geometry-constrained topology.
+The revised experiments clarify the strength and boundary of the contribution.
+Across BSLL DyK1017+205 and SJLS Dyk1252+411, the framework remains competitive
+with temporal baselines but does not establish a broad, statistically
+significant accuracy advantage. BSLL mainly supports the multi-step and
+surface-interpretation use case, while SJLS provides the clearest small
+geometry-sensitive prediction effect. The consistent evidence is interpretive:
+all three saved checkpoints produce positively clustered surface relevance, and
+the degree-control checks indicate that relevance is not simply a proxy for
+candidate-edge count.
 
-The saved checkpoint nevertheless produces positively clustered TBM-surface
-relevance (mean Moran's $I=0.529$) and a strong inverse chainage-local
-association with TSP velocity (Pearson $r=-0.988$).  Component differentiation
-is weak (mean CV\,$=0.018$), and the geology correlation may be confounded by
-spatial trend.  These results support the availability of spatial diagnostics,
-not the stronger claims of physical interaction recovery, geological causality,
-or operational risk estimation.
-
-The main contribution is therefore a spatial entity-relation representation
-and an auditable route from response supervision to surface-based diagnostics.
-Future work should establish multi-seed stability, spatially detrended geology
-validation, topology and label permutation controls, threshold sensitivity,
-and cross-project forward generalisation before stronger accuracy or physical
-interpretability claims are made.
+The main contribution is therefore not a claim of large forecasting superiority
+but a spatial entity-relation representation and an auditable route from
+response supervision to surface-based diagnostics. Future work should test
+multi-seed stability, label-shuffle controls, threshold sensitivity, spatially
+detrended geology association, and additional tunnel cases before stronger
+claims are made about physical interaction recovery or operational risk
+estimation.

@@ -1,81 +1,88 @@
-\subsection{Forward prediction under geological shift}
+\subsection{What the current experiments actually support}
 \label{sec:tradeoff}
-The mileage-ordered split evaluates the model on a later continuous tunnel
-interval and therefore preserves the geological shift encountered during
-excavation.  Under this setting, every model has negative $R^2$.  The proposed
-framework obtains MAE 0.435 and is statistically indistinguishable from the
-tested baselines.  It should therefore not be presented as a superior
-forecasting model on the current dataset.
+The revised experiments sharpen the paper's central claim. The framework should
+not be presented as a broadly superior forecasting model. In BSLL, the one-step
+and three-step runs are essentially tied with Persistence and do not benefit
+clearly from constrained topology. In SJLS, the full model gives a small MAE
+advantage over Persistence, randomised edges, and the no-prior variant, but the
+gain is modest. This pattern is meaningful because it separates accuracy from
+representation: the model is not winning by a large margin, but it provides a
+spatial entity-relation structure that temporal baselines cannot produce.
 
-The ablations reinforce this cautious interpretation.  Removing monitoring
-input degrades prediction, and removing the geometric prior produces the worst
-learned-model result.  However, randomising the rock--machine edges improves
-MAE from 0.435 to 0.413.  Thus the current experiment supports a contribution
-from monitoring history and from the prior within the chosen architecture, but
-does not demonstrate that the constrained edge topology improves forward
-prediction.  The small test set and strong geological shift make this a
-particularly demanding evaluation.
+This distinction changes the interpretation of the contribution. The prediction
+task is used as response supervision and as a consistency check. It is not the
+only, or even the strongest, evidence for the method. The stronger evidence is
+that TSP voxels, TBM surface components, candidate rock--machine relations,
+monitoring responses, and projected relevance diagnostics remain connected in a
+single spatial representation. The paper's value therefore lies in making
+rock--TBM interaction inspectable as a spatial process under incomplete
+observability.
 
-\subsection{Spatial evidence and its limits}
-The saved-checkpoint diagnostics show positive spatial clustering on the TBM
-surface (mean Moran's $I=0.529$).  This establishes that the projected relevance
-is spatially structured rather than spatially random.  Component-level
-differentiation is weak (mean CV\,$=0.018$), so the current evidence does not
-support a strong claim that the model reliably separates cutterhead and shield
-interaction roles.
+\subsection{Why the two tunnel cases are complementary}
+BSLL and SJLS should be read as complementary evidence rather than as a
+development-validation pair. BSLL provides a compact case in which the limits of
+prediction are visible: the model is competitive but does not outperform simple
+temporal persistence, and randomised edges are not worse. This is useful because
+it prevents the paper from overclaiming geometry as an accuracy mechanism. At
+the same time, BSLL provides interpretable multi-step and surface-evolution
+examples that illustrate what a graph-sequence representation adds beyond
+scalar prediction.
 
-Mean relevance is strongly inversely associated with TSP $V_p$ over the eight
-future-test chainages (Pearson $r=-0.988$, $p<0.001$).  Although the direction is
-consistent with stronger relevance in lower-velocity ground, this short
-contiguous interval also contains strong chainage trends.  The correlation may
-therefore reflect common spatial trend rather than a direct geological response.
-It is retained as a local diagnostic, not as causal or physical validation.
+SJLS plays a different role. It uses an external TSP-derived velocity field and
+a larger number of forward test samples. In this case, the full geometry-aware
+model is slightly better than the ablated variants, and the learned relevance
+is strongly associated with the local TSP field. This makes SJLS the better
+case for arguing that geometry-constrained representation can support
+response-consistent prediction and spatial interpretation. The important point
+is not that SJLS proves a large accuracy gain, but that it shows the same
+representation operating in a second tunnel setting with a clearer
+geometry-sensitive signal.
 
-The degree-control correlation is moderately negative ($r=-0.225$), indicating
-that high relevance is not simply produced by more incident candidate edges.
-At the same time, degree and relevance are not independent, and additional
-topology-shuffle and spatial-trend controls are needed before stronger
-interpretability claims are made.
+\subsection{Spatial interpretation as the main added value}
+The most consistent result across the experiments is spatial organisation of
+the learned surface relevance. Moran's $I$ is positive in all three runs, and
+the degree-control correlations are negative. These two facts support a bounded
+but useful claim: the surface relevance maps are not spatially random and are
+not simply inflated by the number of candidate edges incident to a TBM node.
 
-\subsection{Application scenario: spatial reasoning beyond prediction}
-\label{sec:application}
-The main value currently supported by the framework is representational.  It
-connects geological context, monitoring response, candidate rock--machine
-relations, and TBM surface locations within one model and can project learned
-relevance back to hotspot and chainage views.  Monitoring-only sequence models
-cannot produce an equivalent TBM-surface diagnostic because they do not encode
-surface nodes or rock--machine relations.
+This does not make the maps physical contact-force maps. The relevance values
+are produced by a response-supervised neural model and remain conditional on
+the forecasting objective, graph construction rules, and training data. Their
+proper role is diagnostic: they indicate where the model places response-linked
+importance on the TBM surface under geometry-screened rock--machine candidate
+relations. This diagnostic role is still valuable because conventional
+monitoring-only sequence models cannot localise response relevance on a TBM
+surface or compare cutterhead and shield regions.
 
-These views remain model diagnostics.  They are not calibrated risk estimates,
-contact pressures, jamming probabilities, or prescriptions for machine control.
-Operational use would require independent event labels, expert assessment, or
-physical measurements that can validate whether the displayed hotspots
-correspond to actual interaction states.
+\subsection{Implications for GIScience representation}
+The experiments motivate a GIScience framing of TBM excavation analysis. The
+problem is not merely to add more features to a forecasting model. It is to
+formalise heterogeneous spatial entities with different supports: TSP voxels,
+TBM surface nodes, rock--machine candidate relations, and chainage-indexed
+monitoring responses. Once these entities are represented explicitly, model
+outputs can be projected back into spatial views that support inspection,
+comparison, and case-based reasoning.
 
-\subsection{Boundary and caution}
-The case study contains only 44 effective sequence samples and 8 future-test
-samples.  The resulting confidence intervals are broad, and the paired tests do
-not establish a prediction advantage.  The test interval also differs
-geologically from the training interval, so the negative $R^2$ values should be
-read as evidence of limited extrapolation rather than ignored as an inconvenient
-artifact.
+This representation perspective also explains why prediction and spatial
+diagnosis must be evaluated separately. A temporal baseline may be difficult to
+beat on short, autocorrelated monitoring series, especially under a
+mileage-ordered split. However, such a baseline cannot answer where the model
+places interaction relevance, whether relevance is spatially clustered, or how
+the relevance pattern differs between BSLL and SJLS. The graph-sequence
+framework contributes this second evaluation axis.
 
-The spatial evidence is checkpoint-based and post-hoc.  Multi-seed stability,
-label permutation, candidate-edge threshold sensitivity, spatial detrending,
-and cross-project validation remain necessary.  Learned relevance represents
-response-consistent model importance under geometric screening, not a direct
-measurement of contact force, stress, or engineering risk.
+\subsection{Limitations and next steps}
+Several limitations remain. The test sets are small, especially for BSLL, and
+all results are based on single fixed-seed formal runs. Negative $R^2$ values
+show that forward extrapolation remains difficult under geological shift. The
+observed attention--geology correlations may partly reflect chainage trends and
+therefore require spatial detrending before stronger geological interpretation
+is made.
 
-\subsection{Broader GIScience implications}
-Despite these limitations, the framework demonstrates a GIScience-relevant
-representation strategy for heterogeneous spatial entities under incomplete
-observability.  Rock voxels, TBM surface components, candidate relations,
-monitoring responses, and projected spatial diagnostics remain linked in one
-explicit entity-relation model.
-
-The results also show why spatial graph methods require two distinct evaluation
-axes.  Prediction metrics test forward response generalisation, whereas spatial
-diagnostics test whether learned relevance has coherent geographic structure.
-The current framework provides spatially clustered diagnostics, but neither
-predictive superiority nor physical validity is yet established.  Keeping these
-claims separate is essential for a defensible interpretation.
+Future work should prioritise multi-seed stability, label-shuffle controls,
+candidate-edge threshold sensitivity, spatial detrending, and additional tunnel
+sections. Independent event labels, expert assessments, or physical
+measurements would be required before the relevance maps could be connected to
+operational risk or actual contact conditions. Until then, the defensible claim
+is representation and response-consistent interpretation, not physical recovery
+or general predictive superiority.

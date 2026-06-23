@@ -269,9 +269,10 @@ interpretation procedure is summarised in Algorithm~\ref{alg:interpretation}.
 
 \subsection{Implementation details}
 The framework is implemented in Python using PyTorch and PyTorch Geometric.
-Key hyperparameters and structural settings are summarised below; the same
-values are used in the Experimental setup (Section~\ref{sec:experimental_setup}) and
-all ablations.
+Key hyperparameters and structural settings are summarised below. The same
+graph-construction settings are used in the Experimental setup
+(Section~\ref{sec:experimental_setup}) and all ablations; the prediction horizon
+is set by each case configuration.
 
 \emph{Graph structure.}  The TBM surface is discretised into 1352 nodes
 (cutterhead disc $+$ front, middle, and tail shield cylinders) at a
@@ -282,7 +283,8 @@ extent $\tau_{\mathrm{zone}}=5.0$\,m; shield annular ring with
 $R_s \le r \le R_s + \tau_{\mathrm{zone}}$).  Candidate rock--machine
 edges are constructed with distance threshold $\tau_{\mathrm{edge}}=2.0$\,m
 and signed-normal compatibility threshold $\eta_{\min}=0.3$.  The
-historical window length is $K=5$ and the forecasting horizon is $h=1$.
+historical window length is $K=5$.  The BSLL one-step and SJLS cases use
+$h=1$, while the BSLL multi-step sensitivity case uses $h=3$.
 
 \emph{Model architecture.}  The heterogeneous GNN encoder uses
 $gnn\_layers=2$ message-passing layers with rock-node hidden dimension 32,

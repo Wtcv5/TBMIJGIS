@@ -1,91 +1,66 @@
-\subsection{Study area}
-The study area is a shield TBM tunnelling project in southwestern China.
-The tunnel traverses a geologically diverse section comprising intact
-limestone, fractured zones, and transition regions, as revealed by the
-tunnel seismic prediction (TSP) survey.  The TSP-forecast seismic velocity
-field exhibits substantial spatial heterogeneity along the tunnel alignment,
-with P-wave velocities ranging from 3\,976 to 4\,801\,m/s (mean
-4\,429\,m/s, SD\,=\,144\,m/s), reflecting variations in rock mass quality
-from weak fractured zones to competent limestone.  The graph-construction
-procedure is illustrated schematically in Figure~\ref{fig:tsp_profile}.
+\subsection{Case study data}
+The experiments use two real tunnel cases. The first is the BSLL tunnel case
+starting from DyK1017+205. It provides the main graph-sequence construction
+example, the one-step response prediction run, and the three-step
+advance-prediction sensitivity run. The second is the SJLS tunnel case starting
+from Dyk1252+411. It uses an external TSP-derived velocity field and real
+mileage-aligned TBM monitoring labels, and is used to test whether the same
+spatial representation remains meaningful in a second tunnel setting.
+
+The two cases are not treated as sequential data releases or replacement
+datasets. They are two case-study settings with different evidential roles.
+BSLL is used mainly to illustrate multi-step prediction and spatial
+interpretation under a compact test interval. SJLS is used mainly for
+prediction consistency and geometry-ablation evidence under an external TSP
+case.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{fig2_graph_construction.pdf}
 \caption{Schematic of geometry-constrained graph construction at a
-representative excavation step (illustrative, not drawn from the actual
-TSP velocity field).  (a)~Conceptual longitudinal section indicating
-spatial heterogeneity along the tunnel alignment, with weak fractured
-zones (low $V_p$) and competent limestone (high $V_p$) shown
-schematically; (b)~active-zone definition (semi-transparent box ahead
-of and around the TBM) and geometry-constrained rock--machine candidate
-edge screening, where only rock voxels within the active zone and
-satisfying distance, normal-compatibility, and excavation-state
-constraints are connected to TBM surface nodes;
-(c)~resulting heterogeneous graph snapshot with rock voxels (blue),
-TBM surface nodes (orange, coloured by component: cutterhead, front,
-middle, tail shield), and geometry-constrained rock--machine edges
-(grey).}
+representative excavation step (illustrative, not drawn from the actual TSP
+velocity field). The framework links TSP-derived rock voxels, parameterized TBM
+surface nodes, and geometry-screened rock--machine candidate edges before
+learning response-consistent relevance.}
 \label{fig:tsp_profile}
 \end{figure}
 
-\subsection{Monitoring data}
-The TBM monitoring system records six operational variables at each
-excavation step (1-m chainage interval): advance rate (mean 43.8\,mm/min,
-range 19.4--60.3), cutterhead RPM (mean 6.0\,rev/min, range
-5.4--7.0), torque (mean 3\,265\,kN$\cdot$m, range
-2\,253--4\,484), thrust (mean 19\,302\,kN, range
-13\,300--26\,761), penetration (mean 11.7\,mm/rev, range
-3.9--17.5), and shield pressure (mean 1.67\,bar, range
-1.09--2.55).  These variables collectively characterise the machine's
-mechanical response to the surrounding rock mass and serve as both input
-features (historical window) and prediction targets (forecasting horizon).
+\subsection{Monitoring and geological variables}
+For each excavation step, the monitoring vector contains advance rate, cutterhead
+RPM, torque, thrust, penetration, and shield pressure. The prediction target is
+the future multivariate response vector consisting of advance rate, torque,
+thrust, penetration, and shield pressure. These variables describe the observed
+machine response to the surrounding rock and are used both as historical inputs
+and as response-supervision targets.
 
-\subsection{Geological forecast data}
-The TSP survey provides ahead-of-face geological forecasts, including
-seismic P-wave velocity ($V_p$), S-wave velocity ($V_s$), density ($\rho$),
-dynamic Young's modulus ($E$), velocity ratio ($V_p/V_s$), and Poisson's
-ratio ($\nu$), sampled on a 1-m voxel grid in the tunnel vicinity.  The
-TSP data comprises 21\,609 voxels covering a spatial extent of
-approximately $48 \times 20 \times 20$\,m around the tunnel alignment.
-After chainage-based aggregation, the monitoring and TSP data are aligned
-to 49 raw excavation steps (1-m chainage interval, chainage 0--48\,m).
+The geological input is a TSP-derived voxel field. For BSLL, the project TSP
+voxel field contains P-wave velocity, S-wave velocity, density, dynamic Young's
+modulus, velocity ratio, and Poisson's ratio around the tunnel alignment. For
+SJLS, dense external P-wave and S-wave velocity profiles at Dyk1252+411 are
+preprocessed into the same project TSP schema and paired with mileage-aligned
+monitoring labels. This preprocessing allows both tunnel cases to use the same
+graph-construction and graph-sequence learning pipeline.
 
-\subsection{Data partitioning}
-The 49 raw excavation steps form the basis for sequence sample
-construction.  With a historical window of $K=5$ steps and a forecasting
-horizon of $h=1$ step, each sequence sample uses 5 consecutive steps as
-input and predicts the response at the 6th step.  This yields
-$49 - 5 - 1 + 1 = 44$ effective sequence samples.  Samples are divided in
-chainage order according to their prediction targets: 30 training samples
-(targets at 5--34\,m), 6 validation samples (35--40\,m), and 8 test samples
-(41--48\,m).  This mileage-ordered split preserves the forward prediction
-setting and prevents later target responses from entering model fitting or
-preprocessing.
-
-Input windows at partition boundaries may include earlier chainages from the
-preceding partition, as required by a rolling forecast.  For example, the
-validation sample targeting 35\,m uses observations from 30--34\,m.  No
-monitoring response at or after a sample's target chainage is used in that
-sample's input.  The TSP forecast is treated as ahead-of-face geological
-information available before excavation reaches the target chainage.
-Table~\ref{tab:data_summary} summarises the formal partition.
+\subsection{Mileage-ordered partitioning}
+All experiments use mileage-ordered partitioning to preserve forward prediction.
+For a historical window of $K=5$, each sample uses the preceding monitoring and
+graph snapshots as input and predicts a future response at horizon $h$. The
+formal case runs are summarised in Table~\ref{tab:data_summary}. The BSLL h=1
+run evaluates one-step prediction, the BSLL h=3 run evaluates multi-step
+advance prediction, and the SJLS run evaluates the external TSP case.
 
 \begin{table}[htbp]
 \centering
-\caption{Dataset summary for the mileage-ordered evaluation.  Effective
-samples are sequence windows of length $K+h=6$, and partitions are defined
-by prediction-target chainage.}
+\caption{Formal case runs used in the experiments. Effective samples are
+sequence windows after applying the history window and prediction horizon.}
 \label{tab:data_summary}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Partition & Prediction-target chainage (m) & Required input chainage (m) & Effective samples \\
+Case & Tunnel & Start chainage & Horizon & Train/Test samples \\
 \midrule
-Training   & 5--34  & 0--33  & 30 \\
-Validation & 35--40 & 30--39 &  6 \\
-Test       & 41--48 & 36--47 &  8 \\
-\midrule
-Total      & -- & 5--48\,m target range & 44 \\
+BSLL h=1 & BSLL & DyK1017+205 & 1 & 30 / 8 \\
+BSLL h=3 & BSLL & DyK1017+205 & 3 & 29 / 7 \\
+SJLS h=1 & SJLS & Dyk1252+411 & 1 & 76 / 17 \\
 \bottomrule
 \end{tabular}
 \end{table}
