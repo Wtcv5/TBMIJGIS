@@ -1,7 +1,7 @@
 """Audit generated figures for IJGIS publication compliance.
 
 Checks DPI, colormap usage, figure sizing, and output format consistency.
-Run from the experiments directory: python -m scripts.figure_audit outputs/mvp4_stratified/
+Run from the experiments directory: python -m scripts.figure_audit outputs/bsll_dyk1017_205/
 """
 
 from __future__ import annotations

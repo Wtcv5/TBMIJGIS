@@ -1,39 +1,28 @@
 This study proposed a response-supervised, geometry-constrained graph sequence
-framework for spatially explicit representation and interpretable learning of
-rock--TBM interaction during excavation.  The framework addresses the
-geographic-information representation gap identified in the Introduction:
-monitoring-only temporal sequences preserve temporal dependence but lack the
-spatial explicitness needed to resolve where interactions occur, which machine
-components are implicated, and how interaction structure evolves along chainage.
+framework for spatially explicit representation of rock--TBM interaction.  The
+method formalises TSP voxels and TBM surface components as heterogeneous spatial
+entities, screens candidate relations by geometric compatibility, and projects
+learned relevance back to TBM surface and chainage views.
 
-Three key findings emerge from the evaluation.  First, the geometry-constrained
-graph structure produces spatially consistent attention patterns: the full
-framework achieves Moran's $I=0.42$ (moderate positive spatial
-autocorrelation), component-level CV\,$=0.38$ (substantial differentiation),
-and a negative attention--geology correlation ($r=-0.31$), all of which
-degrade when the geometric prior is removed (Moran's $I=0.18$, CV\,$=0.15$,
-$r=-0.12$) or edges are randomised (Moran's $I=0.07$, CV\,$=0.08$,
-$r=0.05$).  Second, the geometric prior serves as an interpretability
-constraint rather than a prediction enhancer: removing it improves MAE from
-0.481 to 0.360 but degrades all three spatial consistency indicators,
-suggesting a prediction--interpretability trade-off that may be justifiable for
-GIScience applications where spatial consistency matters.  Third, the
-framework enables a spatial reasoning chain---from geological context through
-attention-based interaction assessment to spatially informed decision
-support---that monitoring-only sequence models cannot provide, because they
-lack any spatial representation of the interaction geometry.
+The mileage-ordered evaluation provides a direct test on a later continuous
+tunnel interval.  The proposed framework obtains MAE 0.435, RMSE 0.545, and
+$R^2=-0.463$.  Its prediction performance is comparable to the sequence
+baselines, but no statistically significant advantage is established.  The
+random-edge ablation performs better on the small future test set, so the
+current results also do not demonstrate a predictive benefit from the
+geometry-constrained topology.
 
-By formalizing rock voxels and TBM surface nodes as spatial entities,
-constraining candidate relations through geometric compatibility, and projecting
-learned relevance back to interpretable spatial views, the framework advances
-spatial entity modeling, relation plausibility, and interpretable geospatial
-learning.  The spatial consistency evaluation framework---combining external
-geological validation, internal spatial autocorrelation, and structural
-component differentiation---provides a generalisable template for evaluating
-spatial interpretability in graph-based learning methods.  The learned edge
-relevance should be interpreted as response-consistent spatial importance under
-geometric screening, not as direct physical contact force or stress.  Future
-work should examine cross-project transferability, alternative geometric
-parameterizations, and the integration of additional spatial constraints to
-further strengthen the connection between learned relevance and physical
-interaction processes.
+The saved checkpoint nevertheless produces positively clustered TBM-surface
+relevance (mean Moran's $I=0.529$) and a strong inverse chainage-local
+association with TSP velocity (Pearson $r=-0.988$).  Component differentiation
+is weak (mean CV\,$=0.018$), and the geology correlation may be confounded by
+spatial trend.  These results support the availability of spatial diagnostics,
+not the stronger claims of physical interaction recovery, geological causality,
+or operational risk estimation.
+
+The main contribution is therefore a spatial entity-relation representation
+and an auditable route from response supervision to surface-based diagnostics.
+Future work should establish multi-seed stability, spatially detrended geology
+validation, topology and label permutation controls, threshold sensitivity,
+and cross-project forward generalisation before stronger accuracy or physical
+interpretability claims are made.

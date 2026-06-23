@@ -30,11 +30,17 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from scripts.mvp4_full_model import build_sequence_samples, collect_graph_attention, collect_graph_predictions
-from src.data.alignment import build_excavation_steps, stratified_split_by_geology, mileage_split
+from scripts.run_graph_sequence_case import (
+    build_sequence_samples,
+    collect_graph_attention,
+    collect_graph_predictions,
+    monitoring_fit_rows_for_samples,
+    tsp_fit_stats_for_samples,
+)
+from src.data.alignment import build_excavation_steps, mileage_split
 from src.data.monitoring import aggregate_by_chainage, load_monitoring, standardize_monitoring
 from src.data.tbm_geometry import build_tbm_surface
-from src.data.tsp_loader import TSP_ATTR_COLS, build_voxel_field, load_tsp, normalize_coords
+from src.data.tsp_loader import build_voxel_field, load_tsp, normalize_coords
 from src.graph.sequence import build_graph_sequence
 from src.models.graph_seq import GraphSequenceModel
 from src.training.graph_data import GraphSequenceDataset, collate_graph_sequence_batch
@@ -43,6 +49,12 @@ from src.visualization.hotspot import aggregate_attention_to_surface
 
 
 TARGET_NAMES = ["AdvanceRate", "Torque", "Thrust", "Penetration", "ShieldPressure"]
+COMPONENT_NAMES = {
+    0: "cutterhead",
+    1: "front_shield",
+    2: "middle_shield",
+    3: "tail_shield",
+}
 
 
 def save_json(data: dict[str, Any], path: Path) -> None:
@@ -98,35 +110,31 @@ def build_test_context(cfg: dict[str, Any], device: str):
         raise ValueError(f"Not enough monitoring rows for K={K}, h={h}.")
 
     split_cfg = cfg.get("split", {})
-    if split_cfg.get("method", "mileage") == "stratified":
-        train_idx, val_idx, test_idx = stratified_split_by_geology(
-            mon_df,
-            tsp_df,
-            n_total,
-            K=K,
-            h=h,
-            train_r=split_cfg["train_ratio"],
-            val_r=split_cfg["val_ratio"],
-            n_strata=split_cfg.get("n_strata", 4),
-            seed=cfg.get("seed", 42),
-        )
-        train_fit_stop = int(max(train_idx)) + K + h
-    else:
-        train_slice, val_slice, test_slice = mileage_split(
-            n_total,
-            train_r=split_cfg.get("train_ratio", 0.70),
-            val_r=split_cfg.get("val_ratio", 0.15),
-        )
-        train_idx = np.arange(train_slice.start, train_slice.stop)
-        val_idx = np.arange(val_slice.start, val_slice.stop)
-        test_idx = np.arange(test_slice.start, test_slice.stop)
-        train_fit_stop = train_slice.stop + K + h - 1
+    split_method = split_cfg.get("method", "mileage")
+    if split_method != "mileage":
+        raise ValueError("Only mileage-ordered splitting is supported.")
+    train_slice, val_slice, test_slice = mileage_split(
+        n_total,
+        train_r=split_cfg.get("train_ratio", 0.70),
+        val_r=split_cfg.get("val_ratio", 0.15),
+    )
+    train_idx = np.arange(train_slice.start, train_slice.stop)
+    val_idx = np.arange(val_slice.start, val_slice.stop)
+    test_idx = np.arange(test_slice.start, test_slice.stop)
 
-    tsp_raw = tsp_df[TSP_ATTR_COLS].to_numpy(dtype=np.float32)
-    attr_mean = tsp_raw.mean(axis=0, keepdims=True)
-    attr_std = tsp_raw.std(axis=0, keepdims=True) + 1e-8
+    sample_chainages_pre = np.asarray(
+        [float(mon_df.iloc[i + K + h - 1]["chainage"]) for i in range(n_total)],
+        dtype=np.float32,
+    )
+    train_monitor_rows = monitoring_fit_rows_for_samples(train_idx, len(mon_df), K, h)
+    attr_mean, attr_std = tsp_fit_stats_for_samples(
+        tsp_df,
+        sample_chainages_pre,
+        train_idx,
+        margin=max(float(cfg["graph"].get("tau_zone", 5.0)), float(cfg["excavation"].get("cutterhead_look_ahead", 5.0))),
+    )
     rock_coords, rock_attrs = build_voxel_field(tsp_df, attr_mean=attr_mean, attr_std=attr_std)
-    mon_df, _ = standardize_monitoring(mon_df, fit_df=mon_df.iloc[:train_fit_stop])
+    mon_df, _ = standardize_monitoring(mon_df, fit_df=mon_df.iloc[train_monitor_rows].copy())
 
     tbm_cfg = cfg["tbm_geometry"]
     tbm_surface = build_tbm_surface(
@@ -189,6 +197,21 @@ def build_test_context(cfg: dict[str, Any], device: str):
             "test": int(len(test_idx)),
             "effective_samples": int(n_total),
         },
+        "preprocessing_audit": {
+            "split_method": split_method,
+            "train_sample_indices": train_idx.tolist(),
+            "val_sample_indices": val_idx.tolist(),
+            "test_sample_indices": test_idx.tolist(),
+            "train_target_chainages": sample_chainages_pre[train_idx].tolist(),
+            "val_target_chainages": sample_chainages_pre[val_idx].tolist(),
+            "test_target_chainages": sample_chainages_pre[test_idx].tolist(),
+            "monitoring_scaler_fit_rows": train_monitor_rows.tolist(),
+            "monitoring_scaler_fit_policy": "training sample historical input rows plus training target rows",
+            "tsp_scaler_fit_policy": "TSP voxels within the active-zone margin of training target chainages",
+            "tsp_scaler_margin_m": max(float(cfg["graph"].get("tau_zone", 5.0)), float(cfg["excavation"].get("cutterhead_look_ahead", 5.0))),
+            "tsp_attr_mean": attr_mean.tolist(),
+            "tsp_attr_std": attr_std.tolist(),
+        },
     }
 
 
@@ -207,7 +230,14 @@ def make_model(cfg: dict[str, Any], context: dict[str, Any], device: str) -> Gra
         gru_hidden=model_cfg["gru_hidden_dim"],
         gru_layers=model_cfg["gru_layers"],
         dropout=model_cfg["dropout"],
+        residual_prediction=model_cfg.get("residual_prediction", False),
     ).to(device)
+
+
+def as_numpy(value) -> np.ndarray:
+    if isinstance(value, torch.Tensor):
+        return value.detach().cpu().numpy()
+    return np.asarray(value)
 
 
 def compute_surface_evidence(model, context: dict[str, Any], device: str) -> dict[str, Any]:
@@ -218,10 +248,13 @@ def compute_surface_evidence(model, context: dict[str, Any], device: str) -> dic
     C_samples, C_sum_samples, degree_samples = [], [], []
     moran_values, cv_values = [], []
     degree_corr_values = []
+    component_rows = []
     geometry_C_samples = []
     geometry_moran_values, geometry_cv_values = [], []
 
-    for snap_seq, s_ij, eidx, n_tbm in zip(context["test_graph_seqs"], attentions, edge_indices, n_tbm_list):
+    for chainage, target, snap_seq, s_ij, eidx, n_tbm in zip(
+        context["test_chainages"], context["y_test"], context["test_graph_seqs"], attentions, edge_indices, n_tbm_list
+    ):
         snap = snap_seq[-1]
         tbm_pos = snap.hetero_data["tbm"].x[:, :3].detach().cpu().numpy()
         tbm_comp = snap.tbm_components.argmax(dim=1).detach().cpu().numpy()
@@ -242,11 +275,25 @@ def compute_surface_evidence(model, context: dict[str, Any], device: str) -> dic
 
         moran_values.append(compute_morans_i(C, tbm_pos))
         cv_values.append(compute_component_cv(C, tbm_comp))
+        total_relevance = float(np.sum(C) + 1e-8)
+        for comp_id, comp_name in COMPONENT_NAMES.items():
+            mask = tbm_comp == comp_id
+            comp_sum = float(np.sum(C[mask])) if mask.any() else 0.0
+            component_rows.append(
+                {
+                    "chainage": float(chainage),
+                    "component": comp_name,
+                    "mean_relevance": float(np.mean(C[mask])) if mask.any() else 0.0,
+                    "sum_relevance": comp_sum,
+                    "share_relevance": comp_sum / total_relevance,
+                    **{name: float(value) for name, value in zip(TARGET_NAMES, target)},
+                }
+            )
 
         geometry_C = np.zeros(len(tbm_pos), dtype=np.float32)
         if ("rock", "interact", "tbm") in snap.hetero_data.edge_types:
             edge_store = snap.hetero_data["rock", "interact", "tbm"]
-            geo_prior = np.asarray(edge_store["edge_attrs"]["geometry_prior"], dtype=np.float32)
+            geo_prior = as_numpy(edge_store["edge_attrs"]["geometry_prior"]).astype(np.float32)
             edge_dst = edge_store.edge_index[1].detach().cpu().numpy()
             geo_sum = np.zeros(len(tbm_pos), dtype=np.float32)
             geo_count = np.zeros(len(tbm_pos), dtype=np.float32)
@@ -267,6 +314,28 @@ def compute_surface_evidence(model, context: dict[str, Any], device: str) -> dic
     geometry_C_mean = np.asarray([float(c.mean()) for c in geometry_C_samples], dtype=np.float32)
     geo_only_r, geo_only_p = pearson_safe(geometry_C_mean, test_vp)
 
+    response_correlations = {}
+    for j, name in enumerate(TARGET_NAMES):
+        r, p = pearson_safe(C_mean, context["y_test"][:, j])
+        sr, sp = spearman_safe(C_mean, context["y_test"][:, j])
+        response_correlations[name] = {
+            "pearson_r": r,
+            "pearson_p": p,
+            "spearman_r": sr,
+            "spearman_p": sp,
+        }
+
+    component_summary = {}
+    for comp_name in COMPONENT_NAMES.values():
+        rows = [r for r in component_rows if r["component"] == comp_name]
+        share = np.asarray([r["share_relevance"] for r in rows], dtype=np.float32)
+        mean_rel = np.asarray([r["mean_relevance"] for r in rows], dtype=np.float32)
+        component_summary[comp_name] = {
+            "mean_share_relevance": float(np.mean(share)) if len(share) else 0.0,
+            "std_share_relevance": float(np.std(share)) if len(share) else 0.0,
+            "mean_relevance": float(np.mean(mean_rel)) if len(mean_rel) else 0.0,
+        }
+
     return {
         "full_model": {
             "attention_geology_pearson_r": att_geo_r,
@@ -279,6 +348,8 @@ def compute_surface_evidence(model, context: dict[str, Any], device: str) -> dic
             "component_cv_std": float(np.std(cv_values)),
             "degree_control_pearson_r_mean": float(np.mean(degree_corr_values)),
             "degree_control_pearson_r_std": float(np.std(degree_corr_values)),
+            "response_correlations": response_correlations,
+            "component_summary": component_summary,
         },
         "geometry_only": {
             "attention_geology_pearson_r": geo_only_r,
@@ -297,6 +368,7 @@ def compute_surface_evidence(model, context: dict[str, Any], device: str) -> dic
             }
             for ch, c, g, vp in zip(context["test_chainages"], C_mean, geometry_C_mean, test_vp)
         ],
+        "component_chainage": component_rows,
     }
 
 
@@ -304,6 +376,8 @@ def write_summary_csv(evidence: dict[str, Any], path: Path) -> None:
     rows = []
     for variant in ["full_model", "geometry_only"]:
         for metric, value in evidence["surface_evidence"][variant].items():
+            if isinstance(value, dict):
+                continue
             rows.append({"variant": variant, "metric": metric, "value": value})
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as f:
@@ -314,8 +388,8 @@ def write_summary_csv(evidence: dict[str, Any], path: Path) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect post-hoc model evidence.")
-    parser.add_argument("--config", default="config/stratified.yaml")
-    parser.add_argument("--run-dir", default="outputs/mvp4_stratified")
+    parser.add_argument("--config", default="config/bsll_dyk1017_205.yaml")
+    parser.add_argument("--run-dir", default="outputs/bsll_dyk1017_205")
     parser.add_argument("--output-dir", default="outputs/evidence")
     parser.add_argument("--device", default="cpu")
     return parser.parse_args()
@@ -350,13 +424,23 @@ def main() -> None:
         "run_dir": str(run_dir.relative_to(exp_dir)),
         "checkpoint": str(ckpt_path.relative_to(exp_dir)),
         "split_counts": context["split_counts"],
+        "preprocessing_audit": context["preprocessing_audit"],
         "prediction_metrics_from_checkpoint": pred_metrics,
         "surface_evidence": surface_evidence,
     }
     save_json(evidence, output_dir / "posthoc_evidence.json")
     write_summary_csv(evidence, output_dir / "posthoc_evidence_summary.csv")
+    component_path = output_dir / "component_relevance.csv"
+    with component_path.open("w", encoding="utf-8", newline="") as f:
+        rows = surface_evidence["component_chainage"]
+        fieldnames = list(rows[0].keys()) if rows else ["chainage", "component"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    save_json(context["preprocessing_audit"], run_dir / "preprocessing_audit.json")
 
     print(f"Saved evidence to {output_dir / 'posthoc_evidence.json'}")
+    print(f"Saved component table to {component_path}")
     print(
         "Full model evidence: "
         f"MAE={pred_metrics['mae']:.4f}, "

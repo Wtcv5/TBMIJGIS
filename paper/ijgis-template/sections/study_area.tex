@@ -56,38 +56,36 @@ The 49 raw excavation steps form the basis for sequence sample
 construction.  With a historical window of $K=5$ steps and a forecasting
 horizon of $h=1$ step, each sequence sample uses 5 consecutive steps as
 input and predicts the response at the 6th step.  This yields
-$49 - 5 - 1 + 1 = 44$ effective sequence samples.  Partitions are defined
-by the chainage of each sample's prediction target: training targets
-chainage 5--34\,m (30 samples), validation targets 35--40\,m (6 samples),
-and test targets 41--48\,m (8 samples).  Input windows of validation and
-test samples may overlap with training chainages (e.g.\ a validation
-sample with target at chainage 35\,m uses inputs from chainages
-30--34\,m); this is the standard sliding-window convention for temporal
-evaluation and does not constitute data leakage because only the target
-chainages define the partition.  The TSP forecast is assumed to be
-operationally available before excavation reaches the corresponding
-target chainage; no future monitoring response is used in constructing
-input windows.  Table~\ref{tab:data_summary} summarises the dataset.
+$49 - 5 - 1 + 1 = 44$ effective sequence samples.  Samples are divided in
+chainage order according to their prediction targets: 30 training samples
+(targets at 5--34\,m), 6 validation samples (35--40\,m), and 8 test samples
+(41--48\,m).  This mileage-ordered split preserves the forward prediction
+setting and prevents later target responses from entering model fitting or
+preprocessing.
+
+Input windows at partition boundaries may include earlier chainages from the
+preceding partition, as required by a rolling forecast.  For example, the
+validation sample targeting 35\,m uses observations from 30--34\,m.  No
+monitoring response at or after a sample's target chainage is used in that
+sample's input.  The TSP forecast is treated as ahead-of-face geological
+information available before excavation reaches the target chainage.
+Table~\ref{tab:data_summary} summarises the formal partition.
 
 \begin{table}[htbp]
 \centering
-\caption{Dataset summary.  Partitions are defined by prediction-target
-chainage.  Input windows may overlap across partitions following the
-standard sliding-window evaluation setting, but target responses are
-strictly separated in chainage order.  Effective samples are sequence
-windows of length $K+h=6$.  Monitoring variables are standardised using
-training-set statistics only.  TSP attributes are similarly standardised
-using training-chainage voxels only.}
+\caption{Dataset summary for the mileage-ordered evaluation.  Effective
+samples are sequence windows of length $K+h=6$, and partitions are defined
+by prediction-target chainage.}
 \label{tab:data_summary}
 \begin{tabular}{lccc}
 \toprule
-Partition & Prediction-target chainage (m) & Input chainage required (m) & Effective samples \\
+Partition & Prediction-target chainage (m) & Required input chainage (m) & Effective samples \\
 \midrule
-Training   & 5--34  & 0--34  & 30 \\
-Validation & 35--40 & 30--40 &  6 \\
-Test       & 41--48 & 36--48 &  8 \\
+Training   & 5--34  & 0--33  & 30 \\
+Validation & 35--40 & 30--39 &  6 \\
+Test       & 41--48 & 36--47 &  8 \\
 \midrule
-Total      & 5--48  & 0--48  & 44 \\
+Total      & -- & 5--48\,m target range & 44 \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -297,8 +297,10 @@ optimiser with initial learning rate $10^{-3}$, weight decay $10^{-2}$,
 standardised Huber loss ($\delta=1.0$), and ReduceLROnPlateau scheduler
 (factor 0.5, patience 10).  Batch size is 32.  Early stopping with
 patience 15 is applied on validation loss.  Monitoring variables and TSP
-attributes are standardised using training-set statistics only.  Random
-seed is fixed at 42 for reproducibility.
+attributes are standardised using training-set statistics only.  Monitoring
+scalers are fitted from rows used by the chronological training samples, and
+TSP attribute scalers are fitted from voxels in the neighbourhood of training
+target chainages.  Random seed is fixed at 42 for reproducibility.
 
 \emph{Spatial consistency indicators.}  Moran's $I$ is computed using
 inverse-distance weights on TBM surface node positions within each
@@ -314,6 +316,12 @@ baselines, and graph-structure ablations. Structural ablations include randomize
 rock--machine edges and versions without geometric constraints. This design isolates
 the contribution of graph structure, geological attributes, temporal graph evolution,
 and geometry-based candidate screening.
+
+The formal evaluation uses a chronological mileage-ordered split.  The first
+70\% of prediction-target samples are used for training, the next 15\% for
+validation, and the remaining 15\% for testing.  This design evaluates forward
+generalisation to a later continuous tunnel interval and deliberately retains
+the geological distribution shift encountered by the advancing TBM.
 
 \subsection{Algorithmic summary}
 The three stages of the framework are summarised in

@@ -1,0 +1,636 @@
+{
+  "config": "config\\bsll_dyk1017_205_h3.yaml",
+  "run_dir": "outputs\\bsll_dyk1017_205_h3",
+  "checkpoint": "outputs\\bsll_dyk1017_205_h3\\best_graph_model.pt",
+  "split_counts": {
+    "train": 29,
+    "val": 6,
+    "test": 7,
+    "effective_samples": 42
+  },
+  "preprocessing_audit": {
+    "split_method": "mileage",
+    "train_sample_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "val_sample_indices": [
+      29,
+      30,
+      31,
+      32,
+      33,
+      34
+    ],
+    "test_sample_indices": [
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41
+    ],
+    "train_target_chainages": [
+      7.0,
+      8.0,
+      9.0,
+      10.0,
+      11.0,
+      12.0,
+      13.0,
+      14.0,
+      15.0,
+      16.0,
+      17.0,
+      18.0,
+      19.0,
+      20.0,
+      21.0,
+      22.0,
+      23.0,
+      24.0,
+      25.0,
+      26.0,
+      27.0,
+      28.0,
+      29.0,
+      30.0,
+      31.0,
+      32.0,
+      33.0,
+      34.0,
+      35.0
+    ],
+    "val_target_chainages": [
+      36.0,
+      37.0,
+      38.0,
+      39.0,
+      40.0,
+      41.0
+    ],
+    "test_target_chainages": [
+      42.0,
+      43.0,
+      44.0,
+      45.0,
+      46.0,
+      47.0,
+      48.0
+    ],
+    "monitoring_scaler_fit_rows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ],
+    "monitoring_scaler_fit_policy": "training sample historical input rows plus training target rows",
+    "tsp_scaler_fit_policy": "TSP voxels within the active-zone margin of training target chainages",
+    "tsp_scaler_margin_m": 5.0,
+    "tsp_attr_mean": [
+      [
+        4441.00927734375,
+        2472.944091796875,
+        39895523328.0,
+        1.7965967655181885,
+        0.27313944697380066,
+        2562.157958984375
+      ]
+    ],
+    "tsp_attr_std": [
+      [
+        136.84130859375,
+        41.39042663574219,
+        1297192448.0,
+        0.06993728131055832,
+        0.026136355474591255,
+        31.385622024536133
+      ]
+    ]
+  },
+  "prediction_metrics_from_checkpoint": {
+    "mae": 0.46091532707214355,
+    "rmse": 0.5530976057052612,
+    "r2": -0.6227127313613892,
+    "pearson": 0.5047211777301882,
+    "spearman": 0.5053221288515407
+  },
+  "surface_evidence": {
+    "full_model": {
+      "attention_geology_pearson_r": -0.6882282342444499,
+      "attention_geology_pearson_p": 0.08737160349910991,
+      "attention_geology_spearman_r": -0.5,
+      "attention_geology_spearman_p": 0.25316999510032273,
+      "morans_i_mean": 0.3024779366656124,
+      "morans_i_std": 0.027670997794234688,
+      "component_cv_mean": 0.005190491676330566,
+      "component_cv_std": 0.0020381764993007484,
+      "degree_control_pearson_r_mean": -0.32374475900420513,
+      "degree_control_pearson_r_std": 0.017826743050873412,
+      "response_correlations": {
+        "AdvanceRate": {
+          "pearson_r": -0.6645590976299568,
+          "pearson_p": 0.10342666723195947,
+          "spearman_r": -0.42857142857142866,
+          "spearman_p": 0.337368311085824
+        },
+        "Torque": {
+          "pearson_r": -0.5642032453522541,
+          "pearson_p": 0.18704346604479832,
+          "spearman_r": -0.5,
+          "spearman_p": 0.25316999510032273
+        },
+        "Thrust": {
+          "pearson_r": 0.010371018188666481,
+          "pearson_p": 0.9823945595361505,
+          "spearman_r": -0.10714285714285716,
+          "spearman_p": 0.8191508555699912
+        },
+        "Penetration": {
+          "pearson_r": -0.13161122426269917,
+          "pearson_p": 0.7784998824407682,
+          "spearman_r": -0.14285714285714288,
+          "spearman_p": 0.7599453002180929
+        },
+        "ShieldPressure": {
+          "pearson_r": -0.027821145096681765,
+          "pearson_p": 0.9527876336943849,
+          "spearman_r": 0.0,
+          "spearman_p": 1.0
+        }
+      },
+      "component_summary": {
+        "cutterhead": {
+          "mean_share_relevance": 0.16594013571739197,
+          "std_share_relevance": 0.0007082416559569538,
+          "mean_relevance": 0.9247150421142578
+        },
+        "front_shield": {
+          "mean_share_relevance": 0.25259828567504883,
+          "std_share_relevance": 0.001095304498448968,
+          "mean_relevance": 0.9233694672584534
+        },
+        "middle_shield": {
+          "mean_share_relevance": 0.2907460331916809,
+          "std_share_relevance": 0.0004488162521738559,
+          "mean_relevance": 0.9299682974815369
+        },
+        "tail_shield": {
+          "mean_share_relevance": 0.29071560502052307,
+          "std_share_relevance": 0.0019497519824653864,
+          "mean_relevance": 0.9298738837242126
+        }
+      }
+    },
+    "geometry_only": {
+      "attention_geology_pearson_r": 0.0,
+      "attention_geology_pearson_p": 1.0,
+      "morans_i_mean": -0.0539917617526502,
+      "morans_i_std": 0.0,
+      "component_cv_mean": 0.006245567463338375,
+      "component_cv_std": 0.0
+    },
+    "per_chainage": [
+      {
+        "chainage": 42.0,
+        "mean_relevance": 0.9259476661682129,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4512.746826171875
+      },
+      {
+        "chainage": 43.0,
+        "mean_relevance": 0.9269235134124756,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4483.26318359375
+      },
+      {
+        "chainage": 44.0,
+        "mean_relevance": 0.9276617765426636,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4443.4732666015625
+      },
+      {
+        "chainage": 45.0,
+        "mean_relevance": 0.9279932975769043,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4394.565185546875
+      },
+      {
+        "chainage": 46.0,
+        "mean_relevance": 0.9279302954673767,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4339.364990234375
+      },
+      {
+        "chainage": 47.0,
+        "mean_relevance": 0.9276861548423767,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4282.3643798828125
+      },
+      {
+        "chainage": 48.0,
+        "mean_relevance": 0.9276049733161926,
+        "geometry_only_mean_relevance": 0.32300350069999695,
+        "tsp_vp": 4268.0771484375
+      }
+    ],
+    "component_chainage": [
+      {
+        "chainage": 42.0,
+        "component": "cutterhead",
+        "mean_relevance": 0.9308518767356873,
+        "sum_relevance": 209.44166564941406,
+        "share_relevance": 0.16730154695762997,
+        "AdvanceRate": 0.39304107427597046,
+        "Torque": 0.32022708654403687,
+        "Thrust": -0.7928785085678101,
+        "Penetration": 0.36896437406539917,
+        "ShieldPressure": -0.6969980001449585
+      },
+      {
+        "chainage": 42.0,
+        "component": "front_shield",
+        "mean_relevance": 0.9280117750167847,
+        "sum_relevance": 318.30804443359375,
+        "share_relevance": 0.25426377353176494,
+        "AdvanceRate": 0.39304107427597046,
+        "Torque": 0.32022708654403687,
+        "Thrust": -0.7928785085678101,
+        "Penetration": 0.36896437406539917,
+        "ShieldPressure": -0.6969980001449585
+      },
+      {
+        "chainage": 42.0,
+        "component": "middle_shield",
+        "mean_relevance": 0.9277180433273315,
+        "sum_relevance": 363.66546630859375,
+        "share_relevance": 0.290495183467167,
+        "AdvanceRate": 0.39304107427597046,
+        "Torque": 0.32022708654403687,
+        "Thrust": -0.7928785085678101,
+        "Penetration": 0.36896437406539917,
+        "ShieldPressure": -0.6969980001449585
+      },
+      {
+        "chainage": 42.0,
+        "component": "tail_shield",
+        "mean_relevance": 0.9195564985275269,
+        "sum_relevance": 360.4661560058594,
+        "share_relevance": 0.2879395813562628,
+        "AdvanceRate": 0.39304107427597046,
+        "Torque": 0.32022708654403687,
+        "Thrust": -0.7928785085678101,
+        "Penetration": 0.36896437406539917,
+        "ShieldPressure": -0.6969980001449585
+      },
+      {
+        "chainage": 43.0,
+        "component": "cutterhead",
+        "mean_relevance": 0.9278888702392578,
+        "sum_relevance": 208.77499389648438,
+        "share_relevance": 0.1665934410698187,
+        "AdvanceRate": 0.3894787132740021,
+        "Torque": 0.4474655091762543,
+        "Thrust": -0.4417145848274231,
+        "Penetration": 0.34110090136528015,
+        "ShieldPressure": -0.15362463891506195
+      },
+      {
+        "chainage": 43.0,
+        "component": "front_shield",
+        "mean_relevance": 0.927273690700531,
+        "sum_relevance": 318.05487060546875,
+        "share_relevance": 0.2537940696549732,
+        "AdvanceRate": 0.3894787132740021,
+        "Torque": 0.4474655091762543,
+        "Thrust": -0.4417145848274231,
+        "Penetration": 0.34110090136528015,
+        "ShieldPressure": -0.15362463891506195
+      },
+      {
+        "chainage": 43.0,
+        "component": "middle_shield",
+        "mean_relevance": 0.9302042722702026,
+        "sum_relevance": 364.64007568359375,
+        "share_relevance": 0.29096705417799523,
+        "AdvanceRate": 0.3894787132740021,
+        "Torque": 0.4474655091762543,
+        "Thrust": -0.4417145848274231,
+        "Penetration": 0.34110090136528015,
+        "ShieldPressure": -0.15362463891506195
+      },
+      {
+        "chainage": 43.0,
+        "component": "tail_shield",
+        "mean_relevance": 0.9227824211120605,
+        "sum_relevance": 361.730712890625,
+        "share_relevance": 0.2886455081443669,
+        "AdvanceRate": 0.3894787132740021,
+        "Torque": 0.4474655091762543,
+        "Thrust": -0.4417145848274231,
+        "Penetration": 0.34110090136528015,
+        "ShieldPressure": -0.15362463891506195
+      },
+      {
+        "chainage": 44.0,
+        "component": "cutterhead",
+        "mean_relevance": 0.9255900979042053,
+        "sum_relevance": 208.2577667236328,
+        "share_relevance": 0.1660484591976402,
+        "AdvanceRate": 0.41062602400779724,
+        "Torque": -0.3883233368396759,
+        "Thrust": -0.6904475688934326,
+        "Penetration": 0.33406007289886475,
+        "ShieldPressure": 0.1502377986907959
+      },
+      {
+        "chainage": 44.0,
+        "component": "front_shield",
+        "mean_relevance": 0.9256579279899597,
+        "sum_relevance": 317.50067138671875,
+        "share_relevance": 0.25315020950908085,
+        "AdvanceRate": 0.41062602400779724,
+        "Torque": -0.3883233368396759,
+        "Thrust": -0.6904475688934326,
+        "Penetration": 0.33406007289886475,
+        "ShieldPressure": 0.1502377986907959
+      },
+      {
+        "chainage": 44.0,
+        "component": "middle_shield",
+        "mean_relevance": 0.9317166209220886,
+        "sum_relevance": 365.23291015625,
+        "share_relevance": 0.2912081644484157,
+        "AdvanceRate": 0.41062602400779724,
+        "Torque": -0.3883233368396759,
+        "Thrust": -0.6904475688934326,
+        "Penetration": 0.33406007289886475,
+        "ShieldPressure": 0.1502377986907959
+      },
+      {
+        "chainage": 44.0,
+        "component": "tail_shield",
+        "mean_relevance": 0.9265494346618652,
+        "sum_relevance": 363.2073669433594,
+        "share_relevance": 0.2895931546707249,
+        "AdvanceRate": 0.41062602400779724,
+        "Torque": -0.3883233368396759,
+        "Thrust": -0.6904475688934326,
+        "Penetration": 0.33406007289886475,
+        "ShieldPressure": 0.1502377986907959
+      },
+      {
+        "chainage": 45.0,
+        "component": "cutterhead",
+        "mean_relevance": 0.9235460758209229,
+        "sum_relevance": 207.79786682128906,
+        "share_relevance": 0.16562257858056906,
+        "AdvanceRate": -0.08641300350427628,
+        "Torque": -0.5374110341072083,
+        "Thrust": -0.3881136178970337,
+        "Penetration": 0.2397899329662323,
+        "ShieldPressure": -0.16519086062908173
+      },
+      {
+        "chainage": 45.0,
+        "component": "front_shield",
+        "mean_relevance": 0.9235236644744873,
+        "sum_relevance": 316.76861572265625,
+        "share_relevance": 0.2524762922350112,
+        "AdvanceRate": -0.08641300350427628,
+        "Torque": -0.5374110341072083,
+        "Thrust": -0.3881136178970337,
+        "Penetration": 0.2397899329662323,
+        "ShieldPressure": -0.16519086062908173
+      },
+      {
+        "chainage": 45.0,
+        "component": "middle_shield",
+        "mean_relevance": 0.9320412278175354,
+        "sum_relevance": 365.36016845703125,
+        "share_relevance": 0.29120555536080756,
+        "AdvanceRate": -0.08641300350427628,
+        "Torque": -0.5374110341072083,
+        "Thrust": -0.3881136178970337,
+        "Penetration": 0.2397899329662323,
+        "ShieldPressure": -0.16519086062908173
+      },
+      {
+        "chainage": 45.0,
+        "component": "tail_shield",
+        "mean_relevance": 0.9304090142250061,
+        "sum_relevance": 364.7203369140625,
+        "share_relevance": 0.2906955859774606,
+        "AdvanceRate": -0.08641300350427628,
+        "Torque": -0.5374110341072083,
+        "Thrust": -0.3881136178970337,
+        "Penetration": 0.2397899329662323,
+        "ShieldPressure": -0.16519086062908173
+      },
+      {
+        "chainage": 46.0,
+        "component": "cutterhead",
+        "mean_relevance": 0.9217952489852905,
+        "sum_relevance": 207.4039306640625,
+        "share_relevance": 0.16531982403926854,
+        "AdvanceRate": -0.01777651533484459,
+        "Torque": 0.1949325054883957,
+        "Thrust": -1.1729347705841064,
+        "Penetration": 0.3608834445476532,
+        "ShieldPressure": -1.4847400188446045
+      },
+      {
+        "chainage": 46.0,
+        "component": "front_shield",
+        "mean_relevance": 0.9213070869445801,
+        "sum_relevance": 316.0083312988281,
+        "share_relevance": 0.2518874235314449,
+        "AdvanceRate": -0.01777651533484459,
+        "Torque": 0.1949325054883957,
+        "Thrust": -1.1729347705841064,
+        "Penetration": 0.3608834445476532,
+        "ShieldPressure": -1.4847400188446045
+      },
+      {
+        "chainage": 46.0,
+        "component": "middle_shield",
+        "mean_relevance": 0.9312134385108948,
+        "sum_relevance": 365.0356750488281,
+        "share_relevance": 0.2909666821352315,
+        "AdvanceRate": -0.01777651533484459,
+        "Torque": 0.1949325054883957,
+        "Thrust": -1.1729347705841064,
+        "Penetration": 0.3608834445476532,
+        "ShieldPressure": -1.4847400188446045
+      },
+      {
+        "chainage": 46.0,
+        "component": "tail_shield",
+        "mean_relevance": 0.933964192867279,
+        "sum_relevance": 366.11395263671875,
+        "share_relevance": 0.29182616758724206,
+        "AdvanceRate": -0.01777651533484459,
+        "Torque": 0.1949325054883957,
+        "Thrust": -1.1729347705841064,
+        "Penetration": 0.3608834445476532,
+        "ShieldPressure": -1.4847400188446045
+      },
+      {
+        "chainage": 47.0,
+        "component": "cutterhead",
+        "mean_relevance": 0.9210110306739807,
+        "sum_relevance": 207.22747802734375,
+        "share_relevance": 0.16522264567884398,
+        "AdvanceRate": -0.16618411242961884,
+        "Torque": -1.0311036109924316,
+        "Thrust": -1.246647834777832,
+        "Penetration": 0.590080976486206,
+        "ShieldPressure": -0.5040577054023743
+      },
+      {
+        "chainage": 47.0,
+        "component": "front_shield",
+        "mean_relevance": 0.9194632172584534,
+        "sum_relevance": 315.3758850097656,
+        "share_relevance": 0.25144946317275924,
+        "AdvanceRate": -0.16618411242961884,
+        "Torque": -1.0311036109924316,
+        "Thrust": -1.246647834777832,
+        "Penetration": 0.590080976486206,
+        "ShieldPressure": -0.5040577054023743
+      },
+      {
+        "chainage": 47.0,
+        "component": "middle_shield",
+        "mean_relevance": 0.9295099377632141,
+        "sum_relevance": 364.3678894042969,
+        "share_relevance": 0.29051083022807767,
+        "AdvanceRate": -0.16618411242961884,
+        "Torque": -1.0311036109924316,
+        "Thrust": -1.246647834777832,
+        "Penetration": 0.590080976486206,
+        "ShieldPressure": -0.5040577054023743
+      },
+      {
+        "chainage": 47.0,
+        "component": "tail_shield",
+        "mean_relevance": 0.9368886351585388,
+        "sum_relevance": 367.2603454589844,
+        "share_relevance": 0.29281698791727273,
+        "AdvanceRate": -0.16618411242961884,
+        "Torque": -1.0311036109924316,
+        "Thrust": -1.246647834777832,
+        "Penetration": 0.590080976486206,
+        "ShieldPressure": -0.5040577054023743
+      },
+      {
+        "chainage": 48.0,
+        "component": "cutterhead",
+        "mean_relevance": 0.9223222732543945,
+        "sum_relevance": 207.5225067138672,
+        "share_relevance": 0.16547235059802745,
+        "AdvanceRate": -0.11334974318742752,
+        "Torque": -0.9887846112251282,
+        "Thrust": 0.41657042503356934,
+        "Penetration": -0.6219571828842163,
+        "ShieldPressure": -0.6500484347343445
+      },
+      {
+        "chainage": 48.0,
+        "component": "front_shield",
+        "mean_relevance": 0.9183488488197327,
+        "sum_relevance": 314.99365234375,
+        "share_relevance": 0.25116668501236444,
+        "AdvanceRate": -0.11334974318742752,
+        "Torque": -0.9887846112251282,
+        "Thrust": 0.41657042503356934,
+        "Penetration": -0.6219571828842163,
+        "ShieldPressure": -0.6500484347343445
+      },
+      {
+        "chainage": 48.0,
+        "component": "middle_shield",
+        "mean_relevance": 0.927374541759491,
+        "sum_relevance": 363.53082275390625,
+        "share_relevance": 0.2898687988520914,
+        "AdvanceRate": -0.11334974318742752,
+        "Torque": -0.9887846112251282,
+        "Thrust": 0.41657042503356934,
+        "Penetration": -0.6219571828842163,
+        "ShieldPressure": -0.6500484347343445
+      },
+      {
+        "chainage": 48.0,
+        "component": "tail_shield",
+        "mean_relevance": 0.9389669299125671,
+        "sum_relevance": 368.0750427246094,
+        "share_relevance": 0.29349222636409383,
+        "AdvanceRate": -0.11334974318742752,
+        "Torque": -0.9887846112251282,
+        "Thrust": 0.41657042503356934,
+        "Penetration": -0.6219571828842163,
+        "ShieldPressure": -0.6500484347343445
+      }
+    ]
+  }
+}

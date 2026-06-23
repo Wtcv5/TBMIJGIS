@@ -1,77 +1,54 @@
 # Evidence Protocol
 
-This file defines the reproducible evidence chain used to support model
-accuracy, spatial interpretation, and robustness claims.
+This protocol defines which generated results can be used in the manuscript and
+how to regenerate them.
 
-## 1. Current Formal Run
+## Formal Runs
 
-The current formal result directory is:
-
-```text
-outputs/mvp4_stratified/
-```
-
-It was generated from:
+Run from `experiments/`:
 
 ```powershell
-python scripts/mvp4_full_model.py --config config/stratified.yaml
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205.yaml
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205_h3.yaml
+python scripts/run_graph_sequence_case.py --config config/sjls_dyk1252_411.yaml
 ```
 
-Key files:
+Formal run directories:
+
+- `outputs/bsll_dyk1017_205/`
+- `outputs/bsll_dyk1017_205_h3/`
+- `outputs/sjls_dyk1252_411/`
+
+Each formal run should contain:
 
 - `metrics_global.json`
 - `metrics_per_variable.json`
 - `ablation_metrics.json`
 - `bootstrap_ci.json`
 - `significance_tests.json`
+- `preprocessing_audit.json`
 - `best_graph_model.pt`
 
-## 2. Post-Hoc Spatial Evidence
+## Post-Hoc Spatial Evidence
 
-Regenerate checkpoint-based spatial evidence without retraining:
-
-```powershell
-python scripts/collect_evidence.py --config config/stratified.yaml --run-dir outputs/mvp4_stratified --output-dir outputs/evidence
-```
-
-This writes:
-
-- `outputs/evidence/posthoc_evidence.json`
-- `outputs/evidence/posthoc_evidence_summary.csv`
-
-The script rebuilds the test set, loads `best_graph_model.pt`, recomputes
-predictions, extracts edge relevance, and computes:
-
-- attention-geology correlation;
-- Moran's I of TBM surface relevance;
-- component-level coefficient of variation;
-- relevance-vs-degree control correlation;
-- a geometry-only baseline from fixed candidate-edge priors.
-
-## 3. Stability Runs
-
-Use model search to generate and run multi-seed or parameter-sensitivity trials:
+Regenerate checkpoint-derived interpretation evidence without retraining:
 
 ```powershell
-python scripts/run_model_search.py --execute --include-augmented --max-runs 6 --search-epochs 80 --search-patience 15
+python scripts/collect_evidence.py --config config/bsll_dyk1017_205.yaml --run-dir outputs/bsll_dyk1017_205 --output-dir outputs/evidence/bsll_dyk1017_205
+python scripts/collect_evidence.py --config config/bsll_dyk1017_205_h3.yaml --run-dir outputs/bsll_dyk1017_205_h3 --output-dir outputs/evidence/bsll_dyk1017_205_h3
+python scripts/collect_evidence.py --config config/sjls_dyk1252_411.yaml --run-dir outputs/sjls_dyk1252_411 --output-dir outputs/evidence/sjls_dyk1252_411
+python scripts/summarize_interpretation_evidence.py
 ```
 
-Completed trials are summarized in:
+The evidence collector rebuilds the test set, loads `best_graph_model.pt`,
+extracts attention-derived TBM surface relevance, and writes:
 
-```text
-outputs/search/summary.csv
-outputs/search/summary.json
-```
+- `posthoc_evidence.json`
+- `posthoc_evidence_summary.csv`
+- `component_relevance.csv`
 
-After enough trials finish, write a full ablation config for the best completed
-trial:
+## Manuscript Rule
 
-```powershell
-python scripts/run_model_search.py --final-ablation
-```
-
-## 4. Manuscript Rule
-
-Only values with a direct JSON/CSV source in `outputs/mvp4_stratified/`,
-`outputs/evidence/`, or `outputs/search/` should be reported as experimental
-evidence. Exploratory or synthetic runs must be labelled as such in the paper.
+Only values traceable to JSON/CSV files under the formal output directories or
+`outputs/evidence/` should be reported as experimental evidence. Exploratory
+runs must be labelled as exploratory.

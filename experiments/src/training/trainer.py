@@ -155,10 +155,12 @@ def train_sequence_model(model: nn.Module,
                          weight_decay: float = 1e-4,
                          patience: int = 30,
                          huber_delta: float = 1.0,
+                         target_weights: Optional[list[float]] = None,
                          device: str = "cpu",
                          checkpoint_dir: Optional[Path] = None):
     """标准训练循环."""
-    loss_fn = StandardizedHuberLoss(n_targets=5, delta=huber_delta)
+    weights = torch.tensor(target_weights, dtype=torch.float32, device=device) if target_weights else None
+    loss_fn = StandardizedHuberLoss(n_targets=5, delta=huber_delta, weights=weights)
     optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.5, patience=10
@@ -314,12 +316,14 @@ def train_graph_sequence_model(model: nn.Module,
                                weight_decay: float = 1e-4,
                                patience: int = 30,
                                huber_delta: float = 1.0,
+                               target_weights: Optional[list[float]] = None,
                                tau: float = 2.0,
                                device: str = "cpu",
                                checkpoint_dir: Optional[Path] = None,
                                checkpoint_name: str = "best_graph_model.pt"):
     """Training loop for graph-sequence models."""
-    loss_fn = StandardizedHuberLoss(n_targets=5, delta=huber_delta)
+    weights = torch.tensor(target_weights, dtype=torch.float32, device=device) if target_weights else None
+    loss_fn = StandardizedHuberLoss(n_targets=5, delta=huber_delta, weights=weights)
     optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.5, patience=10

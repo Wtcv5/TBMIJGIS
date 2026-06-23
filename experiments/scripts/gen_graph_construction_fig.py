@@ -19,7 +19,7 @@ from src.graph.sequence import build_graph_snapshot
 from src.visualization.graph_viz import plot_graph_construction_figure
 
 
-def main(config_path: str = "config/default.yaml"):
+def main(config_path: str = "config/bsll_dyk1017_205.yaml"):
     with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 

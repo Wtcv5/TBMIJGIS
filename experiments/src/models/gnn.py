@@ -120,10 +120,10 @@ class RockTBMEncoder(nn.Module):
                 device = h_rock.device
 
                 # 提取边特征
-                distances = torch.tensor(attrs["distance"], dtype=torch.float32, device=device)
-                kappas = torch.tensor(attrs["kappa"], dtype=torch.float32, device=device)
-                delta_vecs = torch.tensor(attrs["delta_vec"], dtype=torch.float32, device=device)
-                geo_prior = torch.tensor(attrs["geometry_prior"], dtype=torch.float32, device=device)
+                distances = torch.as_tensor(attrs["distance"], dtype=torch.float32, device=device)
+                kappas = torch.as_tensor(attrs["kappa"], dtype=torch.float32, device=device)
+                delta_vecs = torch.as_tensor(attrs["delta_vec"], dtype=torch.float32, device=device)
+                geo_prior = torch.as_tensor(attrs["geometry_prior"], dtype=torch.float32, device=device)
 
                 # a_ij^{rm} 特征 (论文 7.2)
                 edge_feat = encode_rm_edge_features(

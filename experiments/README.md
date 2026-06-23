@@ -1,90 +1,51 @@
 # Experiments
 
-This directory contains the runnable experiment pipeline for the rock-TBM
-interaction graph-sequence framework.
+This directory contains the runnable pipeline for the rock-TBM interaction graph
+sequence framework.
 
-## Layout
+## Case Configs
 
-```text
-experiments/
-├── config/        YAML configuration files
-├── data/
-│   └── raw/       TSP and TBM monitoring CSV inputs
-├── notebooks/     Exploratory notebooks
-├── outputs/       Generated metrics, figures, and checkpoints
-├── scripts/       Runnable experiment entry points
-├── src/           Reusable Python modules
-├── requirements.txt
-└── PIPELINE_DIAGRAM.md
-```
+| Config | Purpose |
+|---|---|
+| `config/bsll_dyk1017_205.yaml` | BSLL, DyK1017+205, one-step response prediction |
+| `config/bsll_dyk1017_205_h3.yaml` | BSLL, DyK1017+205, three-step advance prediction |
+| `config/sjls_dyk1252_411.yaml` | SJLS, Dyk1252+411, external Vp/Vs TSP case |
+| `config/*_quick.yaml` | short smoke-test versions with reduced training cost |
 
-## Entry Points
-
-Run from this directory:
+## Core Commands
 
 ```powershell
-python scripts/mvp1_build_graph.py
-python scripts/mvp4_full_model.py
+# Formal graph-sequence experiments
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205.yaml
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205_h3.yaml
+python scripts/run_graph_sequence_case.py --config config/sjls_dyk1252_411.yaml
+
+# Case-level metrics summary
+python scripts/summarize_case_results.py
+
+# Post-hoc interpretation evidence
+python scripts/collect_evidence.py --config config/bsll_dyk1017_205.yaml --run-dir outputs/bsll_dyk1017_205 --output-dir outputs/evidence/bsll_dyk1017_205
+python scripts/collect_evidence.py --config config/bsll_dyk1017_205_h3.yaml --run-dir outputs/bsll_dyk1017_205_h3 --output-dir outputs/evidence/bsll_dyk1017_205_h3
+python scripts/collect_evidence.py --config config/sjls_dyk1252_411.yaml --run-dir outputs/sjls_dyk1252_411 --output-dir outputs/evidence/sjls_dyk1252_411
+python scripts/summarize_interpretation_evidence.py
 ```
-
-`mvp1_build_graph.py` builds representative graph snapshots and visualization
-figures.
-
-`mvp4_full_model.py` runs the full training and evaluation pipeline, including
-baselines, graph-sequence model, ablations, bootstrap intervals, permutation
-tests, prediction plots, and hotspot maps.
-
-## Model Search
-
-Use `scripts/run_model_search.py` to explore accuracy-oriented and
-interpretability-oriented configurations around the stratified setup.
-
-Generate trial configs without training:
-
-```powershell
-python scripts/run_model_search.py --include-augmented
-```
-
-Run a compact search and summarize completed trials:
-
-```powershell
-python scripts/run_model_search.py --execute --include-augmented --max-runs 6 --search-epochs 20 --search-patience 4
-```
-
-After enough trials finish, produce a full ablation-ready config for the best
-completed trial:
-
-```powershell
-python scripts/run_model_search.py --final-ablation
-```
-
-## Evidence Chain
-
-Post-hoc spatial evidence for the current formal checkpoint is generated with:
-
-```powershell
-python scripts/collect_evidence.py --config config/stratified.yaml --run-dir outputs/mvp4_stratified --output-dir outputs/evidence
-```
-
-See [EVIDENCE_PROTOCOL.md](EVIDENCE_PROTOCOL.md) for the current reproducibility
-protocol.
 
 ## Source Modules
 
 ```text
 src/data/           TSP loading, monitoring preprocessing, geometry alignment
-src/graph/          Node, edge, and graph-sequence construction
-src/models/         Baselines, GNN encoder, graph-sequence models
-src/training/       Datasets, losses, training loops, metrics
-src/visualization/  Graph, prediction, and hotspot plotting
+src/graph/          node, edge, and graph-sequence construction
+src/models/         baselines, GNN encoder, graph-sequence models
+src/training/       datasets, losses, training loops, metrics
+src/visualization/  graph, prediction, hotspot, and IJGIS-style plotting
 ```
 
-## Current Reproducibility Note
+## Output Policy
 
-The old `outputs/mvp4/` run has been removed because it was generated before
-several evaluation fixes. The current complete result set is
-`outputs/mvp4_stratified/`. To regenerate it, run:
+Generated run directories under `outputs/` are reproducible artifacts. The
+formal run names are:
 
-```powershell
-python scripts/mvp4_full_model.py --config config/stratified.yaml
-```
+- `outputs/bsll_dyk1017_205/`
+- `outputs/bsll_dyk1017_205_h3/`
+- `outputs/sjls_dyk1252_411/`
+- `outputs/evidence/`

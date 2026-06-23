@@ -31,8 +31,9 @@ IJGIS-papaers/
 ## Naming Conventions
 
 - Use `snake_case.py` for Python modules and scripts.
-- Use clear MVP script names only for runnable milestones, e.g.
-  `mvp1_build_graph.py` and `mvp4_full_model.py`.
+- Use semantic script names for paper-facing runs, e.g.
+  `run_graph_sequence_case.py`, `collect_evidence.py`, and
+  `summarize_case_results.py`.
 - Keep generated files under `experiments/outputs/<run_name>/`.
 - Keep raw input files under `experiments/data/raw/`.
 - Keep manuscript-only data or notes under `paper/` only when they are not used by
@@ -50,4 +51,3 @@ The following items are safe to ignore in versioned or formal archives:
 
 Avoid moving `experiments/data/raw/`, `experiments/config/`, or `experiments/src/`
 without updating the script path assumptions in `experiments/scripts/`.
-

@@ -112,7 +112,10 @@ def build_graph_snapshot(step: ExcavationStep,
         data["rock", "interact", "tbm"].edge_index = torch.tensor(
             rm_edge_np, dtype=torch.long, device=device
         )
-        data["rock", "interact", "tbm"].edge_attrs = rm_attrs
+        data["rock", "interact", "tbm"].edge_attrs = {
+            key: torch.as_tensor(value, dtype=torch.float32, device=device)
+            for key, value in rm_attrs.items()
+        }
 
     # 保存当前 active 岩体属性和 TBM 部件信息，便于后续边特征编码
     rock_attrs_t = torch.tensor(rock_attrs[active_idx], dtype=torch.float32, device=device)

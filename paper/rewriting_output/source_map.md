@@ -10,8 +10,9 @@
 | Bibliography | `ijgis-template/references.bib` | placeholder | low | sample entries only |
 | Manuscript outline | `岩机交互图序列框架_论文提纲与实验方案.md` | primary source for motivation, method design, evaluation plan | authoritative | provides title options, abstract logic, section logic, equations, experiment design |
 | Method flow design | `method_chapter_flow_design.md` | primary source for method details | authoritative | provides forecasting formulation, monitoring vectors, GRU design, edge features, geometric prior |
-| Publication figures | `experiments/outputs/figures/` | manuscript figure evidence | authoritative | paper-ready PDF figures for framework, graph construction, prediction, ablation, hotspot, evolution, and decision-support views |
-| Stratified MVP4 outputs | `experiments/outputs/mvp4_stratified/` | training evidence | authoritative | latest complete stratified run with model weights, metrics, ablations, prediction plots, and hotspot maps |
+| Publication figures | `experiments/outputs/figures/` | manuscript figure evidence | authoritative | paper-ready PDF figures for framework, graph construction, prediction, ablation, hotspot, and evolution views |
+| BSLL case outputs | `experiments/outputs/bsll_dyk1017_205/` and `experiments/outputs/bsll_dyk1017_205_h3/` | training evidence | authoritative | semantic BSLL runs with model weights, metrics, ablations, prediction plots, and hotspot maps |
+| SJLS case outputs | `experiments/outputs/sjls_dyk1252_411/` | training evidence | authoritative | semantic SJLS run with model weights, metrics, ablations, prediction plots, and hotspot maps |
 | Raw monitoring data | `experiments/data/raw/monitoring.csv` | input data | authoritative | TBM monitoring records |
 | Raw TSP data | `experiments/data/raw/tsp.csv` | input data | authoritative | TSP geological attributes |
 | Metrics module | `experiments/src/training/metrics.py` | evaluation implementation | authoritative | implements MAE, RMSE, R2, Pearson, Spearman |
@@ -24,8 +25,8 @@
 - Manuscript format: LaTeX.
 - Sections drafted: Introduction (substantive), Methods (substantive).
 - Sections placeholder: Results, Discussion, Conclusion.
-- Experimental outputs available: publication PDF figures and the latest stratified MVP4 result set.
-- Quantitative metrics: code infrastructure exists (metrics.py); current metric JSON files are in `experiments/outputs/mvp4_stratified/`.
+- Experimental outputs available: publication PDF figures and the mileage-ordered MVP4 result set.
+- Quantitative metrics: code infrastructure exists (`metrics.py`); current metric JSON files are in the semantic case output directories under `experiments/outputs/`.
 - Bibliography: still placeholder.
 - Exemplar learning: completed (exemplar_learning_dossier.md).
 
@@ -44,6 +45,6 @@
 
 ## Immediate Blockers
 
-1. Specific quantitative metrics from the stratified MVP4 run need to be extracted and organized.
+1. Mileage-ordered quantitative metrics must remain synchronized with the manuscript tables.
 2. Results section cannot be substantively written without organized metric values.
 3. Bibliography needs real references aligned with cited literature.

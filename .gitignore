@@ -10,11 +10,13 @@ __pycache__/
 venv/
 
 # Experiment artifacts
+experiments/data/sjls_dyk1252_411_raw/
 experiments/outputs/*
 !experiments/outputs/README.md
+!experiments/outputs/case_summary.csv
+!experiments/outputs/case_summary.json
 !experiments/outputs/evidence/
-!experiments/outputs/evidence/*.json
-!experiments/outputs/evidence/*.csv
+!experiments/outputs/evidence/**
 *.pt
 
 # Notebook checkpoints

@@ -97,14 +97,17 @@ monitoring responses to supervise the relative importance of geometry-screened
 candidate relations, enabling interpretable spatial learning under incomplete
 observability.  The evaluation compares the framework against monitoring-only
 sequence models, TSP-augmented sequence models, tabular baselines, and structural
-graph ablations.  Spatial consistency indicators---including Moran's $I$,
-component-level coefficient of variation, and attention--geology
-correlation---suggest that geometry-constrained graph construction produces
-spatially structured and geologically aligned interaction patterns that degrade
-when geometric constraints are removed.  By unifying geological sensing, machine
-geometry, monitoring response, and spatial interpretation within a constrained
-graph sequence, the framework offers a spatially explicit approach to excavation
-interaction analysis that complements existing temporal prediction methods.
+graph ablations under a mileage-ordered forward evaluation.  The proposed
+framework remains competitive with the sequence baselines but does not establish
+a statistically significant predictive advantage on the shifted future test
+interval.  Checkpoint-based diagnostics nevertheless show spatially clustered
+surface relevance and strong inverse co-variation with TSP velocity along the
+test interval; these patterns are reported as response-consistent diagnostics,
+not as proof of physical contact or geological causality.  By unifying geological
+sensing, machine geometry, monitoring response, and spatial interpretation within
+a constrained graph sequence, the framework offers a spatially explicit approach
+to excavation interaction analysis that complements existing temporal prediction
+methods.
 \end{abstract}
 
 \begin{keywords}

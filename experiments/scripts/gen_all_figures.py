@@ -9,7 +9,7 @@ Produces the following figures:
   Fig 6: Chainage evolution (stacked panels)
 
 Usage:
-  python scripts/gen_all_figures.py [--config config/default.yaml]
+  python scripts/gen_all_figures.py [--config config/bsll_dyk1017_205.yaml]
 """
 
 import argparse
@@ -758,7 +758,7 @@ def gen_fig8_scenario_validation(output_dir, y_test, all_preds, scenario_masks):
 
 # ── Main Pipeline ──────────────────────────────────────────────────
 
-def main(config_path: str = "config/default.yaml"):
+def main(config_path: str = "config/bsll_dyk1017_205.yaml"):
     with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
     runtime_cfg = cfg.get("runtime", {})
@@ -1472,6 +1472,6 @@ def main(config_path: str = "config/default.yaml"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default="config/default.yaml")
+    parser.add_argument("--config", default="config/bsll_dyk1017_205.yaml")
     args = parser.parse_args()
     main(args.config)

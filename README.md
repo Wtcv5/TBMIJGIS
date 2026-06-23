@@ -1,57 +1,82 @@
 # Rock-TBM Interaction Graph Sequence Project
 
-This project develops a spatially explicit graph-sequence framework for
-representing and interpreting rock-TBM interactions during tunnel excavation.
+This repository contains the experiment code and IJGIS manuscript materials for
+a spatially explicit graph-sequence framework for rock-TBM interaction
+interpretation.
 
-The core idea is to model TSP-derived rock voxels and parameterized TBM surface
-nodes as heterogeneous spatial entities, connect them with geometry-constrained
-candidate interaction edges, and use TBM monitoring responses to supervise
-interaction relevance. The project contains both experiment code and manuscript
-materials for an IJGIS-oriented paper.
+The method represents TSP-derived rock voxels and parameterized TBM surface
+nodes as a heterogeneous spatial graph sequence. Geometry-constrained
+rock-machine edges define plausible interaction relations, and TBM monitoring
+responses supervise prediction and attention-derived surface relevance.
 
-## Directory Layout
+## Main Cases
+
+| Case | Tunnel | Start chainage | Primary role |
+|---|---|---|---|
+| `bsll_dyk1017_205` | BSLL | DyK1017+205 | one-step prediction and interpretation reference |
+| `bsll_dyk1017_205_h3` | BSLL | DyK1017+205 | three-step advance-prediction sensitivity case |
+| `sjls_dyk1252_411` | SJLS | Dyk1252+411 | main external TSP case for prediction consistency and geometry ablation |
+
+Quick configs are provided only for smoke tests:
+
+- `experiments/config/bsll_dyk1017_205_quick.yaml`
+- `experiments/config/bsll_dyk1017_205_h3_quick.yaml`
+- `experiments/config/sjls_dyk1252_411_quick.yaml`
+
+## Repository Layout
 
 ```text
-.
-├── experiments/          # Reproducible experiment pipeline and model code
-├── paper/                # Manuscript source, writing notes, and revision outputs
-├── IJGIS-papaers/        # Target-journal and related-literature PDFs
-├── andrej-karpathy-skills/ # External writing/coding guidance material
-├── CLAUDE.md             # General agent behavior notes
-└── README.md             # This project overview
+experiments/
+  config/       semantic case YAML files
+  data/         raw and processed TSP/TBM monitoring inputs
+  scripts/      runnable pipelines and evidence collectors
+  src/          reusable data, graph, model, training, and visualization code
+  outputs/      generated results; mostly ignored by git except summaries/evidence
+paper/
+  ijgis-template/       LaTeX manuscript
+  rewriting_output/     planning, evidence, and revision artifacts
+IJGIS-papaers/          local target-journal and related-paper PDFs
+docs/                   project-structure notes
 ```
 
-## Main Experiment Entry Points
+## Run From `experiments/`
 
-Run commands from `experiments/` unless otherwise noted.
+Smoke tests:
 
 ```powershell
-python scripts/mvp1_build_graph.py
-python scripts/mvp4_full_model.py
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205_quick.yaml
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205_h3_quick.yaml
+python scripts/run_graph_sequence_case.py --config config/sjls_dyk1252_411_quick.yaml
 ```
 
-`mvp1_build_graph.py` builds graph snapshots and graph-construction figures.
+Formal runs:
 
-`mvp4_full_model.py` runs the full pipeline: graph sequence construction,
-baselines, graph-sequence model training, ablations, metrics, attention extraction,
-and publication-style figures.
+```powershell
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205.yaml
+python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205_h3.yaml
+python scripts/run_graph_sequence_case.py --config config/sjls_dyk1252_411.yaml
+```
 
-## Current Status Note
+Post-hoc evidence and summaries:
 
-Old intermediate and stale experiment outputs have been removed. The currently
-kept generated results are:
+```powershell
+python scripts/collect_evidence.py --config config/sjls_dyk1252_411.yaml --run-dir outputs/sjls_dyk1252_411 --output-dir outputs/evidence/sjls_dyk1252_411
+python scripts/summarize_case_results.py
+python scripts/summarize_interpretation_evidence.py
+```
 
-- `experiments/outputs/mvp4_stratified/`: latest complete stratified experiment
-  run with metrics, checkpoints, ablations, and diagnostic plots;
-- `experiments/outputs/figures/`: publication-oriented PDF figures used by the
-  manuscript.
+## Current Paper Positioning
 
-For a fresh full run, execute `python scripts/mvp4_full_model.py --config
-config/stratified.yaml` from `experiments/`.
+The defensible contribution is not broad, significant improvement over
+Persistence on every dataset. The stronger argument is that the framework turns
+TBM response modelling into a spatially explicit interaction-interpretation
+problem:
 
-## Documentation
+- prediction metrics check response consistency;
+- geometry ablations test whether rock-machine relations matter;
+- attention-derived TBM surface hotspots provide interpretable spatial evidence;
+- BSLL and SJLS show the same representation applied across different tunnel
+  cases.
 
-- [Experiment README](experiments/README.md)
-- [Paper README](paper/README.md)
-- [Pipeline diagram](experiments/PIPELINE_DIAGRAM.md)
-- [Project structure notes](docs/PROJECT_STRUCTURE.md)
+See `paper/rewriting_output/interpretation_evidence_bank.md` for the current
+claim boundaries and traceable evidence.

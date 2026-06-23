@@ -29,8 +29,9 @@ class GraphSequenceModel(nn.Module):
                  rock_hidden: int = 128, tbm_hidden: int = 64,
                  edge_hidden: int = 64, gnn_layers: int = 3,
                  gru_hidden: int = 256, gru_layers: int = 2,
-                 dropout: float = 0.1):
+                 dropout: float = 0.1, residual_prediction: bool = False):
         super().__init__()
+        self.residual_prediction = residual_prediction
 
         self.gnn = RockTBMEncoder(rock_in_dim, tbm_in_dim, edge_in_dim,
                                   rock_hidden, tbm_hidden, edge_hidden,
@@ -53,6 +54,9 @@ class GraphSequenceModel(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(gru_hidden // 2, output_dim),
         )
+        if self.residual_prediction:
+            nn.init.zeros_(self.resp_head[-1].weight)
+            nn.init.zeros_(self.resp_head[-1].bias)
 
     def _encode_single_graph(self, snap: GraphSnapshot, tau: float
                              ) -> torch.Tensor:
@@ -104,6 +108,11 @@ class GraphSequenceModel(nn.Module):
 
         # 响应预测
         pred = self.resp_head(s_t)
+        if self.residual_prediction:
+            # Persistence is a strong baseline in TBM monitoring series. In
+            # residual mode, the network learns a graph-conditioned correction
+            # to the last observed response instead of relearning persistence.
+            pred = monitoring_seqs[:, -1, [0, 2, 3, 4, 5]] + pred
 
         # 收集最后一步的注意力 (用于热点图)
         # 使用 softmax 前的原始分数 s_ij, 而非归一化后的 alpha_ij
@@ -137,12 +146,12 @@ class DynamicGraphOnly(GraphSequenceModel):
                  rock_hidden: int = 128, tbm_hidden: int = 64,
                  edge_hidden: int = 64, gnn_layers: int = 3,
                  gru_hidden: int = 256, gru_layers: int = 2,
-                 dropout: float = 0.1):
+                 dropout: float = 0.1, residual_prediction: bool = False):
         # Pass all args to parent to initialize GNN encoder etc.
         super().__init__(
             rock_in_dim, tbm_in_dim, edge_in_dim,
             monitoring_dim, output_dim, rock_hidden, tbm_hidden, edge_hidden,
-            gnn_layers, gru_hidden, gru_layers, dropout,
+            gnn_layers, gru_hidden, gru_layers, dropout, residual_prediction=False,
         )
         # Override GRU to accept only graph embeddings (no monitoring)
         self.gru = nn.GRU(tbm_hidden * 2 + rock_hidden, gru_hidden,
@@ -239,6 +248,7 @@ class NoGeometricConstraints(GraphSequenceModel):
     区别在于图构建阶段: 使用宽松参数 (大 tau, eta_min=0) 构建图序列,
     然后用该宽松图序列训练此模型.
 
-    在 mvp4 脚本中, 需要构建 relaxed_snapshots 并传入对应的 dataloader.
+    The calling pipeline needs to build relaxed_snapshots and pass the
+    corresponding dataloader.
     """
     pass

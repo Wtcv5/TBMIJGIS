@@ -1,17 +1,19 @@
 # Experiment Outputs
 
-This directory contains generated figures, metrics, and model checkpoints.
+This directory contains generated results. Most files here are reproducible
+artifacts and are ignored by git, except selected summaries and evidence tables.
 
-## Current Contents
+## Formal Output Directories
 
-- `mvp4_stratified/`: latest complete stratified experiment run.
-- `figures/`: publication-oriented PDF figures referenced by the manuscript.
+- `bsll_dyk1017_205/`: BSLL one-step graph-sequence run.
+- `bsll_dyk1017_205_h3/`: BSLL three-step advance-prediction run.
+- `sjls_dyk1252_411/`: SJLS graph-sequence run.
+- `sjls_dyk1252_411_tabular/`: SJLS tabular control benchmark.
+- `evidence/`: checkpoint-derived interpretation evidence.
+- `figures/`: manuscript-oriented figure copies.
 
-Old quick runs, stale `mvp4/` outputs, scratch graph-construction figures, logs,
-and temporary files have been removed.
+## Summary Files
 
-Regenerate the current full experiment from `experiments/` with:
-
-```powershell
-python scripts/mvp4_full_model.py --config config/stratified.yaml
-```
+- `case_summary.csv/json`: prediction metrics and split metadata by case.
+- `evidence/interpretation_summary.csv/json`: spatial interpretation evidence
+  by case.

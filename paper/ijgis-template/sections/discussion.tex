@@ -1,186 +1,81 @@
-\subsection{Prediction--interpretability trade-off}
+\subsection{Forward prediction under geological shift}
 \label{sec:tradeoff}
-The experimental results suggest a trade-off between prediction
-accuracy and spatial interpretability.  The proposed framework does not
-consistently outperform monitoring-only sequence models on global prediction
-metrics (Table~\ref{tab:prediction}), yet the ablation results indicate that
-each design component---graph structure, monitoring input, and geometric
-prior---appears to contribute meaningfully to the model's spatial behaviour.
+The mileage-ordered split evaluates the model on a later continuous tunnel
+interval and therefore preserves the geological shift encountered during
+excavation.  Under this setting, every model has negative $R^2$.  The proposed
+framework obtains MAE 0.435 and is statistically indistinguishable from the
+tested baselines.  It should therefore not be presented as a superior
+forecasting model on the current dataset.
 
-The No Geometric Prior ablation illustrates this trade-off most clearly.
-Removing the geometric prior improves prediction metrics (MAE 0.360 vs.\
-0.481) but degrades all three spatial consistency indicators
-(Table~\ref{tab:spatial_consistency}): attention--geology correlation
-weakens from $-0.31$ to $-0.12$, Moran's $I$ drops from 0.42 to 0.18,
-and component-level CV drops from 0.38 to 0.15.  This suggests that
-the geometric prior may act as an interpretability constraint: it appears
-to bias the model toward spatially plausible interaction patterns that
-align with engineering expectations, at the cost of allowing the model to
-exploit statistical correlations that may be prediction-effective but
-spatially less meaningful.
+The ablations reinforce this cautious interpretation.  Removing monitoring
+input degrades prediction, and removing the geometric prior produces the worst
+learned-model result.  However, randomising the rock--machine edges improves
+MAE from 0.435 to 0.413.  Thus the current experiment supports a contribution
+from monitoring history and from the prior within the chosen architecture, but
+does not demonstrate that the constrained edge topology improves forward
+prediction.  The small test set and strong geological shift make this a
+particularly demanding evaluation.
 
-The Randomised Edges ablation further supports this interpretation.
-Replacing geometry-constrained edges with random edges degrades Pearson $r$
-from 0.538 to 0.305 and collapses Moran's $I$ to 0.07, suggesting that
-the spatial structure of candidate relations---not merely the presence of
-cross-type edges---is likely critical for learning spatially meaningful
-interaction patterns.  This finding is consistent with the broader GIScience
-principle that spatial representation design matters for learning outcomes:
-the way entities and relations are formalised constrains what can be
-learned and how the results can be interpreted
-\citep{li2021spatial,zhu2025spatial,openshaw1984modifiable,couclelis1996geographic}.
+\subsection{Spatial evidence and its limits}
+The saved-checkpoint diagnostics show positive spatial clustering on the TBM
+surface (mean Moran's $I=0.529$).  This establishes that the projected relevance
+is spatially structured rather than spatially random.  Component-level
+differentiation is weak (mean CV\,$=0.018$), so the current evidence does not
+support a strong claim that the model reliably separates cutterhead and shield
+interaction roles.
 
-For GIScience applications where interpretability and spatial consistency
-matter---such as excavation risk assessment, geological anomaly
-identification, and decision support---this trade-off may be acceptable.  The
-framework's value lies not in achieving the best prediction metrics but in
-providing spatially structured, geologically aligned interaction
-interpretation that monitoring-only models cannot deliver.
+Mean relevance is strongly inversely associated with TSP $V_p$ over the eight
+future-test chainages (Pearson $r=-0.988$, $p<0.001$).  Although the direction is
+consistent with stronger relevance in lower-velocity ground, this short
+contiguous interval also contains strong chainage trends.  The correlation may
+therefore reflect common spatial trend rather than a direct geological response.
+It is retained as a local diagnostic, not as causal or physical validation.
+
+The degree-control correlation is moderately negative ($r=-0.225$), indicating
+that high relevance is not simply produced by more incident candidate edges.
+At the same time, degree and relevance are not independent, and additional
+topology-shuffle and spatial-trend controls are needed before stronger
+interpretability claims are made.
 
 \subsection{Application scenario: spatial reasoning beyond prediction}
 \label{sec:application}
-To illustrate the practical value of spatially explicit interaction
-interpretation, consider the decision-support scenario shown in
-Figure~\ref{fig:decision_support}.  At a chainage where the TSP velocity
-field indicates a low-velocity zone, the proposed framework produces a
-three-level spatial reasoning chain:
+The main value currently supported by the framework is representational.  It
+connects geological context, monitoring response, candidate rock--machine
+relations, and TBM surface locations within one model and can project learned
+relevance back to hotspot and chainage views.  Monitoring-only sequence models
+cannot produce an equivalent TBM-surface diagnostic because they do not encode
+surface nodes or rock--machine relations.
 
-\begin{enumerate}
-\item \emph{Geological context identification}: the TSP velocity field
-  reveals a low-velocity anomaly ahead of the cutterhead, indicating
-  potential weak or fractured rock.
-
-\item \emph{Spatial interaction assessment}: the attention-based hotspot
-  map shows elevated interaction relevance concentrated on the front shield
-  and cutterhead-proximal region, with mean $C_j$ exceeding the 75th
-  percentile alert threshold.  The component-level differentiation
-  (CV\,$=0.38$) indicates that the interaction is spatially concentrated
-  rather than uniformly distributed.
-
-\item \emph{Spatially informed decision support}: integrating the
-  attention alert with the prediction error yields a composite
-  attention--error indicator that flags the chainage as a candidate
-  warranting closer inspection.  This indicator is not a calibrated risk
-  metric, nor does it prescribe specific operational actions; rather, it
-  is a heuristic flag that combines two independent signals---interaction
-  relevance and prediction uncertainty---into a single spatially grounded
-  cue that engineers may consult alongside other sources of information.
-\end{enumerate}
-
-A monitoring-only LSTM model can produce a numerical prediction at the same
-chainage, but it cannot answer the spatial questions that matter for
-operational decision-making: \emph{which machine component is most
-affected?}, \emph{where on the shield surface is the interaction
-concentrated?}, and \emph{does the interaction pattern align with the
-geological anomaly?}.  The graph-based spatial representation enables this
-spatial reasoning by preserving the spatial structure of rock--machine
-relations and projecting learned relevance back to interpretable spatial
-views.
-
-This scenario suggests that the framework's contribution is not
-prediction accuracy but spatial reasoning capability: the ability to
-connect geological context, machine geometry, and monitoring response into
-a coherent spatial interpretation that may support decision-making.  This
-capability may be particularly valuable in tunnelling operations where the
-consequence of misinterpreting interaction patterns---such as shield
-jamming or ground collapse---can be severe, and where spatial
-understanding of \emph{where} interactions occur is as important as
-knowing \emph{what} the predicted response magnitude is.
-
-\subsection{Spatial consistency as a validity criterion}
-The three spatial consistency indicators introduced in
-Section~\ref{sec:spatial_consistency}---attention--geology correlation,
-Moran's $I$, and component-level CV---provide a quantitative framework for
-evaluating spatial interpretability that goes beyond prediction metrics.
-This is important because spatial interpretability is inherently difficult
-to evaluate: unlike prediction accuracy, there is no ground-truth
-interaction field to compare against.
-
-The attention--geology correlation ($r=-0.31$) provides external validity
-by comparing the learned attention against an independent geological
-measurement.  While the correlation is moderate and not statistically
-significant given the small test set, the direction is consistent with the
-geological expectation that weak rock zones generate stronger
-rock--machine coupling.  The Moran's $I$ (0.42) provides internal validity
-by verifying that the attention is spatially structured rather than random
-noise---a necessary condition for spatial interpretability
-\citep{moran1950notes,cliff1981spatial,anselin1995local}.  The
-component-level CV (0.38) provides structural validity by suggesting that
-the attention differentiates between TBM components in a physically
-plausible manner.
-
-Together, these indicators provide a multi-criteria validity framework
-for spatial interpretability that can be applied to other graph-based
-spatial learning methods.  The key insight is that spatial consistency is
-not a binary property but a gradable one: the full framework is more
-spatially consistent than the No Geometric Prior variant, which is in turn
-more consistent than the Randomised Edges variant, and this gradation
-aligns with the degree of spatial constraint imposed on the graph
-construction.
+These views remain model diagnostics.  They are not calibrated risk estimates,
+contact pressures, jamming probabilities, or prescriptions for machine control.
+Operational use would require independent event labels, expert assessment, or
+physical measurements that can validate whether the displayed hotspots
+correspond to actual interaction states.
 
 \subsection{Boundary and caution}
-Several boundaries should be noted.  First, the learned edge relevance
-represents response-consistent interaction importance under geometric
-screening, not direct physical contact force or stress.  The framework
-identifies which candidate relations are most relevant for explaining
-response variation, but it does not estimate contact pressure or jamming
-probability.  Second, the geometric constraints ensure plausibility within
-the defined thresholds ($\tau$, $\eta_{\min}$, active-zone radius), but
-different threshold values may alter the candidate set and the resulting
-attention distribution.  Third, the evaluation is conducted on a single
-tunnel project with a small test set (8 samples); cross-project validation
-is needed before claiming generalizability.  Fourth, the spatial
-consistency indicators (Moran's $I$, CV) are computed on a small sample
-and should be interpreted as indicative rather than definitive.  Fifth,
-the observation that removing the geometric prior improves prediction
-metrics raises the question of whether the prior is necessary; we have
-argued that it is, but for interpretability rather than prediction, and
-this argument should be further validated with larger datasets where the
-trade-off can be more precisely quantified.
+The case study contains only 44 effective sequence samples and 8 future-test
+samples.  The resulting confidence intervals are broad, and the paired tests do
+not establish a prediction advantage.  The test interval also differs
+geologically from the training interval, so the negative $R^2$ values should be
+read as evidence of limited extrapolation rather than ignored as an inconvenient
+artifact.
 
-These boundaries arise because the framework operates under incomplete
-observability---direct interaction measurements are unavailable---and they
-imply that the hotspot maps should be interpreted as response-consistent
-spatial relevance indicators rather than as ground-truth interaction
-fields.
+The spatial evidence is checkpoint-based and post-hoc.  Multi-seed stability,
+label permutation, candidate-edge threshold sensitivity, spatial detrending,
+and cross-project validation remain necessary.  Learned relevance represents
+response-consistent model importance under geometric screening, not a direct
+measurement of contact force, stress, or engineering risk.
 
 \subsection{Broader GIScience implications}
-More broadly, this framework illustrates how spatially explicit graph
-representations can be constructed for domains where heterogeneous spatial
-entities must be organised into a plausible, interpretable structure under
-incomplete observability.  The principle of geometry-constrained candidate
-relation screening is not limited to TBM excavation; it applies to any
-setting where spatial entities interact under geometric compatibility
-constraints, such as building--environment interaction,
-infrastructure--terrain coupling, or sensor--phenomenon proximity networks
-\citep{zhu2020spatial,yao2018representing}.  The use of continuous monitoring response as indirect supervision, rather
-than sparse event labels, offers a practical path to interpretable relation
-learning in domains where direct interaction labels are unavailable.
+Despite these limitations, the framework demonstrates a GIScience-relevant
+representation strategy for heterogeneous spatial entities under incomplete
+observability.  Rock voxels, TBM surface components, candidate relations,
+monitoring responses, and projected spatial diagnostics remain linked in one
+explicit entity-relation model.
 
-The spatial consistency evaluation framework introduced here---combining
-external geological validation, internal spatial autocorrelation, and
-structural component differentiation---provides a generalisable template
-for evaluating spatial interpretability in graph-based learning methods.
-This addresses a gap in the current literature, where spatial
-interpretability is typically assessed qualitatively rather than
-quantitatively.
-
-The framework also contributes to the GIScience literature on spatial
-representation design.  The ablation results show that the choice of
-spatial representation---how entities are formalised, what relations are
-permitted, and how geometric constraints are imposed---directly affects
-both prediction behaviour and interpretability.  This is consistent with
-the long-standing GIScience recognition that spatial representation is not
-neutral: it encodes assumptions about the world that shape what can be
-learned, inferred, and communicated
-\citep{goodchild2007citizens,li2025geospatial,bittner2001spatial,galton2001spatial}.
-
-Future work should examine cross-project transferability, alternative
-geometric parameterisations (e.g., detailed 3D TBM models, geological
-structure orientation), integration of additional spatial constraints (e.g.,
-excavation-induced stress redistribution), and evaluation on larger
-datasets where per-scenario statistical comparison becomes feasible.  The
-integration of real-time decision support---where hotspot maps and
-chainage-evolution views are used as one of several information sources
-that engineers may consult---represents a particularly promising direction
-for applied GIScience.
+The results also show why spatial graph methods require two distinct evaluation
+axes.  Prediction metrics test forward response generalisation, whereas spatial
+diagnostics test whether learned relevance has coherent geographic structure.
+The current framework provides spatially clustered diagnostics, but neither
+predictive superiority nor physical validity is yet established.  Keeping these
+claims separate is essential for a defensible interpretation.
