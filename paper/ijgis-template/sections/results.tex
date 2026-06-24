@@ -1,39 +1,20 @@
-\subsection{Scope and interpretive boundaries}
-The experiments evaluate a spatial representation rather than a universally
-superior forecasting model. Three case runs are used: BSLL DyK1017+205 with
-one-step prediction, BSLL DyK1017+205 with a three-step prediction horizon, and
-SJLS Dyk1252+411 with an external TSP-derived velocity field. The learned edge
-and surface relevance values are response-consistent model diagnostics; they
-are not direct measurements of contact force, contact pressure, jamming
-probability, or engineering risk.
-
-\subsection{Experimental setup}
-\label{sec:experimental_setup}
-All formal runs use a mileage-ordered split so that testing is performed on a
-later continuous tunnel interval. The BSLL one-step run contains 30 training
-samples and 8 test samples (target chainages 41--48\,m). The BSLL three-step
-run contains 29 training samples and 7 test samples (target chainages
-42--48\,m). The SJLS run contains 76 training samples and 17 test samples
-(target chainages 99--115\,m). The graph construction uses
-$\tau_{\mathrm{edge}}=2.0$\,m, $\eta_{\min}=0.3$, and
-$\tau_{\mathrm{zone}}=5.0$\,m. The temporal history window is $K=5$.
-
-\subsection{Forward prediction across the two tunnel cases}
+\subsection{Forward prediction check across case roles}
+\label{sec:prediction_ablation}
 Table~\ref{tab:case_prediction} reports the case-level forward prediction
 metrics. The results support a cautious interpretation. In BSLL, the one-step
-graph-sequence model obtains MAE 0.415, essentially matching Persistence
-(0.415) and the random-edge variant (0.415). The three-step BSLL run similarly
-remains close to Persistence (0.462 versus 0.462), while the random-edge
-variant is slightly lower in MAE (0.461). These BSLL results do not support a
-claim of predictive superiority.
+graph-sequence model obtains MAE 0.4147, essentially matching Persistence
+(0.4146) and the random-edge variant (0.4145). The three-step BSLL run
+similarly remains close to Persistence (0.4617 versus 0.4618), while the
+random-edge variant is slightly lower in MAE (0.4609). These BSLL results do
+not support a claim that the graph sequence improves prediction in this case.
 
 The SJLS case gives a more favourable but still small effect. The full model
 obtains MAE 0.2553, slightly lower than Persistence (0.2554), randomised edges
 (0.2559), and the no-prior variant (0.2570). The Pearson correlation is high
 ($r=0.960$), but $R^2$ remains negative because the mileage-ordered test
 interval is a demanding extrapolation setting. Thus the SJLS result is best
-read as a small response-consistency advantage under the external TSP case, not
-as a large accuracy breakthrough.
+read as a small response-consistency difference under the external TSP case, not
+as a large prediction breakthrough.
 
 \begin{table}[htbp]
 \centering
@@ -46,74 +27,89 @@ column reports the corresponding graph-topology ablation.}
 \toprule
 Case & Test $n$ & Full MAE & Full RMSE & $R^2$ & Persistence MAE & Random-edge MAE \\
 \midrule
-BSLL h=1 & 8  & 0.415 & 0.593 & $-0.621$ & 0.415 & 0.415 \\
-BSLL h=3 & 7  & 0.462 & 0.554 & $-0.631$ & 0.462 & 0.461 \\
-SJLS h=1 & 17 & \textbf{0.255} & 0.347 & $-0.482$ & 0.255 & 0.256 \\
+BSLL h=1 & 8  & 0.4147 & 0.5927 & $-0.6209$ & 0.4146 & 0.4145 \\
+BSLL h=3 & 7  & 0.4617 & 0.5537 & $-0.6305$ & 0.4618 & 0.4609 \\
+SJLS h=1 & 17 & \textbf{0.2553} & 0.3472 & $-0.4823$ & 0.2554 & 0.2559 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:prediction} illustrates the prediction comparison for the
-representative BSLL one-step run. The figure should be interpreted as a
-diagnostic example rather than as the central evidence for the paper.
+Figure~\ref{fig:prediction} summarises the prediction and geometry-ablation
+pattern across the three formal case runs. The left panel reports MAE values
+directly, while the right panel plots paired MAE differences relative to the
+full model so that the small SJLS geometry-related difference is visible
+without exaggerating its magnitude.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{fig3_prediction_comparison.pdf}
-\caption{Prediction comparison for the BSLL one-step run on the
-mileage-ordered future interval. The graph-sequence framework is comparable to
-temporal baselines but does not establish a predictive advantage in this case.}
+\includegraphics[width=0.95\linewidth]{fig6_prediction_ablation_summary.pdf}
+\caption{Forward prediction and geometry-ablation summary across the formal
+case runs. BSLL remains comparable to persistence and random-edge baselines,
+whereas SJLS provides the clearest case-specific geometry-related difference
+for the full geometry-aware model. Positive paired deltas indicate variants
+with higher MAE than the full model.}
 \label{fig:prediction}
 \end{figure}
 
-\subsection{Graph ablations and the role of geometry}
+\subsection{Geometry ablation and response consistency}
+\label{sec:geometry_ablation}
+
+\emph{Graph ablations and the role of geometry.}
 The ablations separate two questions that should not be conflated: whether the
 graph-sequence representation improves prediction, and whether
 geometry-constrained relations produce interpretable spatial diagnostics.
 Prediction evidence for the first question is mixed. In SJLS, removing the
 geometric prior increases MAE from 0.2553 to 0.2570, and randomising
-rock--machine edges increases MAE to 0.2559. This supports a small
-geometry-sensitive effect in the external TSP case. In BSLL, however,
+rock--machine edges increases MAE to 0.2559. This is consistent with a small
+case-specific geometry-related difference in the external TSP case. In BSLL, however,
 randomised edges are comparable to or slightly better than the full model. The
 BSLL ablation therefore should not be used to claim that constrained topology
 improves forecasting accuracy.
 
 \begin{table}[htbp]
 \centering
-\caption{Geometry-related ablation summary. The SJLS case shows a small
-advantage for the full geometry-aware model, whereas BSLL mainly supports the
-availability of graph-based interpretation rather than a robust accuracy gain.}
+\caption{Geometry-related ablation summary. The SJLS case shows the clearest
+small numerical difference for the full geometry-aware model, whereas BSLL
+mainly supports the availability of graph-based interpretation rather than a
+robust predictive improvement.}
 \label{tab:geometry_ablation}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Case & Full MAE & Random-edge MAE & No-prior MAE \\
+Case & Full MAE & Random-edge MAE & No-prior MAE & No-monitoring MAE \\
 \midrule
-BSLL h=1 & 0.415 & \textbf{0.415} & 0.415 \\
-BSLL h=3 & 0.462 & \textbf{0.461} & 0.461 \\
-SJLS h=1 & \textbf{0.255} & 0.256 & 0.257 \\
+BSLL h=1 & 0.4147 & \textbf{0.4145} & 0.4146 & 0.4818 \\
+BSLL h=3 & 0.4617 & \textbf{0.4609} & 0.4611 & 0.4961 \\
+SJLS h=1 & \textbf{0.2553} & 0.2559 & 0.2570 & 1.2500 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:ablation} shows the BSLL ablation pattern. Its main value is
-negative evidence: it prevents overclaiming and clarifies that the paper's
-stronger contribution lies in spatially explicit representation and
-interpretation.
+Figure~\ref{fig:ablation} expands the SJLS result because this is the case in
+which the geometry-aware model is most favourable. The figure again shows that
+the numerical difference is small; its value is to locate the difference in the
+geometry ablation context rather than to claim a large prediction breakthrough.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{fig4_ablation_study.pdf}
-\caption{Ablation comparison for the BSLL one-step run. The random-edge
-variant is not worse in this small shifted test interval, so the BSLL result
-does not support a strong topology-accuracy claim.}
+\includegraphics[width=0.95\linewidth]{fig7_sjls_prediction_detail.pdf}
+\caption{SJLS prediction and geometry-detail view. The full model has a slightly
+lower global MAE than Persistence, randomised rock--machine edges, and the
+no-prior variant, while the no-monitoring ablation shows that monitoring
+history remains essential for this case. The observed test responses and mean
+diagnostic relevance show the chainage interval over which this diagnostic is evaluated.
+The relevance curve is a model diagnostic and is not a calibrated risk signal.}
 \label{fig:ablation}
 \end{figure}
 
-\subsection{Spatial consistency of learned surface relevance}
+\subsection{Spatial organisation of learned diagnostic relevance}
 \label{sec:spatial_consistency}
+Because the prediction differences are small, the following sections focus on
+whether the graph representation produces spatially organised diagnostic
+relevance.
+
 The interpretation evidence is more consistent across cases.
 Table~\ref{tab:spatial_consistency} reports four post-hoc indicators computed
-from the saved checkpoints. Surface relevance is positively spatially
+from the saved checkpoints. Diagnostic relevance is positively spatially
 autocorrelated in all three runs: Moran's $I=0.546$ for BSLL h=1, 0.302 for
 BSLL h=3, and 0.300 for SJLS. This indicates spatially organised relevance
 fields rather than random surface noise. The degree-control correlations are
@@ -121,22 +117,21 @@ negative in all cases ($-0.229$, $-0.324$, and $-0.456$), which argues against
 a trivial explanation in which nodes appear important only because they have
 more incident candidate edges.
 
-The geology association differs by case. BSLL shows a strong negative
-association between mean surface relevance and local TSP velocity ($r=-0.989$
-for h=1 and $r=-0.688$ for h=3), whereas SJLS shows a strong positive
-association ($r=0.870$). The signs should not be interpreted as universal
-physical rules; they indicate that learned relevance co-varies with the local
-TSP field within each tunnel setting. The strongest response-linked
-association also differs: AdvanceRate for BSLL and Torque for SJLS. This
-case-specific behaviour shows that the graph-to-surface route can expose
-different response-relevance patterns rather than producing a single generic
-hotspot template.
+The geology association differs by case. BSLL shows a high absolute correlation
+between mean diagnostic relevance and local TSP velocity ($r=-0.989$ for h=1
+and $r=-0.688$ for h=3), whereas SJLS shows a high positive correlation
+($r=0.870$). The signs should not be interpreted as universal physical rules;
+they indicate that learned relevance co-varies with the local TSP field within
+each tunnel setting. The response variable with the highest absolute association
+also differs: AdvanceRate for BSLL and Torque for SJLS. This case-specific
+behaviour shows that the diagnostic aggregation route can expose different
+response-relevance patterns rather than producing a single generic template.
 
 \begin{table}[htbp]
 \centering
-\caption{Post-hoc spatial interpretation evidence. Rel.--Geo.\ $r$ is the
-Pearson correlation between mean surface relevance and TSP $V_p$ across test
-chainages. Degree $r$ correlates surface relevance with incident candidate-edge
+\caption{Post-hoc spatial diagnostic evidence. Rel.--Geo.\ $r$ is the
+Pearson correlation between mean diagnostic relevance and TSP $V_p$ across test
+chainages. Degree $r$ correlates diagnostic relevance with incident candidate-edge
 degree; negative values indicate that relevance is not a direct positive proxy
 for edge count.}
 \label{tab:spatial_consistency}
@@ -151,42 +146,67 @@ SJLS h=1 & 0.300 & 0.196 & 0.014 & $-0.456$ & 0.870 \\
 \end{tabular}
 \end{table}
 
-\subsection{Spatial interpretation outputs}
-Figures~\ref{fig:hotspot} and~\ref{fig:chainage_evolution} show representative
-BSLL interpretation outputs. The hotspot map projects response-supervised
-surface relevance onto the TBM geometry, while the chainage view tracks mean
-surface relevance together with monitoring responses over the future interval.
-These outputs are the main added information supplied by the graph-sequence
-representation: monitoring-only baselines can predict response variables but
-cannot map model relevance back to TBM surface components or rock--machine
-candidate relations.
+The component CV values are small (0.005--0.018), so the component evidence is
+best described as component-resolved diagnostics rather than large
+component separation. Their role is to show that the relevance
+can be summarised by TBM component without claiming large separation among
+components.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{fig5_hotspot_maps.pdf}
-\caption{Representative response-consistent TBM surface relevance map for the
-BSLL one-step run. Colour intensity indicates degree-normalised surface
-relevance and is used as a diagnostic visualisation, not as a measured contact
-pressure field.}
-\label{fig:hotspot}
+\includegraphics[width=0.95\linewidth]{fig8_spatial_statistics.pdf}
+\caption{Spatial evidence for learned diagnostic relevance. Learned relevance is
+positively spatially autocorrelated in all three runs, differs from
+geometry-only reference patterns, and is not a positive proxy for node degree.
+The relevance--geology and relevance--response associations are case-specific
+diagnostics rather than universal physical laws.}
+\label{fig:spatial_statistics}
+\end{figure}
+
+\subsection{Component-resolved diagnostic relevance along chainage}
+Figure~\ref{fig:diagnostic_maps} converts the learned surface-node values into
+component-by-chainage diagnostic relevance views for the BSLL multi-step case
+and the SJLS external TSP case. The figure is therefore a spatial organisation
+view, not another prediction-performance plot. Figure~\ref{fig:chainage_evolution}
+then focuses on BSLL h=3 and aligns mean diagnostic relevance, component shares,
+and selected monitoring responses on the same chainage axis. Together, these
+outputs show what the graph-sequence representation adds beyond scalar response
+prediction: it organises model-derived relevance by TBM surface components and
+screened rock--machine candidate relations.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{fig9_surface_relevance_maps.pdf}
+\caption{Component-resolved diagnostic relevance aggregated along chainage. The BSLL
+h=3 panel illustrates the multi-step interpretation case, and the SJLS panel
+provides an external TSP contrast. Colour intensity indicates
+degree-normalised response-supervised relevance; it is not measured contact
+pressure or force.}
+\label{fig:diagnostic_maps}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{fig6_chainage_evolution.pdf}
-\caption{Representative chainage evolution of surface relevance and monitoring
-responses for the BSLL one-step run. The view illustrates how the learned
-diagnostic can be traced along excavation progress.}
+\includegraphics[width=0.95\linewidth]{fig10_chainage_evolution.pdf}
+\caption{BSLL three-step chainage evolution of diagnostic relevance and monitoring
+response. Mean diagnostic relevance, component relevance shares, and selected
+monitoring responses are aligned on the same chainage axis to show how the
+model diagnostic evolves through the compact future interval. Correlation in
+this view does not imply causation.}
 \label{fig:chainage_evolution}
 \end{figure}
 
 \subsection{Robustness and remaining checks}
 \label{sec:robustness}
 The current evidence supports three bounded claims: the framework remains
-competitive with temporal baselines, SJLS shows a small geometry-sensitive
-accuracy effect, and all three saved checkpoints produce spatially organised
-surface relevance. It does not support claims of statistically significant
-global accuracy improvement, measured physical interaction recovery, or
-operational risk calibration. Multi-seed stability, label permutation,
+competitive with temporal baselines, SJLS is consistent with a small
+case-specific geometry-related accuracy difference, and all three saved
+checkpoints produce spatially organised diagnostic relevance. It does not support
+claims of broad global accuracy improvement, measured contact-condition recovery, or
+operational risk calibration. As a minimal sanity check, paired permutation
+tests using the saved predictions show that the full model is not separable
+from Persistence in MAE for BSLL h=1 ($p=0.3948$), BSLL h=3 ($p=0.1659$), or
+SJLS h=1 ($p=0.3198$), although SJLS has lower MAE than the weaker learned
+baselines in this run. Multi-seed stability, label-shuffle retraining,
 threshold sensitivity, spatial detrending, and additional cross-project
-validation remain necessary before stronger robustness claims can be made.
+validation remain necessary before broader robustness claims can be made.

@@ -1,0 +1,50 @@
+\label{sec:related_work}
+
+\subsection{TBM response prediction and jamming-related analysis}
+Existing TBM prediction and warning studies have shown that tabular models and sequence
+models can be effective for forecasting penetration, thrust, torque, or jamming-related
+responses \citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction}.
+Sequence models are effective for learning temporal dependence in monitoring records
+\citep{hochreiter1997long}, but they usually treat excavation as an ordered signal
+sequence rather than as a spatially structured interaction process. As a consequence,
+existing studies usually represent geological and machine variables as feature vectors
+or sequences, rather than explicit spatial relations between geological entities and
+TBM components. This limitation matters when the objective is not only response
+prediction, but also spatially consistent interpretation of interaction dynamics.
+
+\subsection{Spatial representation of geological conditions in tunnel excavation}
+Tunnel seismic prediction (TSP) and advance geological prediction provide spatially
+distributed descriptions of the geological field ahead of or around excavation
+\citep{li2019tunnel}. TSP-derived geological information can be transformed into
+chainage-referenced rock voxels that preserve spatial support and local geological
+context. Voxelised geological models and three-dimensional geological representation
+have been used to describe subsurface heterogeneity along tunnel alignments. However,
+this representation still needs to be linked to machine geometry: a geological voxel
+field alone does not specify which rock units are candidate interaction partners for
+which TBM surface components at a given excavation step. Bridging geological spatial
+representation and machine surface geometry is therefore a prerequisite for
+spatially explicit rock--machine interaction modelling.
+
+\subsection{Graph-based spatiotemporal prediction and spatial interaction modelling}
+Graph learning offers a natural alternative because it is well suited to irregular
+objects and relations. In GIScience, graph concepts have long been used to formalise
+spatial contiguity and spatial interaction \citep{wu2008contiguity}, and recent
+IJGIS and IJDE studies show how graph neural networks can represent spatial units,
+neighbourhood structure, and urban network morphology
+\citep{desabbata2023graph,liu2025urban}. Beyond geography-specific applications,
+graph-based models have been used to encode object interaction, state propagation,
+and structured spatial systems in domains such as physics simulation
+\citep{sanchez2020learning,pfaff2021learning}, urban flow prediction
+\citep{zhang2020deep,geng2019spatiotemporal}, and spatio-temporal forecasting
+\citep{li2018diffusion,wu2019graph}. Heterogeneous graph networks further enable the
+representation of multi-type entities and relations
+\citep{wang2019heterogeneous,zhang2019heterogeneous,schlichtkrull2018modeling}.
+In graph-based spatiotemporal prediction, the graph is not merely a computational
+backbone but an explicit encoding of spatial entities and their relations; the
+prediction problem is defined on a spatial graph together with a feature matrix,
+after which graph construction and model design follow. Yet TBM excavation is not a
+generic graph-learning problem in which edges can be learned freely from black-box
+correlation. Candidate rock--TBM relations must remain consistent with machine
+geometry, excavation state, and local active zones. In this setting, graph learning
+is most meaningful when it operates on geometrically plausible candidate relations
+rather than on unconstrained connectivity.

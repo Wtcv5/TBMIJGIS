@@ -89,9 +89,9 @@ candidate interaction relations; (ii)~a geometry-constrained edge construction
 strategy based on spatial proximity, signed-normal consistency, active-zone
 filtering, and excavation-state constraints, which restricts learning to spatially
 plausible rock--machine relations rather than unconstrained connectivity; and
-(iii)~a graph-to-surface interpretation route that projects learned edge relevance
-onto TBM surface and chainage spaces to produce response-consistent hotspot maps
-and interaction-evolution views.  Rather than relying on sparse jamming labels or
+(iii)~a diagnostic relevance aggregation procedure that summarises raw
+rock--machine edge scores at surface-node, component, and chainage levels to
+support response-consistent spatial diagnostics.  Rather than relying on sparse jamming labels or
 manually calibrated contact forces, the framework uses continuously recorded
 monitoring responses to supervise the relative importance of geometry-screened
 candidate relations, enabling interpretable spatial learning under incomplete
@@ -99,15 +99,16 @@ observability.  The evaluation uses two tunnel cases: BSLL DyK1017+205 and
 SJLS Dyk1252+411.  BSLL is used for one-step, multi-step, and interpretation
 analysis, while SJLS provides an external TSP case for testing prediction
 consistency and geometry ablation.  The framework remains competitive with
-temporal baselines, and SJLS shows a small geometry-sensitive MAE advantage,
-but the experiments do not establish a broad statistically significant
-forecasting improvement.  The stronger evidence is interpretive:
-checkpoint-based diagnostics show positively clustered surface relevance in all
+temporal baselines, and SJLS is consistent with a small case-specific
+geometry-related MAE difference,
+but the experiments do not establish a broad forecasting improvement.  The
+more consistent evidence is interpretive:
+checkpoint-based diagnostics show positively clustered diagnostic relevance in all
 evaluated runs, relevance that is not simply explained by candidate-edge
 degree, and case-specific association with local TSP velocity and monitoring
 responses.  These patterns are reported as response-consistent diagnostics, not
-as proof of physical contact or geological causality.  By unifying geological
-sensing, machine geometry, monitoring response, and spatial interpretation
+as proof of actual contact conditions or geological causality.  By unifying geological
+sensing, machine geometry, monitoring response, and diagnostic relevance
 within a constrained graph sequence, the framework offers a spatially explicit
 approach to excavation interaction analysis that complements existing temporal
 prediction methods.
@@ -116,7 +117,7 @@ prediction methods.
 \begin{keywords}
 spatial representation; heterogeneous graph sequence; rock--machine interaction;
 geometry-constrained edge construction; response supervision; interpretable
-geospatial learning; TBM excavation; spatial interpretation
+geospatial learning; TBM excavation; diagnostic relevance
 \end{keywords}
 
 \ifijgisclass\else
@@ -126,12 +127,16 @@ geospatial learning; TBM excavation; spatial interpretation
 \section{Introduction}
 \input{sections/introduction}
 
+\section{Related work}
+\input{sections/related_work}
+
 \section{Methodology}
 \input{sections/methods}
 
-\section{Experiments and results}
-\label{sec:results}
+\section{Case studies and experimental design}
 \input{sections/study_area}
+
+\section{Results}
 \input{sections/results}
 
 \section{Discussion}
@@ -147,11 +152,16 @@ geospatial learning; TBM excavation; spatial interpretation
 No potential conflict of interest was reported by the author(s).
 
 \section*{Funding}
-This research received no external funding.
+The author(s) received no financial support for the research, authorship, and/or
+publication of this article.
 
 \section*{Data availability statement}
-State where the data, code, and materials can be accessed, and note any restrictions
-if applicable.
+The raw TBM monitoring and TSP data are project data and are not publicly
+available because they contain engineering and site information. The processed
+experiment configurations, analysis scripts, and derived result summaries used
+to reproduce the reported tables and figures are available from the
+corresponding author upon reasonable request, subject to project data-use
+permissions.
 
 \bibliographystyle{plainnat}
 \bibliography{references}

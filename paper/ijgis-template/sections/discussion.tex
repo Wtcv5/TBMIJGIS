@@ -1,88 +1,85 @@
-\subsection{What the current experiments actually support}
+\subsection{What the graph representation adds beyond monitoring-only prediction}
 \label{sec:tradeoff}
 The revised experiments sharpen the paper's central claim. The framework should
-not be presented as a broadly superior forecasting model. In BSLL, the one-step
-and three-step runs are essentially tied with Persistence and do not benefit
-clearly from constrained topology. In SJLS, the full model gives a small MAE
-advantage over Persistence, randomised edges, and the no-prior variant, but the
-gain is modest. This pattern is meaningful because it separates accuracy from
-representation: the model is not winning by a large margin, but it provides a
-spatial entity-relation structure that temporal baselines cannot produce.
+not be presented as a broad forecasting model. In BSLL, the one-step
+and three-step runs are essentially tied with Persistence and do not show a
+consistent benefit from constrained topology. In SJLS, the full model gives a small MAE
+decrease relative to Persistence, randomised edges, and the no-prior variant, but the
+difference is modest. This pattern is meaningful because it separates prediction
+accuracy from representation: the principal value is not forecasting error
+reduction, but the conversion of a monitoring sequence into an inspectable
+spatial entity-relation process.
 
 This distinction changes the interpretation of the contribution. The prediction
 task is used as response supervision and as a consistency check. It is not the
-only, or even the strongest, evidence for the method. The stronger evidence is
+only, or even the most consistent, evidence for the method. The more consistent evidence is
 that TSP voxels, TBM surface components, candidate rock--machine relations,
-monitoring responses, and projected relevance diagnostics remain connected in a
+monitoring responses, and diagnostic relevance summaries remain connected in a
 single spatial representation. The paper's value therefore lies in making
 rock--TBM interaction inspectable as a spatial process under incomplete
-observability.
+observability. Monitoring-only baselines can predict response variables, but they
+cannot organise TSP voxels, TBM surface components, and screened candidate
+rock--machine relations into the same spatial diagnostic structure.
 
-\subsection{Why the two tunnel cases are complementary}
 BSLL and SJLS should be read as complementary evidence rather than as a
 development-validation pair. BSLL provides a compact case in which the limits of
-prediction are visible: the model is competitive but does not outperform simple
+prediction are visible: the model is competitive but does not improve on simple
 temporal persistence, and randomised edges are not worse. This is useful because
 it prevents the paper from overclaiming geometry as an accuracy mechanism. At
-the same time, BSLL provides interpretable multi-step and surface-evolution
+the same time, BSLL provides interpretable multi-step and component-chainage
 examples that illustrate what a graph-sequence representation adds beyond
 scalar prediction.
 
 SJLS plays a different role. It uses an external TSP-derived velocity field and
 a larger number of forward test samples. In this case, the full geometry-aware
-model is slightly better than the ablated variants, and the learned relevance
-is strongly associated with the local TSP field. This makes SJLS the better
+model has slightly lower MAE than the ablated variants, and the learned relevance
+has a high absolute association with the local TSP field. This makes SJLS the clearer
 case for arguing that geometry-constrained representation can support
 response-consistent prediction and spatial interpretation. The important point
-is not that SJLS proves a large accuracy gain, but that it shows the same
+is not that SJLS proves a large prediction improvement, but that it shows the same
 representation operating in a second tunnel setting with a clearer
-geometry-sensitive signal.
+geometry-ablation pattern.
 
-\subsection{Spatial interpretation as the main added value}
-The most consistent result across the experiments is spatial organisation of
-the learned surface relevance. Moran's $I$ is positive in all three runs, and
-the degree-control correlations are negative. These two facts support a bounded
-but useful claim: the surface relevance maps are not spatially random and are
+\subsection{Why prediction gains are limited}
+The prediction results do not show a broad accuracy improvement, and several
+factors explain why this is expected rather than surprising. First, the test
+sets are small, especially for BSLL, which limits the statistical power of any
+accuracy comparison. Second, the mileage-ordered split is a forward
+extrapolation setting: validation and testing are performed on later continuous
+tunnel intervals that may exhibit geological distribution shift, so Persistence
+is a strong baseline that benefits from local autocorrelation. Third, TBM
+monitoring responses are themselves strongly time-autocorrelated, which makes
+short-horizon forecasting difficult to beat with any added spatial structure.
+Fourth, TSP-derived geological attributes and TBM monitoring responses operate
+at different spatial and temporal scales, and the current alignment may not
+fully exploit the geological information. These factors together explain why
+the full graph-sequence model remains comparable to Persistence in BSLL and
+shows only a small geometry-related difference in SJLS.
+
+This limited prediction gain does not negate the contribution. The graph
+representation provides spatially organised rock--machine relation diagnostics
+that temporal baselines cannot produce. Moran's $I$ is positive in all three
+runs, and the degree-control correlations are negative, supporting a bounded
+but useful claim: the diagnostic relevance views are not spatially random and are
 not simply inflated by the number of candidate edges incident to a TBM node.
+The experiments motivate a GIScience framing of TBM excavation analysis: the
+problem is not merely to add more features to a forecasting model, but to
+formalise heterogeneous spatial entities with different supports and aggregate
+model-derived relevance into spatial views that support inspection, comparison,
+and case-based reasoning.
 
-This does not make the maps physical contact-force maps. The relevance values
-are produced by a response-supervised neural model and remain conditional on
-the forecasting objective, graph construction rules, and training data. Their
-proper role is diagnostic: they indicate where the model places response-linked
-importance on the TBM surface under geometry-screened rock--machine candidate
-relations. This diagnostic role is still valuable because conventional
-monitoring-only sequence models cannot localise response relevance on a TBM
-surface or compare cutterhead and shield regions.
-
-\subsection{Implications for GIScience representation}
-The experiments motivate a GIScience framing of TBM excavation analysis. The
-problem is not merely to add more features to a forecasting model. It is to
-formalise heterogeneous spatial entities with different supports: TSP voxels,
-TBM surface nodes, rock--machine candidate relations, and chainage-indexed
-monitoring responses. Once these entities are represented explicitly, model
-outputs can be projected back into spatial views that support inspection,
-comparison, and case-based reasoning.
-
-This representation perspective also explains why prediction and spatial
-diagnosis must be evaluated separately. A temporal baseline may be difficult to
-beat on short, autocorrelated monitoring series, especially under a
-mileage-ordered split. However, such a baseline cannot answer where the model
-places interaction relevance, whether relevance is spatially clustered, or how
-the relevance pattern differs between BSLL and SJLS. The graph-sequence
-framework contributes this second evaluation axis.
-
-\subsection{Limitations and next steps}
+\subsection{Interpretation boundary and future validation}
 Several limitations remain. The test sets are small, especially for BSLL, and
 all results are based on single fixed-seed formal runs. Negative $R^2$ values
 show that forward extrapolation remains difficult under geological shift. The
 observed attention--geology correlations may partly reflect chainage trends and
-therefore require spatial detrending before stronger geological interpretation
+therefore require spatial detrending before broader geological interpretation
 is made.
 
 Future work should prioritise multi-seed stability, label-shuffle controls,
 candidate-edge threshold sensitivity, spatial detrending, and additional tunnel
-sections. Independent event labels, expert assessments, or physical
-measurements would be required before the relevance maps could be connected to
+sections. Independent event labels, expert assessments, contact measurements, or
+shield-pressure distribution observations would be required before the relevance maps could be connected to
 operational risk or actual contact conditions. Until then, the defensible claim
-is representation and response-consistent interpretation, not physical recovery
-or general predictive superiority.
+is representation and response-consistent interpretation, not contact-condition recovery
+or general predictive dominance.

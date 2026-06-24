@@ -15,6 +15,74 @@ papers in the style of the user's provided IJGIS reference papers.
 - Keep colors restrained and semantically stable across the paper.
 - Use captions and labels to distinguish observation, model prediction, learned
   relevance, and interpretation.
+- Do not optimize toward a predetermined number of figures. Optimize toward a
+  complete evidence chain with controlled visual density.
+- A rich figure set is acceptable when figures have distinct roles: spatial
+  context, representation, prediction check, ablation, spatial statistic,
+  surface interpretation, temporal evolution, or robustness.
+
+## Journal-Exemplar Patterns
+
+Use local IJGIS PDFs and recent IJGIS/IJDE/Geo-spatial Information Science
+metadata as style guidance, not as rigid templates. High-quality geospatial
+modeling papers commonly use:
+
+- Method figures that combine spatial entities, relation construction, and model
+  flow rather than showing a generic neural-network box diagram alone.
+- Multi-panel results figures where each panel advances one reasoning chain:
+  spatial support, temporal alignment, metric comparison, and interpretation.
+- Geospatial outputs paired with quantitative summaries, so maps and surfaces do
+  not stand alone as visual anecdotes.
+- Clear case-context figures when multiple real study areas or datasets carry
+  different evidential roles.
+- Supplementary panels for exhaustive per-variable or per-step diagnostics,
+  keeping the main text focused without suppressing useful evidence.
+
+## Current Paper Evidence Chain
+
+The current manuscript uses two real tunnel cases. Treat them as complementary
+scenarios, not as new-line/old-line data and not as development/validation
+splits:
+
+- **BSLL DyK1017+205**: supports compact-case prediction checks, h=3 multi-step
+  behavior, hotspot/surface interpretation, and chainage-evolution examples. Do
+  not use BSLL to claim robust accuracy superiority from constrained topology.
+- **SJLS Dyk1252+411**: supports the clearest small geometry-sensitive accuracy
+  effect and the external TSP case. Show the small effect size honestly and pair
+  it with ablation/context rather than isolated bold metrics.
+- **Shared interpretation evidence**: positive Moran's I, degree-control
+  checks, relevance-geology association, and relevance-response association are
+  central visual evidence because they show organized learned spatial relevance.
+- **Claim boundary**: learned relevance is response-supervised model evidence,
+  not measured physical contact, causal geology, calibrated risk, or operational
+  warning.
+
+Each main-text figure should make at least one of these links visible:
+
+```text
+spatial entity -> constrained relation -> graph sequence -> model check
+model check -> ablation/sensitivity -> spatial interpretation
+case context -> case-specific claim -> cross-case boundary
+```
+
+## Recommended Main-Figure Order
+
+For this manuscript, order figures like a GIScience methods paper, not an
+experiment report:
+
+- **Fig. 1 Transferable method framework**: show the complete technical route
+  from subsurface sensing to spatial entity formalisation, geometry-constrained
+  graph construction, graph-sequence learning, and spatial outputs. Do not use
+  BSLL/SJLS as the first visual signal.
+- **Fig. 2 Spatial entity formalisation**: explain the common representation of
+  TSP voxels, TBM surface patches, monitoring sequences, and graph snapshots.
+- **Fig. 3 Geometry-compatible relation construction**: make active zones,
+  distance/normal compatibility, geometry prior, and ablation meanings visible.
+- **Fig. 4 Graph-sequence network**: show the rock/TBM node encoders, edge
+  encoder, attention message passing, graph readout, temporal encoder, response
+  head, and relevance projection.
+- **Later figures**: introduce BSLL/SJLS case context, then prediction,
+  ablation, spatial statistics, hotspot maps, and chainage evolution.
 
 ## Sizing and Typography
 
@@ -54,6 +122,29 @@ papers in the style of the user's provided IJGIS reference papers.
   grayscale and verify that the key information remains distinguishable.
 
 ## Figure-Type Guidance
+
+### Case Context and Figure Portfolio
+
+When the manuscript uses both BSLL and SJLS, include enough context for readers
+to understand why both are present:
+
+- Show tunnel name, start chainage, prediction horizon, train/test coverage, and
+  TSP/monitoring support in a compact map/profile/table-like figure.
+- Use the same axis conventions and color identities for BSLL and SJLS.
+- Make the different evidential roles explicit through panel titles or captions:
+  BSLL for multi-step/explanation and SJLS for small geometry-sensitive effect.
+- Do not call one dataset "old" and the other "new"; both are project data.
+
+Main text vs supplement:
+
+- **Main text**: figures needed for method comprehension, two-case framing,
+  central prediction/ablation evidence, spatial statistics, and representative
+  interpretation.
+- **Supplement**: all variable-wise traces, all selected chainages, extra
+  horizons, additional seeds, diagnostic screenshots, and sensitivity runs that
+  document completeness but do not change the argument.
+- **Either location**: rich multi-panel figures are acceptable if the panel
+  sequence reads left-to-right or top-to-bottom as one argument.
 
 ### Graph Construction
 
@@ -110,6 +201,12 @@ Region2Vec. Use `plot_graph_construction_figure()` from `graph_viz.py`.
 - Do not overclaim small metric differences without uncertainty or significance.
 - Use dashed lines for model predictions and solid lines for observations.
 - Include MAE or RMSE in legend entries for quick comparison.
+- For SJLS, show the small Full Model advantage with enough scale that the
+  reader can judge practical magnitude.
+- For BSLL, present prediction traces as consistency/explanation context, not as
+  evidence of topology-driven superiority.
+- Avoid overcrowding a single panel with all response variables. Use small
+  multiples or a summary metric panel when more than two variables are shown.
 
 ### Ablation
 
@@ -120,6 +217,24 @@ Region2Vec. Use `plot_graph_construction_figure()` from `graph_viz.py`.
 - Make the removed component explicit: monitoring input, geometry prior,
   randomized interaction edges, or geometric constraints.
 - Use horizontal bar charts when variant names are long; vertical bars otherwise.
+- Show BSLL and SJLS together when the point is case contrast. Separate them when
+  one compact plot would hide the small SJLS effect.
+- If metric differences are tiny, use dot/interval plots or paired deltas rather
+  than saturated bars that exaggerate differences.
+
+### Spatial Statistics Evidence
+
+Use a dedicated spatial-evidence figure when the paper argues that learned
+relevance is spatially organized:
+
+- Include Moran's I for learned relevance and geometry-only baselines.
+- Include degree-control correlation so attention is not mistaken for node
+  degree or edge-count effects.
+- Include relevance-geology and relevance-response correlations by case.
+- Use a diverging axis for signed correlations and a separate sequential scale
+  or marker encoding for Moran's I.
+- State in the caption that these statistics support response-consistent spatial
+  organization, not causal geology recovery.
 
 ### Hotspot and Attention Maps
 
@@ -132,6 +247,11 @@ Region2Vec. Use `plot_graph_construction_figure()` from `graph_viz.py`.
 - Use `cividis` colormap for all hotspot intensity fields.
 - Clip outliers at the 95th percentile for visualization; report the clipping
   threshold in the caption.
+- Use shared color limits across comparable panels when the comparison is
+  between cases or chainages. Use per-panel normalization only when the caption
+  states that absolute intensity is not being compared.
+- Prefer selected representative chainages in the main text and move exhaustive
+  hotspot sequences to supplementary material.
 
 ### TBM Unwrapped Surface Map
 
@@ -184,6 +304,21 @@ along the tunnel chainage.
   relevance $\bar{C}$ averaged over all TBM surface nodes at each step.
   Lower panels: observed monitoring variables. Correlation between relevance
   and response does not imply causation."
+- Use BSLL h=3 to illustrate multi-step/explanation behavior when that is the
+  paper's active claim. Use SJLS as a contrast only when it clarifies the
+  geometry-sensitive external TSP case.
+
+### Scenario and Decision Views
+
+Scenario-style figures can be visually useful, but they are high-risk for
+overclaiming:
+
+- Allowed labels: model diagnostic, exploratory scenario view, relevance
+  summary, candidate inspection panel.
+- Avoid labels: risk, alert, warning, alarm, decision support, hazard level,
+  operational recommendation.
+- Include a limitation note unless independent risk/contact labels and
+  calibration tests exist.
 
 ### Schematics
 

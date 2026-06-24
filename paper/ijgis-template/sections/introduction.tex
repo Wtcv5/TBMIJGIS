@@ -4,121 +4,44 @@ machine geometry, and operational process. Under fractured, water-rich, high-str
 locally deformable ground conditions, the interaction state between surrounding rock
 and the TBM may change rapidly and manifest through abnormal thrust, torque,
 penetration, advance rate, or shield-related responses. These monitoring variables are
-informative external expressions of rock--TBM interaction, but monitoring curves alone
-provide limited evidence about where the interaction occurs, which machine components
-are implicated, and how local interaction relations evolve along chainage.
+informative external expressions of rock--TBM interaction, but the geological body and
+the cutterhead or shield form a spatial relation that evolves as excavation advances.
+Monitoring curves alone provide limited evidence about where the interaction occurs,
+which machine components are implicated, and how local interaction relations evolve
+along chainage.
 
-Recent developments in tunnel seismic prediction (TSP), advance geological
-prediction, digital tunnelling, and TBM monitoring systems have substantially
-increased the availability of heterogeneous excavation data
-\citep{li2019tunnel}. TSP provides a
-spatially distributed description of the geological field ahead of or around
-excavation, whereas monitoring systems provide temporally continuous responses
-referenced to excavation progress. The challenge is therefore not only data
-acquisition, but also data organization: heterogeneous sources with different
-spatial support, temporal resolution, and physical meaning must be integrated
-into a representation that preserves excavation evolution together with local
-spatial structure.
+Most existing methods process TSP-derived geological indicators and TBM parameters as
+tabular variables or time-series variables. Such representations can support trend
+prediction, but they cannot answer which rock spatial unit forms a candidate interaction
+relation with which machine component at a given excavation step
+\citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction,hochreiter1997long}.
+Sequence models preserve temporal dependence but treat excavation as an ordered signal
+rather than a spatially structured interaction process, so rock location, machine
+component structure, and local rock--machine candidate relations are not retained within
+a unified representation.
 
-This challenge can be viewed as a geographic information representation
-problem.  Three GIScience concerns are central.  First, \emph{spatial entity
-formalisation}: TSP voxels, TBM surface components, and monitoring
-locations are heterogeneous spatial objects with distinct spatial supports
-(point, surface, volume) and semantic roles, and must be abstracted into a
-unified entity model that preserves their geometric and topological
-properties \citep{goodchild1992geographical,galton2001spatial,li2021spatial}.
-Second, \emph{constrained relation construction}: candidate rock--machine
-relations cannot be learned freely from black-box correlation but must
-respect geometric compatibility, excavation state, and active-zone
-constraints---an instance of the broader GIScience principle that spatial
-relations should be constructed with domain-plausible topology rather than
-unconstrained connectivity
-\citep{openshaw1984modifiable,couclelis1996geographic,zhu2025spatial}.
-Third, \emph{interpretable spatial learning}: the learned representation
-must be projectable back to interpretable spatial views (surface hotspots,
-chainage evolution) to support spatial reasoning, not merely optimise a
-prediction loss \citep{longley2005geographic,li2025geospatial}.  In this
-light, the problem extends beyond conventional engineering prediction and
-can be framed as a GIScience problem---one that benefits from explicit
-spatial entity modelling, constrained relation construction, and
-interpretable spatial learning rather than merely feature concatenation
-or temporal sequence extension.
-
-Existing TBM prediction and warning studies have shown that tabular models and sequence
-models can be effective for forecasting penetration, thrust, torque, or jamming-related
-responses \citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction,yin2019tunnel}.
-However, most of these methods represent excavation either as a feature
-table or as an ordered monitoring sequence. Sequence models are effective for learning
-temporal dependence in monitoring records
-\citep{hochreiter1997long,sun2023lstm}, but they usually treat excavation as an
-ordered signal sequence rather than as a spatially structured interaction process. As
-a consequence, they have limited ability to preserve rock location, machine-component
-structure, and local rock--machine candidate relations within a unified representation.
-This limitation matters when the objective is not only response prediction, but also
-spatially consistent interpretation of interaction dynamics.
-
-Graph learning offers a natural alternative because it is well suited to irregular
-objects and relations. Graph-based models have shown strong capacity for encoding
-object interaction, state propagation, and structured spatial systems in domains such
-as physics simulation \citep{sanchez2020learning,pfaff2021learning},
-urban flow prediction \citep{zhang2020deep,geng2019spatiotemporal},
-and spatio-temporal forecasting \citep{li2018diffusion,wu2019graph}.
-Heterogeneous graph networks further enable the representation of
-multi-type entities and relations \citep{wang2019heterogeneous,zhang2019heterogeneous,schlichtkrull2018modeling}.
-Yet TBM excavation is not a
-generic graph-learning problem in which edges can be learned freely from black-box
-correlation. Candidate rock--TBM relations must remain consistent with machine
-geometry, excavation state, and local active zones. In this setting, graph learning is
-most meaningful when it operates on geometrically plausible candidate relations rather
-than on unconstrained connectivity.
-
-Motivated by this gap, this study proposes a response-supervised, geometry-constrained
-graph sequence framework for spatially explicit rock--TBM interaction representation
-and interpretation. TSP-derived geological attributes are organized as rock voxel
-nodes, while the cutterhead and shield are discretized as parameterized TBM surface
+Rather than pursuing a more complex prediction model, this study constructs a
+chainage-referenced rock--TBM interaction graph sequence that organises rock voxels,
+TBM surface samples, and operational response sequences into a computable
+spatio-temporal graph. TSP-derived geological attributes are formalised as rock voxel
+nodes, while the cutterhead and shield are discretised as parameterised TBM surface
 nodes. Candidate rock--machine edges are screened through spatial proximity,
 signed-normal consistency, active-zone filtering, and excavation-state constraints.
-Instead of interpreting edge weights as direct physical contact forces or relying on
+Instead of interpreting edge weights as contact-force measurements or relying on
 sparse jamming labels, the framework uses continuously recorded monitoring responses to
-supervise the relative importance of geometry-screened candidate relations. The learned
-relevance is then projected back to TBM surface space and chainage space to generate
-response-consistent hotspot and evolution views.
+supervise the relative importance of geometry-screened candidate relations, and
+aggregates the learned relevance at edge, surface-node, component, and chainage
+levels to generate response-consistent diagnostic views.
 
-The study addresses three questions: how to organize TSP rock attributes, TBM surface
-structure, and rock--machine candidate relations into a dynamic graph sequence that
-preserves spatial explicitness and relation plausibility; how to learn the relative
-importance of candidate relations from continuous monitoring responses without sparse
-event labels, enabling interpretable spatial learning under incomplete observability;
-and how to map learned interaction relevance back to interpretable spatial views that
-support spatial reasoning beyond prediction. The main contributions are fourfold.
-
-\begin{enumerate}
-\item \emph{A spatially explicit heterogeneous graph-sequence representation
-  for rock--machine interaction.}  Unlike feature-table or pure-sequence
-  representations that discard spatial structure, the proposed representation
-  formalises TSP voxels, TBM surface components, and their candidate relations
-  as typed spatial entities with explicit geometric and topological
-  properties, preserving spatial explicitness throughout the learning pipeline.
-
-\item \emph{A geometry-constrained relation construction strategy that
-  embeds domain plausibility into graph topology.}  Candidate rock--machine
-  edges are screened by spatial proximity, signed-normal consistency,
-  active-zone filtering, and excavation-state constraints.  This ensures
-  that the learned relations remain geometrically plausible, addressing
-  the GIScience principle that spatial relations should be constructed
-  with domain-plausible topology rather than unconstrained connectivity.
-
-\item \emph{A response-supervised relation learning paradigm that
-  operates under incomplete observability.}  Without requiring contact-force
-  labels or sparse jamming events, the framework uses continuously recorded
-  monitoring responses to supervise the relative importance of candidate
-  relations, enabling interpretable spatial learning in settings where
-  ground-truth interaction labels are unavailable.
-
-\item \emph{A graph-to-surface interpretation route that supports spatial
-  reasoning beyond prediction.}  Learned interaction relevance is projected
-  back to TBM surface hotspots and chainage-evolution views, accompanied by
-  spatial consistency indicators (Moran's $I$, component CV, attention--geology
-  correlation) that quantify the spatial plausibility of the learned
-  representation.
-\end{enumerate}
+The main contributions are threefold. First, the study proposes a chainage-referenced
+rock--TBM spatial representation that formalises heterogeneous spatial entities---TSP
+voxels, TBM surface components, and chainage-indexed monitoring responses---into a
+unified entity model preserving geometric and topological properties. Second, it
+proposes a geometry-constrained rock--machine interaction graph sequence in which
+candidate edges are restricted by active-zone membership, distance, surface-normal
+compatibility, and excavation state, ensuring that learned relations remain
+geometrically plausible rather than unconstrained. Third, it uses response-supervised
+prediction to examine the response consistency of the learned graph relations and
+outputs edge-, component-, and chainage-level relevance diagnostics, with clear
+interpretation limits, as spatially organised diagnostics rather than contact-force or
+risk estimates.

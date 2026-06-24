@@ -848,8 +848,9 @@ def _draw_panel_d_evolution(
         if mm_sub.shape[1] > 0:
             adj[nr + mm_sub[0], nr + mm_sub[1]] = 0.3
 
-        rm_sub_src = rm_edges[0][rm_edges[0] < nr]
-        rm_sub_dst = rm_edges[1][rm_edges[1] < nt]
+        rm_mask = (rm_edges[0] < nr) & (rm_edges[1] < nt)
+        rm_sub_src = rm_edges[0][rm_mask]
+        rm_sub_dst = rm_edges[1][rm_mask]
         if len(rm_sub_src) > 0:
             adj[rm_sub_src, nr + rm_sub_dst] = 0.7
             adj[nr + rm_sub_dst, rm_sub_src] = 0.7
