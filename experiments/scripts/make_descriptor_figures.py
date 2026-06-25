@@ -26,7 +26,7 @@ from src.visualization.style import (
 CASE_LABELS = {
     "bsll_dyk1017_205": "BSLL h=1",
     "bsll_dyk1017_205_h3": "BSLL h=3",
-    "sjls_dyk1252_411": "SJLS h=1",
+    "sjls_dyk1252_411": "SJLS h=3",
 }
 
 COMPONENT_ORDER = ["cutterhead", "front_shield", "middle_shield", "tail_shield"]
@@ -46,6 +46,15 @@ FIXED_RESPONSE_PAIRS = {
     "bsll_dyk1017_205": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
     "bsll_dyk1017_205_h3": ("front_shield", "I_interaction_intensity", "ShieldPressure"),
     "sjls_dyk1252_411": ("cutterhead", "I_interaction_intensity", "ShieldPressure"),
+}
+
+VARIANT_LABELS = {
+    "proposed": "Proposed",
+    "chainage_only": "Chainage-only",
+    "global_vp_anomaly": "Global Vp",
+    "distance_only_exposure": "Distance-only",
+    "uniform_edge_anomaly": "Uniform edge",
+    "component_shuffle": "Component shuffle",
 }
 
 FIG_DPI = 600
@@ -234,10 +243,64 @@ def plot_geometry_constrained_edges(out_dir: Path) -> None:
     save_pdf_and_png(fig, out_dir / "fig3_geometry_constrained_edges.pdf")
 
 
+def plot_case_context(out_dir: Path) -> None:
+    apply_ijgis_style()
+    rows = [
+        {
+            "case": "BSLL h=1",
+            "tunnel": "BSLL DyK1017+205",
+            "horizon": "h=1",
+            "samples": "30 / 6 / 8",
+            "interval": "41-48 m",
+            "role": "compact diagnostic case",
+        },
+        {
+            "case": "BSLL h=3",
+            "tunnel": "BSLL DyK1017+205",
+            "horizon": "h=3",
+            "samples": "29 / 6 / 7",
+            "interval": "42-48 m",
+            "role": "compact multi-step case",
+        },
+        {
+            "case": "SJLS h=3",
+            "tunnel": "SJLS Dyk1252+411",
+            "horizon": "h=3",
+            "samples": "76 / 16 / 17",
+            "interval": "99-115 m",
+            "role": "external TSP contrast case",
+        },
+    ]
+    fig, axes = plt.subplots(3, 1, figsize=figure_size("double", aspect=0.48), sharex=True)
+    x_min, x_max = 0, 120
+    colors = [IJGIS_COLORS["full_model"], IJGIS_COLORS["xgboost"], IJGIS_COLORS["lstm"]]
+    for idx, (ax, row, color) in enumerate(zip(axes, rows, colors)):
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(0, 1)
+        ax.axhline(0.50, color="#D0D0D0", linewidth=1.0)
+        start, end = [float(v) for v in row["interval"].replace(" m", "").split("-")]
+        ax.add_patch(Rectangle((start, 0.36), end - start, 0.28, facecolor=color, alpha=0.28, edgecolor=color, linewidth=0.8))
+        ax.text(1, 0.73, row["case"], ha="left", va="center", fontsize=8, fontweight="bold")
+        ax.text(1, 0.48, row["tunnel"], ha="left", va="center", fontsize=7)
+        ax.text(36, 0.73, f"{row['horizon']} | train/val/test {row['samples']}", ha="left", va="center", fontsize=7)
+        ax.text(36, 0.48, f"test interval {row['interval']}", ha="left", va="center", fontsize=7)
+        ax.text(76, 0.60, row["role"], ha="left", va="center", fontsize=7)
+        ax.set_yticks([])
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        add_panel_label(ax, "abc"[idx], x=-0.03, y=0.82)
+    axes[-1].set_xlabel("Local target chainage (m)")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    save_pdf_and_png(fig, out_dir / "fig5_case_context.pdf")
+
+
 def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
     apply_ijgis_style()
-    fig, heat_axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.34), squeeze=False)
-    heat_axes = heat_axes[0]
+    fig = plt.figure(figsize=figure_size("double", aspect=0.58))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.25, 0.85], hspace=0.22, wspace=0.18)
+    heat_axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
+    residual_axes = [fig.add_subplot(gs[1, i], sharex=heat_axes[i]) for i in range(3)]
 
     heatmaps = {}
     global_min = np.inf
@@ -251,7 +314,7 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
         global_max = max(global_max, float(np.nanmax(heat.values)))
 
     im = None
-    for idx, (ax_heat, case_id) in enumerate(zip(heat_axes, CASE_LABELS)):
+    for idx, (ax_heat, ax_res, case_id) in enumerate(zip(heat_axes, residual_axes, CASE_LABELS)):
         heat = heatmaps[case_id]
         im = ax_heat.imshow(
             heat.values,
@@ -264,12 +327,25 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
         cols = heat.columns.to_numpy(dtype=float)
         tick_idx = np.linspace(0, len(cols) - 1, min(4, len(cols)), dtype=int)
         ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
-        ax_heat.set_xlabel("Chainage (m)")
+        ax_heat.tick_params(axis="x", labelbottom=False)
         ax_heat.set_title(CASE_LABELS.get(case_id, case_id))
         add_panel_label(ax_heat, "abc"[idx])
+
+        component, _, response = FIXED_RESPONSE_PAIRS[case_id]
+        case_df = read_csv(root / case_id / "component_spatial_descriptors.csv")
+        comp_df = case_df[case_df["component"] == component].sort_values("chainage")
+        res = comp_df[f"residual_{response}"].to_numpy(dtype=float)
+        chainage = comp_df["chainage"].to_numpy(dtype=float)
+        ax_res.axhline(0, color="#999999", linewidth=0.6, linestyle=":")
+        ax_res.plot(chainage, res, color=IJGIS_COLORS["truth"], marker="o", markersize=2.6, linewidth=1.0)
+        ax_res.set_xlim(float(cols.min()), float(cols.max()))
+        ax_res.set_xlabel("Chainage (m)")
+        if idx == 0:
+            ax_res.set_ylabel("Residual")
+        ax_res.set_title(f"{component.replace('_', ' ')} vs {RESPONSE_DISPLAY[response]}", fontsize=7, pad=3)
     if im is not None:
         set_colorbar_style(
-            fig.colorbar(im, ax=heat_axes.tolist(), fraction=0.025, pad=0.02),
+            fig.colorbar(im, ax=heat_axes, fraction=0.025, pad=0.02),
             "$I_c(t)$",
         )
 
@@ -288,7 +364,8 @@ def plot_sensitivity(root: Path, out_dir: Path) -> None:
         case_id = path.parents[1].name
         pivot = df.pivot(index="eta_min", columns="tau_edge", values="fixed_spearman_r")
         im = ax.imshow(pivot.values, cmap=IJGIS_CMAPS["diverging"], vmin=-1, vmax=1, aspect="auto")
-        ax.set_title(CASE_LABELS.get(case_id, case_id))
+        component, _, response = FIXED_RESPONSE_PAIRS.get(case_id, ("cutterhead", "", "ShieldPressure"))
+        ax.set_title(f"{CASE_LABELS.get(case_id, case_id)}\n{component.replace('_', ' ')} vs {RESPONSE_DISPLAY[response]}", fontsize=7)
         ax.set_xticks(np.arange(len(pivot.columns)), [f"{c:g}" for c in pivot.columns])
         ax.set_yticks(np.arange(len(pivot.index)), [f"{i:g}" for i in pivot.index])
         ax.set_xlabel(r"$\tau_{edge}$")
@@ -334,6 +411,76 @@ def plot_association_matrix_heatmap(root: Path, out_dir: Path) -> None:
     save_pdf_and_png(fig, out_dir / "fig8_descriptor_matrix_heatmap.pdf")
 
 
+def plot_null_model_comparison(root: Path, out_dir: Path) -> None:
+    apply_ijgis_style()
+    path = root / "descriptor_diagnostics" / "null_model_comparison.csv"
+    if not path.exists():
+        return
+    df = read_csv(path)
+    cases = list(CASE_LABELS)
+    fig, axes = plt.subplots(1, len(cases), figsize=figure_size("double", aspect=0.34), squeeze=False)
+    for ax, case_id in zip(axes[0], cases):
+        case = df[df["case_id"] == case_id].copy()
+        case["variant_label"] = case["variant"].map(VARIANT_LABELS)
+        x = np.arange(len(case))
+        ax.axhline(0, color="#999999", linewidth=0.6)
+        ax.plot(x, case["spearman_r"], marker="o", color=IJGIS_COLORS["full_model"], label="Raw")
+        ax.plot(x, case["detrended_spearman_r"], marker="s", color=IJGIS_COLORS["xgboost"], label="Detrended")
+        ax.set_xticks(x, case["variant_label"], rotation=35, ha="right")
+        ax.set_ylim(-1.05, 1.05)
+        ax.set_title(CASE_LABELS[case_id])
+        if ax is axes[0][0]:
+            ax.set_ylabel("Spearman rho")
+        ax.grid(axis="y", alpha=0.25)
+    axes[0][-1].legend(loc="lower right")
+    for label, ax in zip("abc", axes[0]):
+        add_panel_label(ax, label)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    save_pdf_and_png(fig, out_dir / "fig9_null_model_comparison.pdf")
+
+
+def plot_traceability_example(root: Path, out_dir: Path) -> None:
+    apply_ijgis_style()
+    path = root / "descriptor_diagnostics" / "top_contributing_edges_all.csv"
+    if not path.exists():
+        return
+    df = read_csv(path)
+    case = df[df["component"] == "cutterhead"].copy()
+    if case.empty:
+        case = df.copy()
+    case = case.head(8)
+    fig, axes = plt.subplots(1, 2, figsize=figure_size("double", aspect=0.36), gridspec_kw={"width_ratios": [1.1, 1.0]})
+    ax = axes[0]
+    norm = plt.Normalize(case["weighted_contribution"].min(), case["weighted_contribution"].max())
+    cmap = plt.get_cmap(IJGIS_CMAPS["sequential"])
+    for _, row in case.iterrows():
+        color = cmap(norm(row["weighted_contribution"]))
+        ax.plot([row["tbm_y"], row["rock_y"]], [row["tbm_z"], row["rock_z"]], color=color, linewidth=1.0, alpha=0.85)
+    sc = ax.scatter(case["rock_y"], case["rock_z"], c=case["weighted_contribution"], cmap=IJGIS_CMAPS["sequential"],
+                    s=34, edgecolor="white", linewidth=0.4, label="Rock voxel")
+    ax.scatter(case["tbm_y"], case["tbm_z"], color=IJGIS_COLORS["tbm"], s=22, marker="s", label="TBM node")
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_xlabel("Local y (m)")
+    ax.set_ylabel("Local z (m)")
+    ax.set_title("Candidate edge trace")
+    ax.legend(loc="upper right")
+    add_panel_label(ax, "a")
+
+    ax = axes[1]
+    y = np.arange(len(case))[::-1]
+    labels = [f"#{int(r)} rock {int(node)}" for r, node in zip(case["rank"], case["rock_node_id"])]
+    ax.barh(y, case["weighted_contribution"], color=IJGIS_COLORS["full_model"], alpha=0.85)
+    ax.set_yticks(y, labels)
+    ax.set_xlabel(r"$w_{ij}q_i$")
+    title_row = case.iloc[0]
+    ax.set_title(f"{title_row['component'].replace('_', ' ')} at {title_row['chainage']:.0f} m")
+    ax.grid(axis="x", alpha=0.25)
+    add_panel_label(ax, "b")
+    set_colorbar_style(fig.colorbar(sc, ax=axes.tolist(), fraction=0.025, pad=0.02), r"$w_{ij}q_i$")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    save_pdf_and_png(fig, out_dir / "fig10_traceability_example.pdf")
+
+
 def main() -> None:
     exp_dir = Path(__file__).resolve().parent.parent
     root = exp_dir / "outputs" / "descriptors"
@@ -341,9 +488,12 @@ def main() -> None:
     plot_method_framework(out_dir)
     plot_spatial_entity_formalisation(out_dir)
     plot_geometry_constrained_edges(out_dir)
+    plot_case_context(out_dir)
     plot_descriptor_evidence(root, out_dir)
     plot_sensitivity(root, out_dir)
     plot_association_matrix_heatmap(root, out_dir)
+    plot_null_model_comparison(exp_dir / "outputs", out_dir)
+    plot_traceability_example(exp_dir / "outputs", out_dir)
     print(f"Saved descriptor figures to {out_dir}")
 
 

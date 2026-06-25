@@ -38,6 +38,34 @@ after which TBM surface nodes are advanced along the excavation direction $d$:
 p_j(t+1)=p_j(t)+\Delta x\,d .
 \]
 
+Table~\ref{tab:spatial_entities_relations} summarises the spatial data model.
+The table is included to make clear that the graph is a queryable
+entity-relation representation, not only a plotting device or a neural-network
+input tensor.
+
+\begin{table}[htbp]
+\centering
+\caption{Spatial entities and relations in the chainage-referenced rock--TBM
+graph.}
+\label{tab:spatial_entities_relations}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lll}
+\toprule
+Object & Definition & Diagnostic role \\
+\midrule
+$V_t^r$ & Active TSP-derived rock voxels & Geological spatial support \\
+$V_t^m$ & Parameterized TBM surface samples & Cutterhead and shield component support \\
+$E_t^{rr}$ & Rock--rock voxel neighbourhoods & Geological contiguity context \\
+$E_t^{mm}$ & TBM surface neighbourhoods & Machine-surface topology context \\
+$E_t^{rm}$ & Screened rock--machine candidate relations & Geometry-compatible interaction support \\
+$A_c(t)$ & Sum of geometry weights for component $c$ & Supporting exposure descriptor \\
+$I_c(t)$ & Geometry-weighted anomaly intensity for component $c$ & Main diagnostic descriptor \\
+$e_{t+h}^{(k)}$ & Persistence residual of response $k$ & Response-consistency target \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig1_method_framework.pdf}
@@ -165,8 +193,11 @@ where $A_c(t)$ is a supporting total geometric exposure descriptor. It is
 affected by component surface extent, surface-node sampling density,
 candidate-edge count, and active-zone geometry. It is therefore used mainly to
 document total candidate-relation exposure; when direct cross-component
-comparison is required, a node-normalised or area-normalised exposure can be
-used.
+comparison is required, a node-normalised exposure
+\[
+\bar{A}_c(t)=\frac{A_c(t)}{|V_c^m|+\epsilon}
+\]
+can be used as a sensitivity form.
 The geology-weighted spatial interaction intensity is
 \[
 I_c(t)=
@@ -206,5 +237,40 @@ is used because the diagnostic question concerns monotonic descriptor--residual
 co-variation under small sample sizes, rather than a calibrated linear response
 model. The result is interpreted as descriptor--response residual co-variation
 within the evaluated chainage interval, not as causal attribution.
+
+\subsection{Null-model, sensitivity, and traceability checks}
+\label{sec:null_sensitivity_traceability}
+The primary descriptor--residual pairs are fixed before sensitivity analysis:
+BSLL h=1 uses front-shield $I_c(t)$ against advance-rate residuals, BSLL h=3
+uses front-shield $I_c(t)$ against shield-pressure residuals, and SJLS h=3 uses
+cutterhead $I_c(t)$ against shield-pressure residuals. These pairs are used for
+diagnostic comparison only; the full exploratory component--response matrix is
+reported separately.
+
+Five descriptor-level null variants are used to test whether the proposed
+descriptor is reducible to simpler summaries. The chainage-only variant uses
+target chainage as the descriptor. The global-Vp variant uses the mean
+low-velocity anomaly score over active rock voxels, without component-specific
+geometry. The distance-only variant uses $A_c(t)$ and therefore contains
+geometry exposure but no geological anomaly weighting. The uniform-edge variant
+replaces geometry-weighted averaging with an unweighted mean anomaly over
+candidate edges. The component-shuffle variant uses the same graph construction
+but assigns the primary response comparison to the next TBM component in a
+cyclic order, breaking the intended component label.
+
+Two small-sample robustness checks are then applied to each primary pair. First,
+both descriptor and residual series are linearly detrended against chainage,
+and Spearman correlation is recomputed on the detrended series. Second, a
+circular-shift check rolls the residual sequence by all non-zero shifts and
+reports the proportion of shifted correlations whose absolute value is at least
+as large as the observed value. These values are descriptive diagnostics rather
+than confirmatory $p$-values.
+
+Anomaly-definition sensitivity is evaluated by replacing the main Vp-based
+score with Vs-low, Vp/Vs-low, and mean(Vp, Vs) low-anomaly variants. For
+traceability, candidate edges for a selected primary-pair sample are ranked by
+their contribution $w_{ij}^{rm}(t)q_i$, retaining the rock voxel, TBM node,
+distance, normal compatibility, geometry weight, anomaly score, and weighted
+contribution.
 
 \FloatBarrier

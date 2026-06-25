@@ -6,8 +6,8 @@ The BSLL tunnel case starts from DyK1017+205 and is evaluated under two
 diagnostic horizons: h=1 and h=3. It provides a compact case for testing whether
 component--chainage descriptors can be constructed and related to response
 residuals over short target intervals. The SJLS tunnel case starts from
-Dyk1252+411 and provides the clearest external TSP contrast, with a longer test
-interval for descriptor--residual association.
+Dyk1252+411 and is evaluated under h=3, providing the clearest external TSP
+contrast with a longer test interval for descriptor--residual association.
 
 For each excavation step, the monitoring vector contains advance rate,
 cutterhead RPM, torque, thrust, penetration, and shield pressure. The diagnostic
@@ -24,7 +24,7 @@ monitoring records.
 \includegraphics[width=0.95\linewidth]{fig5_case_context.pdf}
 \caption{Real tunnel scenarios used to instantiate the common descriptor
 framework. BSLL DyK1017+205 provides compact h=1 and h=3 cases, while SJLS
-Dyk1252+411 provides the clearest external TSP descriptor evidence.}
+Dyk1252+411 provides the clearest external TSP descriptor evidence under h=3.}
 \label{fig:case_context}
 \end{figure}
 
@@ -48,7 +48,7 @@ Case & Tunnel & Start chainage & Horizon & Train/Val./Test samples \\
 \midrule
 BSLL h=1 & BSLL & DyK1017+205 & 1 & 30 / 6 / 8 \\
 BSLL h=3 & BSLL & DyK1017+205 & 3 & 29 / 6 / 7 \\
-SJLS h=1 & SJLS & Dyk1252+411 & 1 & 76 / 16 / 17 \\
+SJLS h=3 & SJLS & Dyk1252+411 & 3 & 76 / 16 / 17 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -60,6 +60,29 @@ $\tau_{\mathrm{edge}}=2.0$\,m, $\eta_{\min}=0.3$, and
 $\tau_{\mathrm{zone}}=5.0$\,m in the main setting. The TBM surface is
 discretised into cutterhead, front-shield, middle-shield, and tail-shield
 surface nodes at a resolution of 0.5\,m.
+
+\begin{table}[htbp]
+\centering
+\caption{TBM geometry and surface sampling settings used in graph construction.}
+\label{tab:tbm_geometry_sampling}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+Case & Cutterhead radius & Shield radius & Front & Middle & Tail & TBM nodes \\
+ & (m) & (m) & (m) & (m) & (m) & \\
+\midrule
+BSLL h=1 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 1352 \\
+BSLL h=3 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 1352 \\
+SJLS h=3 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 352 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The BSLL runs use a 0.5\,m surface sampling resolution. The SJLS run uses a
+coarser 1.0\,m surface sampling resolution to keep the external case
+lightweight while preserving the same component partition and geometry
+constraints.
 
 TSP preprocessing follows a common voxel schema. Coordinates are converted to a
 local excavation coordinate by subtracting the minimum longitudinal coordinate,
@@ -88,5 +111,8 @@ Descriptor--residual association is formally reported with Spearman
 correlation between $I_c(t)$ and the persistence residual. A threshold
 sensitivity analysis varies $\tau_{\mathrm{edge}}$ and $\eta_{\min}$ to check
 whether the descriptor--residual pattern is tied to one specific
-graph-construction setting. The results are interpreted as chainage-local
-diagnostic co-variation, not as causal evidence or calibrated operational risk.
+graph-construction setting. Null-model comparisons, detrending, circular-shift
+checks, anomaly-definition sensitivity, and edge-level traceability are applied
+to the fixed primary diagnostic pairs. The results are interpreted as
+chainage-local diagnostic co-variation, not as causal evidence or calibrated
+operational risk.

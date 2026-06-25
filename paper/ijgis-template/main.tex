@@ -51,7 +51,7 @@
 \usepackage{placeins}
 \graphicspath{{../../experiments/outputs/figures/}}
 
-\title{Geometry-Constrained Rock--TBM Spatial Interaction Graphs for Chainage-Resolved Diagnostic Analysis of Excavation Responses}
+\title{Chainage-Referenced Rock--TBM Spatial Interaction Graphs for Component-Level Diagnosis of Excavation Responses}
 
 \author{
 \name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
@@ -76,26 +76,28 @@ Second Author\textsuperscript{b}} \\
 \maketitle
 
 \begin{abstract}
-Existing monitoring-based TBM response models preserve temporal dependence, but
-they do not explicitly represent the spatial relations between geological units
-and TBM components. This study proposes a chainage-referenced rock--TBM spatial
-interaction graph model for diagnostic analysis of excavation responses.
-TSP-derived rock voxels and parameterized TBM surface components are formalised
-as heterogeneous spatial entities, and candidate rock--machine relations are
-constrained by active-zone membership, distance decay, surface-normal
-compatibility, and excavation state. Based on the resulting graph sequence,
-component--chainage spatial interaction descriptors are derived by aggregating a
-fixed-reference low-velocity anomaly score over geometry-weighted candidate
-relations. Instead of claiming direct contact force, calibrated jamming risk, or
-broad forecasting superiority, the descriptors are evaluated through their
-consistency with persistence residuals of TBM monitoring responses. Case studies
-in BSLL DyK1017+205 and SJLS Dyk1252+411 show that the proposed graph
+TBM excavation is a moving rock--machine interaction process in which
+geological anomalies, machine geometry, and operating state jointly shape
+excavation responses. Monitoring curves can capture temporal response
+persistence, but they do not explicitly encode which geological units are
+spatially adjacent to which TBM components or how these relations evolve with
+chainage. This study proposes a chainage-referenced rock--TBM spatial
+interaction graph that formalises TSP-derived rock voxels and parameterized TBM
+surface samples as heterogeneous spatial entities. Candidate rock--machine
+relations are screened using active-zone membership, distance decay,
+surface-normal compatibility, and excavation-state constraints. Based on the
+resulting graph sequence, component--chainage diagnostic descriptors are
+derived by aggregating fixed-reference geological anomaly scores over
+geometry-weighted candidate relations. The descriptors are evaluated against
+persistence residuals of TBM monitoring responses using descriptor--residual
+association, descriptor-level null comparisons, detrending, circular-shift
+checks, and sensitivity analyses. Two tunnel cases demonstrate that the graph
 representation organises rock--machine relations into interpretable
-component--chainage patterns and provides diagnostic information that monitoring
-curves alone do not explicitly encode. The contribution is therefore a
-geometry-constrained spatial entity-relation representation and
-residual-consistency diagnostic workflow for rock--TBM interaction, rather than
-a new deep prediction model.
+component--chainage patterns and provides diagnostic information not explicitly
+encoded by monitoring curves alone. The proposed descriptors are interpreted
+as geometry-weighted diagnostic summaries rather than measured
+contact forces, calibrated jamming probabilities, or universal operational risk
+rules.
 \end{abstract}
 
 \begin{keywords}

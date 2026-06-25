@@ -1,0 +1,352 @@
+"""Build descriptor-level diagnostic checks for the revised manuscript.
+
+The checks are deliberately descriptor-level rather than trained-model
+ablations. They ask whether the proposed geometry-weighted component descriptor
+contains residual-consistent information beyond simple chainage, global anomaly,
+distance-only exposure, uniform edge averaging, and component-label shuffling.
+"""
+
+from __future__ import annotations
+
+import csv
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import yaml
+
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src.diagnostics.context import TARGET_NAMES, build_descriptor_context
+from src.diagnostics.spatial_interaction import (
+    COMPONENT_NAMES,
+    component_descriptors_for_snapshot,
+    persistence_residuals,
+    safe_spearman,
+    vp_anomaly_from_standardized_attrs,
+)
+
+
+CASE_CONFIGS = [
+    "config/bsll_dyk1017_205.yaml",
+    "config/bsll_dyk1017_205_h3.yaml",
+    "config/sjls_dyk1252_411.yaml",
+]
+
+CASE_LABELS = {
+    "bsll_dyk1017_205": "BSLL h=1",
+    "bsll_dyk1017_205_h3": "BSLL h=3",
+    "sjls_dyk1252_411": "SJLS h=3",
+}
+
+PRIMARY_PAIRS = {
+    "bsll_dyk1017_205": ("front_shield", "AdvanceRate"),
+    "bsll_dyk1017_205_h3": ("front_shield", "ShieldPressure"),
+    "sjls_dyk1252_411": ("cutterhead", "ShieldPressure"),
+}
+
+ATTR_INDEX = {
+    "Vp": 0,
+    "Vs": 1,
+    "E": 2,
+    "Vp/Vs": 3,
+    "nu": 4,
+    "rho": 5,
+}
+
+
+def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = list(rows[0].keys()) if rows else ["empty"]
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def save_json(data: dict[str, Any], path: Path) -> None:
+    def convert(obj: Any) -> Any:
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, (np.floating, np.integer)):
+            return obj.item()
+        return obj
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False, default=convert)
+
+
+def low_attribute_score(rock_attrs: np.ndarray, col: int) -> np.ndarray:
+    """Bounded low-attribute anomaly score from standardized attributes."""
+    values = rock_attrs[:, col].astype(np.float32)
+    return np.clip((1.645 - values) / (2.0 * 1.645), 0.0, 1.0).astype(np.float32)
+
+
+def descriptor_series_for_component(context: dict[str, Any], component: str) -> dict[str, np.ndarray]:
+    """Return proposed and null descriptor series for one component."""
+    component_ids = {name: cid for cid, name in COMPONENT_NAMES.items()}
+    component_id = component_ids[component]
+    shuffled_component_id = (component_id + 1) % len(COMPONENT_NAMES)
+    shuffled_component = COMPONENT_NAMES[shuffled_component_id]
+
+    proposed = []
+    chainage = []
+    global_anomaly = []
+    distance_only = []
+    uniform_edge = []
+    component_shuffle = []
+
+    for graph_seq, ch in zip(context["test_graph_seqs"], context["test_chainages"]):
+        snapshot = graph_seq[-1]
+        rows = component_descriptors_for_snapshot(
+            snapshot,
+            anomaly_reference=context.get("vp_anomaly_reference"),
+        )
+        by_component = {row.component: row for row in rows}
+        row = by_component[component]
+        shuffle_row = by_component[shuffled_component]
+
+        rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
+        q = vp_anomaly_from_standardized_attrs(rock_attrs, context.get("vp_anomaly_reference"))
+        proposed.append(row.interaction_intensity)
+        chainage.append(float(ch))
+        global_anomaly.append(float(np.mean(q)) if len(q) else 0.0)
+        distance_only.append(row.geometric_exposure)
+        uniform_edge.append(row.mean_anomaly)
+        component_shuffle.append(shuffle_row.interaction_intensity)
+
+    return {
+        "proposed": np.asarray(proposed, dtype=np.float64),
+        "chainage_only": np.asarray(chainage, dtype=np.float64),
+        "global_vp_anomaly": np.asarray(global_anomaly, dtype=np.float64),
+        "distance_only_exposure": np.asarray(distance_only, dtype=np.float64),
+        "uniform_edge_anomaly": np.asarray(uniform_edge, dtype=np.float64),
+        "component_shuffle": np.asarray(component_shuffle, dtype=np.float64),
+    }
+
+
+def response_residual_series(context: dict[str, Any], response: str) -> np.ndarray:
+    residuals = persistence_residuals(context["y_test"], context["X_test"])
+    idx = TARGET_NAMES.index(response)
+    return residuals[:, idx].astype(np.float64)
+
+
+def linear_detrend(values: np.ndarray, chainage: np.ndarray) -> np.ndarray:
+    values = np.asarray(values, dtype=np.float64)
+    chainage = np.asarray(chainage, dtype=np.float64)
+    if len(values) < 3 or np.std(values) == 0 or np.std(chainage) == 0:
+        return values - np.mean(values)
+    coef = np.polyfit(chainage, values, deg=1)
+    return values - np.polyval(coef, chainage)
+
+
+def circular_shift_pvalue(x: np.ndarray, y: np.ndarray) -> tuple[float, int]:
+    observed, _ = safe_spearman(x, y)
+    if len(x) < 4:
+        return 1.0, 0
+    shifted = []
+    for shift in range(1, len(x)):
+        r, _ = safe_spearman(x, np.roll(y, shift))
+        shifted.append(r)
+    shifted = np.asarray(shifted, dtype=np.float64)
+    p = (1.0 + float(np.sum(np.abs(shifted) >= abs(observed)))) / (1.0 + len(shifted))
+    return float(p), int(len(shifted))
+
+
+def anomaly_variant_series(context: dict[str, Any], component: str) -> dict[str, np.ndarray]:
+    variants: dict[str, list[float]] = {
+        "Vp_main": [],
+        "Vs_low": [],
+        "VpVs_low": [],
+        "Vp_Vs_mean": [],
+    }
+    for graph_seq in context["test_graph_seqs"]:
+        snapshot = graph_seq[-1]
+        rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
+        q_vp = vp_anomaly_from_standardized_attrs(rock_attrs, context.get("vp_anomaly_reference"))
+        q_vs = low_attribute_score(rock_attrs, ATTR_INDEX["Vs"])
+        q_ratio = low_attribute_score(rock_attrs, ATTR_INDEX["Vp/Vs"])
+        q_multi = np.mean(np.vstack([q_vp, q_vs]), axis=0).astype(np.float32)
+        for name, q in [
+            ("Vp_main", q_vp),
+            ("Vs_low", q_vs),
+            ("VpVs_low", q_ratio),
+            ("Vp_Vs_mean", q_multi),
+        ]:
+            rows = component_descriptors_for_snapshot(snapshot, anomaly_scores=q)
+            variants[name].append(next(row.interaction_intensity for row in rows if row.component == component))
+    return {key: np.asarray(value, dtype=np.float64) for key, value in variants.items()}
+
+
+def top_contributing_edges(context: dict[str, Any], component: str, response: str, top_n: int = 8) -> list[dict[str, Any]]:
+    residual = response_residual_series(context, response)
+    sample_idx = int(np.argmax(np.abs(residual)))
+    snapshot = context["test_graph_seqs"][sample_idx][-1]
+    chainage = float(context["test_chainages"][sample_idx])
+    rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
+    q = vp_anomaly_from_standardized_attrs(rock_attrs, context.get("vp_anomaly_reference"))
+
+    data = snapshot.hetero_data
+    edge_store = data["rock", "interact", "tbm"]
+    edge_index = edge_store.edge_index.detach().cpu().numpy()
+    src = edge_index[0]
+    dst = edge_index[1]
+    weights = np.asarray(edge_store["edge_attrs"]["geometry_prior"], dtype=np.float64).reshape(-1)
+    distances = np.asarray(edge_store["edge_attrs"]["distance"], dtype=np.float64).reshape(-1)
+    kappas = np.asarray(edge_store["edge_attrs"]["kappa"], dtype=np.float64).reshape(-1)
+
+    tbm_components = snapshot.tbm_components.argmax(dim=1).detach().cpu().numpy()
+    component_ids = {name: cid for cid, name in COMPONENT_NAMES.items()}
+    mask = tbm_components[dst] == component_ids[component]
+    contribution = weights * q[src]
+    order = np.argsort(contribution[mask])[::-1][:top_n]
+    masked_indices = np.where(mask)[0][order]
+
+    rock_x = snapshot.hetero_data["rock"].x.detach().cpu().numpy()
+    tbm_x = snapshot.hetero_data["tbm"].x.detach().cpu().numpy()
+    rock_node_ids = snapshot.hetero_data["rock"].node_ids.detach().cpu().numpy()
+    tbm_node_ids = snapshot.hetero_data["tbm"].node_ids.detach().cpu().numpy()
+
+    rows = []
+    for rank, edge_pos in enumerate(masked_indices, start=1):
+        rock_local = int(src[edge_pos])
+        tbm_local = int(dst[edge_pos])
+        rows.append(
+            {
+                "sample_idx": sample_idx,
+                "chainage": chainage,
+                "component": component,
+                "response": response,
+                "residual": float(residual[sample_idx]),
+                "rank": rank,
+                "rock_node_id": int(rock_node_ids[rock_local]),
+                "tbm_node_id": int(tbm_node_ids[tbm_local]),
+                "rock_x": float(rock_x[rock_local, 0]),
+                "rock_y": float(rock_x[rock_local, 1]),
+                "rock_z": float(rock_x[rock_local, 2]),
+                "tbm_x": float(tbm_x[tbm_local, 0]),
+                "tbm_y": float(tbm_x[tbm_local, 1]),
+                "tbm_z": float(tbm_x[tbm_local, 2]),
+                "distance": float(distances[edge_pos]),
+                "kappa": float(kappas[edge_pos]),
+                "weight": float(weights[edge_pos]),
+                "anomaly_score": float(q[rock_local]),
+                "weighted_contribution": float(contribution[edge_pos]),
+            }
+        )
+    return rows
+
+
+def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
+    with config_path.open("r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    case_id = cfg.get("case", {}).get("id", config_path.stem)
+    context = build_descriptor_context(cfg, "cpu")
+    component, response = PRIMARY_PAIRS[case_id]
+    descriptor_series = descriptor_series_for_component(context, component)
+    residual = response_residual_series(context, response)
+    chainage = descriptor_series["chainage_only"]
+
+    primary_rows = []
+    null_rows = []
+    for variant, values in descriptor_series.items():
+        r, _ = safe_spearman(values, residual)
+        detrended_r, _ = safe_spearman(
+            linear_detrend(values, chainage),
+            linear_detrend(residual, chainage),
+        )
+        perm_p, n_perm = circular_shift_pvalue(values, residual)
+        row = {
+            "case_id": case_id,
+            "case_label": CASE_LABELS[case_id],
+            "component": component,
+            "response": response,
+            "variant": variant,
+            "n": len(values),
+            "spearman_r": r,
+            "detrended_spearman_r": detrended_r,
+            "circular_shift_p": perm_p,
+            "n_circular_shifts": n_perm,
+        }
+        null_rows.append(row)
+        if variant == "proposed":
+            primary_rows.append(row)
+
+    anomaly_rows = []
+    for variant, values in anomaly_variant_series(context, component).items():
+        r, _ = safe_spearman(values, residual)
+        detrended_r, _ = safe_spearman(
+            linear_detrend(values, chainage),
+            linear_detrend(residual, chainage),
+        )
+        anomaly_rows.append(
+            {
+                "case_id": case_id,
+                "case_label": CASE_LABELS[case_id],
+                "component": component,
+                "response": response,
+                "anomaly_variant": variant,
+                "n": len(values),
+                "spearman_r": r,
+                "detrended_spearman_r": detrended_r,
+            }
+        )
+
+    trace_rows = top_contributing_edges(context, component, response)
+
+    case_dir = output_dir / case_id
+    write_csv(null_rows, case_dir / "primary_null_comparison.csv")
+    write_csv(anomaly_rows, case_dir / "anomaly_sensitivity.csv")
+    write_csv(trace_rows, case_dir / "top_contributing_edges.csv")
+    save_json(
+        {
+            "case_id": case_id,
+            "case_label": CASE_LABELS[case_id],
+            "config": str(config_path),
+            "primary_pair": {"component": component, "response": response},
+            "split_counts": context["split_counts"],
+            "null_comparison": null_rows,
+            "anomaly_sensitivity": anomaly_rows,
+            "traceability_top_edges": trace_rows,
+        },
+        case_dir / "descriptor_diagnostics_summary.json",
+    )
+    return {
+        "case_id": case_id,
+        "primary_rows": primary_rows,
+        "null_rows": null_rows,
+        "anomaly_rows": anomaly_rows,
+        "trace_rows": trace_rows,
+    }
+
+
+def main() -> None:
+    exp_dir = Path(__file__).resolve().parent.parent
+    os.chdir(exp_dir)
+    output_dir = exp_dir / "outputs" / "descriptor_diagnostics"
+    all_primary = []
+    all_null = []
+    all_anomaly = []
+    all_trace = []
+    for rel_config in CASE_CONFIGS:
+        result = process_case(exp_dir / rel_config, output_dir)
+        all_primary.extend(result["primary_rows"])
+        all_null.extend(result["null_rows"])
+        all_anomaly.extend(result["anomaly_rows"])
+        all_trace.extend(result["trace_rows"])
+
+    write_csv(all_primary, output_dir / "primary_pair_diagnostics.csv")
+    write_csv(all_null, output_dir / "null_model_comparison.csv")
+    write_csv(all_anomaly, output_dir / "anomaly_definition_sensitivity.csv")
+    write_csv(all_trace, output_dir / "top_contributing_edges_all.csv")
+    print(f"Saved descriptor diagnostics to {output_dir}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,53 +1,86 @@
-\subsection{Why graph representation is necessary}
+\subsection{Spatial data-model contribution}
 \label{sec:graph_necessity}
-The revised manuscript separates two questions that were previously too closely
-coupled: whether a deep graph sequence model improves forecasting, and whether
-rock--TBM interaction requires a spatial entity-relation representation. The
-current evidence does not support the first question as a main claim. The
-second question remains central. A monitoring-only sequence can represent
-$u_{t-K+1:t}\rightarrow r_{t+h}$, but it cannot encode which rock voxel is near
-which TBM component, whether that relation is geometrically compatible, or how
-the candidate relation set changes with chainage.
+The main contribution is not a higher-accuracy response predictor, but a
+chainage-referenced spatial relation model that makes the otherwise implicit
+rock--machine relation set explicit, inspectable, and queryable. Monitoring
+sequences can describe response inertia, and TSP voxels can describe geological
+heterogeneity, but neither representation alone states which geological voxels
+are candidate interaction partners for which TBM components at a given
+chainage. The proposed graph closes this representational gap by linking rock
+voxels, TBM surface nodes, geometry-compatible candidate edges, and monitoring
+residuals in one excavation coordinate system.
 
-The graph representation is therefore justified by the structure of the domain,
-not by a preference for a particular learning architecture. TSP voxels, TBM
-surface samples, rock--rock adjacency, machine-surface adjacency, and
-rock--machine candidate relations are heterogeneous spatial entities and relations. The
-geometry-constrained graph makes these relations inspectable and auditable
-before any learning model is introduced.
+This distinction matters for IJGIS/IJDE-style spatial modelling. The graph is
+not introduced merely as a deep-learning architecture. It is a spatial data
+model with explicit entities, relation types, screening rules, edge weights,
+component aggregation, and traceability back to individual candidate relations.
+The descriptor results are therefore interpreted as evidence that the
+representation can organise rock--machine relations into component--chainage
+diagnostic summaries.
 
-\subsection{What spatial interaction descriptors add beyond monitoring curves}
+\subsection{Diagnostic meaning beyond monitoring curves}
 \label{sec:descriptor_value}
-Persistence is a strong description of short-horizon TBM response inertia. The
-revised method accepts this rather than competing against it directly. The role
-of the spatial graph is to describe the part of the excavation process that a
-monitoring curve cannot explicitly encode: component-specific exposure to nearby
-TSP-derived geological anomaly under geometry-compatible candidate relations.
+Comparing $I_c(t)$ with persistence residuals reframes the evaluation question
+from ``does the graph beat persistence?'' to ``does the graph encode spatial
+diagnostic information consistent with the response changes left after
+persistence?'' This is a more defensible question for the present data scale.
+The SJLS results illustrate the value of this framing: raw chainage and global
+Vp summaries are strongly associated with the selected residual, but their
+associations largely disappear after linear detrending, whereas the proposed
+component-specific descriptor remains strong.
 
-The descriptors $A_c(t)$ and $I_c(t)$ provide a compact way to inspect this
-structure. $A_c(t)$ reports the pure geometric exposure of each TBM component to
-candidate rock--machine relations, while $I_c(t)$ reports the corresponding
-geology-weighted anomaly intensity. Comparing $I_c(t)$ with persistence
-residuals reframes the evaluation question from ``does the graph beat
-persistence?'' to ``does the graph encode spatial diagnostic information
-consistent with the response changes left after persistence?'' This is a more
-defensible question for the current data scale.
+The BSLL results are more limited. They show that the graph and descriptors can
+be constructed consistently in compact intervals, but the residual-consistency
+evidence weakens after detrending and changes with anomaly definition. This
+does not invalidate the graph construction; rather, it defines the appropriate
+claim boundary. The evidence supports a diagnostic spatial-representation
+claim, not a universal component--response law.
 
-\subsection{Interpretation boundary and future validation}
+\subsection{Case-specific evidential strength}
+\label{sec:evidential_strength}
+The contrast between SJLS and BSLL is not treated as a success--failure
+dichotomy. It shows that descriptor usefulness depends on geological contrast,
+monitoring quality, operational stability, and the length of the evaluated
+chainage interval. SJLS contains a longer test interval and a clearer external
+TSP velocity contrast, which makes descriptor--residual co-variation more
+visible. BSLL h=1 and h=3 contain only 8 and 7 test samples, respectively, and
+their residuals may be more strongly affected by operational control and local
+construction variability.
+
+The circular-shift checks are also read conservatively. They are useful
+as small-sample diagnostics for monotonic sequence structure, but they are not
+formal multiplicity-adjusted significance tests. The strongest evidence is the
+combined pattern: fixed primary pairs, detrended comparison, descriptor-level
+null models, threshold sensitivity, anomaly-definition sensitivity, and
+edge-level traceability.
+
+\subsection{Interpretation boundary}
 \label{sec:interpretation_boundary}
-The proposed descriptors should be interpreted as geometry-weighted summaries of
-TSP-derived anomaly around TBM components. They are not measured contact force,
-contact pressure, jamming probability, causal attribution, or calibrated
-operational risk. The current TSP anomaly score is intentionally simple, using
-a bounded low-velocity anomaly score derived from the training-reference
-distribution of $V_p$ as the main formulation. Multi-attribute variants may be
-useful as sensitivity checks, but adding weights without independent validation
-would weaken the transparency of the method.
+The proposed descriptors are geometry-weighted summaries of TSP-derived
+anomalies around TBM components. They are not measured contact force, contact
+pressure, jamming probability, causal attribution, or calibrated operational
+risk. This boundary is important because the graph encodes candidate spatial
+relations, not observed physical contact. Independent engineering labels would
+be required before the descriptors could be interpreted as risk probabilities
+or contact-force estimates.
 
-Future work should prioritise descriptor-specific residual tables, threshold
-sensitivity for active-zone and edge-construction parameters, alternative
-definitions of $q_i$, spatial detrending, multi-section validation, and
-independent engineering evidence such as event labels, contact observations, or
-expert assessments. Until such evidence is available, the defensible claim is a
-spatial interaction representation and response-residual diagnostic workflow,
-not recovery of true contact conditions or general predictive dominance.
+\subsection{Limitations and future work}
+\label{sec:limitations}
+Several limitations remain. First, the current evidence comes from two tunnel
+cases and short diagnostic test intervals, so additional tunnel sections and
+geological conditions are required for generalisation. Second, independent
+engineering evidence such as geological exposure logs, jamming records, shield
+pressure anomaly logs, and construction intervention records is needed to
+validate operational interpretations. Third, TSP inversion uncertainty is not
+propagated through the voxel graph; future work needs
+uncertainty-aware voxel attributes and evaluate how spatial resolution affects
+candidate relation sets.
+
+Fourth, the main descriptor intentionally uses a transparent Vp-based
+low-velocity anomaly score. Multi-attribute scores using Vs, modulus, Vp/Vs,
+Poisson's ratio, or density require clear weighting rules
+or independent validation. Finally, with larger samples, the full heterogeneous
+graph structure $E^{rr}$, $E^{mm}$, and $E^{rm}$ could be used for learned
+representation models. Such extensions remain secondary to the spatial
+entity-relation claim unless sufficient training and validation data become
+available.
