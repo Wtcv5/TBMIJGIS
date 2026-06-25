@@ -63,30 +63,30 @@ surface nodes at a resolution of 0.5\,m.
 
 TSP preprocessing follows a common voxel schema. Coordinates are converted to a
 local excavation coordinate by subtracting the minimum longitudinal coordinate,
-so the local $X$ axis is aligned with advance direction. Each voxel stores
-$[V_p,V_s,E,V_p/V_s,\nu,\rho]$, and these attributes are standardised using
-statistics fitted on the training active-zone margin. This multi-attribute
-schema is retained to keep the BSLL and SJLS inputs in a common voxel format.
-However, the main spatial interaction descriptor uses only the cross-case
-consistent P-wave velocity attribute. The geological anomaly score is therefore
-a $[0,1]$ low-velocity anomaly score derived from the training active-zone
-reference distribution of $V_p$; derived or case-specific attributes such as
-$V_s$, modulus, velocity ratio, Poisson's ratio, and density are not used in
-the main descriptor calculation.
+so the local $X$ axis is aligned with advance direction. Each voxel can store
+$[V_p,V_s,E,V_p/V_s,\nu,\rho]$ when these attributes are available, and
+available attributes are standardised using statistics fitted on the training
+active-zone margin. This multi-attribute schema keeps the BSLL and SJLS inputs
+in a common voxel format. However, the main spatial interaction descriptor uses
+only the cross-case consistent P-wave velocity attribute. The geological
+anomaly score is therefore a $[0,1]$ low-velocity anomaly score derived from
+the training active-zone reference distribution of $V_p$; derived or
+case-specific attributes such as $V_s$, modulus, velocity ratio, Poisson's
+ratio, and density are not used in the main descriptor calculation.
 
 \subsection{Diagnostic evaluation metrics}
 \label{sec:evaluation_principle}
 
 The primary outputs are component--chainage descriptors. For each component
-$c$, $A_c(t)$ reports the sum of geometry weights over candidate relations, and
-$I_c(t)$ reports the geometry-weighted mean TSP anomaly score. The response
-consistency target is the persistence residual
+$c$, $A_c(t)$ is a supporting exposure descriptor that reports the sum of
+geometry weights over candidate relations, and $I_c(t)$ is the main
+geology-weighted descriptor. The response consistency target is the persistence
+residual
 $e_{t+h}^{(k)}=r_{t+h}^{(k)}-r_t^{(k)}$ for each response variable $k$.
 
-Descriptor--residual association is reported with Pearson and Spearman
-correlations and with overlap between high-descriptor and high-absolute-residual
-intervals. A threshold sensitivity analysis varies $\tau_{\mathrm{edge}}$ and
-$\eta_{\min}$ to check whether the descriptor--residual pattern is tied to one
-specific graph-construction setting. The results are interpreted as
-chainage-local diagnostic co-variation, not as causal evidence or calibrated
-operational risk.
+Descriptor--residual association is formally reported with Spearman
+correlation between $I_c(t)$ and the persistence residual. A threshold
+sensitivity analysis varies $\tau_{\mathrm{edge}}$ and $\eta_{\min}$ to check
+whether the descriptor--residual pattern is tied to one specific
+graph-construction setting. The results are interpreted as chainage-local
+diagnostic co-variation, not as causal evidence or calibrated operational risk.

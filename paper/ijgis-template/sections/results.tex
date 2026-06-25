@@ -51,9 +51,11 @@ force, jamming probability, or calibrated risk.
 
 Figure~\ref{fig:descriptor_evidence} summarises the descriptor evidence chain.
 Panel (a) shows component--chainage $I_c(t)$ patterns in all three formal
-cases. Panel (b) reports representative fixed descriptor--residual pairs for
-subsequent sensitivity analysis. Panel (c) confirms that the result is based on
-explicitly constructed candidate rock--machine relations.
+cases, with one panel per case. The figure is intentionally limited to the
+descriptor heatmaps; graph-construction density is reported separately in
+Table~\ref{tab:graph_construction_stats}, and full descriptor--response
+associations are reported in Table~\ref{tab:descriptor_residual} and
+Figure~\ref{fig:descriptor_matrix_heatmap}.
 
 \begin{figure}[htbp]
 \centering
@@ -62,15 +64,18 @@ explicitly constructed candidate rock--machine relations.
 Panel (a) shows $I_c(t)$ values for BSLL h=1, BSLL h=3, and SJLS h=1,
 aggregated from geometry-weighted TSP anomaly scores over candidate
 rock--machine relations. Colour scales are case-specific and should not be
-compared across panels. Panel (b) reports representative fixed
-$I_c(t)$--persistence-residual pairs used in the threshold sensitivity analysis;
-the complete association results are reported in
-Table~\ref{tab:descriptor_residual} and
-Figure~\ref{fig:descriptor_matrix_heatmap}. Panel (c) reports the mean number
-of constructed candidate relations per sample. The descriptors are not measured
-contact pressure or risk probability.}
+compared across panels. The descriptors are not measured contact pressure or
+risk probability.}
 \label{fig:descriptor_evidence}
 \end{figure}
+
+The exposure descriptor $A_c(t)$ is used as supporting evidence for the
+constructed relation field. It records total geometry-weighted exposure and is
+therefore tied to component surface extent, node sampling density, and
+candidate-edge count. For this reason, the residual association analysis below
+focuses on $I_c(t)$, while $A_c(t)$ and Table~\ref{tab:graph_construction_stats}
+document the amount of candidate rock--machine exposure from which the anomaly
+intensity descriptor is aggregated.
 
 \subsection{Association with persistence residuals}
 \label{sec:residual_results}
@@ -134,9 +139,7 @@ the component--response structure easier to inspect. Values are exploratory and
 unadjusted for multiple testing; the figure is used to diagnose case-specific
 descriptor--residual co-variation rather than confirm universal
 component--response rules. Together, Table~\ref{tab:descriptor_residual} and
-Figure~\ref{fig:descriptor_matrix_heatmap} provide the full result set, whereas
-Figure~\ref{fig:descriptor_evidence}(b) only highlights representative fixed
-pairs for threshold-sensitivity checking.
+Figure~\ref{fig:descriptor_matrix_heatmap} provide the full result set.
 
 \begin{figure}[htbp]
 \centering
@@ -153,8 +156,8 @@ co-variation rather than confirm universal component--response rules.}
 Figure~\ref{fig:descriptor_sensitivity} tests whether the fixed
 $I_c(t)$--residual pairs are preserved when the edge-distance threshold
 $\tau_{\mathrm{edge}}$ and normal-compatibility threshold $\eta_{\min}$ are
-varied. The descriptor--response pairs used in Figure~\ref{fig:descriptor_evidence}(b)
-and Figure~\ref{fig:descriptor_sensitivity} were selected from the main-setting
+varied. The descriptor--response pairs used in
+Figure~\ref{fig:descriptor_sensitivity} were selected from the main-setting
 component--response matrix and then held unchanged across all threshold
 combinations. They are representative diagnostic pairs for threshold-sensitivity
 checking rather than confirmatory component--response rules. For each case, the

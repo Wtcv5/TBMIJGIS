@@ -161,11 +161,12 @@ A_c(t)=
 \sum_{i:(i,j)\in E_t^{rm}}
 w_{ij}^{rm}(t),
 \]
-where $A_c(t)$ is a total geometric exposure measure. It is affected by
-component surface extent, surface-node sampling density, candidate-edge count,
-and active-zone geometry. It is therefore used mainly to describe total
-candidate-relation exposure; when direct cross-component comparison is
-required, a node-normalised or area-normalised exposure can be used.
+where $A_c(t)$ is a supporting total geometric exposure descriptor. It is
+affected by component surface extent, surface-node sampling density,
+candidate-edge count, and active-zone geometry. It is therefore used mainly to
+document total candidate-relation exposure; when direct cross-component
+comparison is required, a node-normalised or area-normalised exposure can be
+used.
 The geology-weighted spatial interaction intensity is
 \[
 I_c(t)=
@@ -199,9 +200,11 @@ remaining response change after persistence has been removed:
 \[
 I_c(t)\rightarrow e_{t+h}^{(k)} .
 \]
-This analysis can be reported using Pearson or Spearman correlations, overlap
-between high-descriptor and high-absolute-residual intervals, and component-wise
-comparisons. The result is interpreted as descriptor--response residual
-co-variation within the evaluated chainage interval, not as causal attribution.
+The formal reported statistic is Spearman correlation between $I_c(t)$ and
+$e_{t+h}^{(k)}$ over the evaluated test chainage interval. Spearman correlation
+is used because the diagnostic question concerns monotonic descriptor--residual
+co-variation under small sample sizes, rather than a calibrated linear response
+model. The result is interpreted as descriptor--response residual co-variation
+within the evaluated chainage interval, not as causal attribution.
 
 \FloatBarrier
