@@ -60,7 +60,16 @@ def tsp_fit_stats_for_samples(tsp_df, sample_chainages: np.ndarray, sample_indic
         train_tsp_raw = tsp_norm.loc[mask, TSP_ATTR_COLS].to_numpy(dtype=np.float32)
     attr_mean = train_tsp_raw.mean(axis=0, keepdims=True)
     attr_std = train_tsp_raw.std(axis=0, keepdims=True) + 1e-8
-    return attr_mean, attr_std
+    vp_q5_raw = float(np.percentile(train_tsp_raw[:, 0], 5))
+    vp_q95_raw = float(np.percentile(train_tsp_raw[:, 0], 95))
+    vp_reference = {
+        "q5": float((vp_q5_raw - attr_mean[0, 0]) / attr_std[0, 0]),
+        "q95": float((vp_q95_raw - attr_mean[0, 0]) / attr_std[0, 0]),
+        "q5_raw": vp_q5_raw,
+        "q95_raw": vp_q95_raw,
+        "domain": "training active-zone standardized Vp",
+    }
+    return attr_mean, attr_std, vp_reference
 
 
 def build_descriptor_context(cfg: dict[str, Any], device: str):
@@ -97,7 +106,7 @@ def build_descriptor_context(cfg: dict[str, Any], device: str):
         float(cfg["graph"].get("tau_zone", 5.0)),
         float(cfg["excavation"].get("cutterhead_look_ahead", 5.0)),
     )
-    attr_mean, attr_std = tsp_fit_stats_for_samples(tsp_df, sample_chainages_pre, train_idx, margin=margin)
+    attr_mean, attr_std, vp_reference = tsp_fit_stats_for_samples(tsp_df, sample_chainages_pre, train_idx, margin=margin)
     rock_coords, rock_attrs = build_voxel_field(tsp_df, attr_mean=attr_mean, attr_std=attr_std)
     mon_df, _ = standardize_monitoring(mon_df, fit_df=mon_df.iloc[train_monitor_rows].copy())
 
@@ -158,6 +167,7 @@ def build_descriptor_context(cfg: dict[str, Any], device: str):
         "rock_in_dim": snapshots[0].hetero_data["rock"].x.shape[1],
         "tbm_in_dim": snapshots[0].hetero_data["tbm"].x.shape[1],
         "edge_in_dim": 1 + 1 + 3 + rock_attrs.shape[1] + 4,
+        "vp_anomaly_reference": vp_reference,
         "split_counts": {
             "train": int(len(train_idx)),
             "val": int(len(val_idx)),
@@ -178,6 +188,6 @@ def build_descriptor_context(cfg: dict[str, Any], device: str):
             "tsp_scaler_margin_m": margin,
             "tsp_attr_mean": attr_mean.tolist(),
             "tsp_attr_std": attr_std.tolist(),
+            "vp_anomaly_reference": vp_reference,
         },
     }
-

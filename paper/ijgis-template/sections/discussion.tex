@@ -39,9 +39,10 @@ The proposed descriptors should be interpreted as geometry-weighted summaries of
 TSP-derived anomaly around TBM components. They are not measured contact force,
 contact pressure, jamming probability, causal attribution, or calibrated
 operational risk. The current TSP anomaly score is intentionally simple, using
-negative standardized $V_p$ as the main formulation. Multi-attribute variants
-may be useful as sensitivity checks, but adding weights without independent
-validation would weaken the transparency of the method.
+a bounded low-velocity anomaly score derived from the training-reference
+distribution of $V_p$ as the main formulation. Multi-attribute variants may be
+useful as sensitivity checks, but adding weights without independent validation
+would weaken the transparency of the method.
 
 Future work should prioritise descriptor-specific residual tables, threshold
 sensitivity for active-zone and edge-construction parameters, alternative

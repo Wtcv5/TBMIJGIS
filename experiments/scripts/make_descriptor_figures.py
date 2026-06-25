@@ -32,10 +32,12 @@ CASE_LABELS = {
 
 COMPONENT_ORDER = ["cutterhead", "front_shield", "middle_shield", "tail_shield"]
 COMPONENT_LABELS = ["Cutterhead", "Front shield", "Middle shield", "Tail shield"]
+RESPONSE_ORDER = ["AdvanceRate", "Torque", "Thrust", "Penetration", "ShieldPressure"]
+RESPONSE_LABELS = ["Advance\nrate", "Torque", "Thrust", "Penetr.", "Shield\npress."]
 
 FIXED_RESPONSE_PAIRS = {
     "bsll_dyk1017_205": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
-    "bsll_dyk1017_205_h3": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
+    "bsll_dyk1017_205_h3": ("front_shield", "I_interaction_intensity", "ShieldPressure"),
     "sjls_dyk1252_411": ("cutterhead", "I_interaction_intensity", "ShieldPressure"),
 }
 
@@ -349,6 +351,36 @@ def plot_sensitivity(root: Path, out_dir: Path) -> None:
     plt.close(fig)
 
 
+def plot_association_matrix_heatmap(root: Path, out_dir: Path) -> None:
+    apply_ijgis_style()
+    assoc = read_csv(root / "descriptor_association_all.csv")
+    assoc = assoc[assoc["descriptor"] == "I_interaction_intensity"].copy()
+    fig, axes = plt.subplots(1, len(CASE_LABELS), figsize=figure_size("double", aspect=0.32), squeeze=False)
+    im = None
+    for ax, case_id in zip(axes[0], CASE_LABELS):
+        case = assoc[assoc["case_id"] == case_id]
+        matrix = (
+            case.pivot(index="component", columns="response", values="spearman_r")
+            .reindex(index=COMPONENT_ORDER, columns=RESPONSE_ORDER)
+        )
+        im = ax.imshow(matrix.values, cmap=IJGIS_CMAPS["diverging"], vmin=-1, vmax=1, aspect="auto")
+        ax.set_title(CASE_LABELS.get(case_id, case_id))
+        ax.set_xticks(np.arange(len(RESPONSE_LABELS)), RESPONSE_LABELS)
+        ax.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS)
+        for i in range(matrix.shape[0]):
+            for j in range(matrix.shape[1]):
+                value = matrix.values[i, j]
+                ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=6.5, color="#222222")
+    if im is not None:
+        fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02, label="Spearman rho")
+    for label, ax in zip("abc", axes[0]):
+        add_panel_label(ax, label)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_dir / "fig8_descriptor_matrix_heatmap.pdf", dpi=600, bbox_inches="tight", facecolor="white")
+    fig.savefig(out_dir / "fig8_descriptor_matrix_heatmap.png", dpi=600, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
 def main() -> None:
     exp_dir = Path(__file__).resolve().parent.parent
     root = exp_dir / "outputs" / "descriptors"
@@ -358,6 +390,7 @@ def main() -> None:
     plot_geometry_constrained_edges(out_dir)
     plot_descriptor_evidence(root, out_dir)
     plot_sensitivity(root, out_dir)
+    plot_association_matrix_heatmap(root, out_dir)
     print(f"Saved descriptor figures to {out_dir}")
 
 

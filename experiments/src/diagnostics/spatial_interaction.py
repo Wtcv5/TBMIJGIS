@@ -40,27 +40,37 @@ class DescriptorResult:
     mean_anomaly: float
 
 
-def vp_anomaly_from_standardized_attrs(rock_attrs: np.ndarray) -> np.ndarray:
+def vp_anomaly_from_standardized_attrs(
+    rock_attrs: np.ndarray,
+    reference: dict[str, float] | None = None,
+) -> np.ndarray:
     """Return the main low-velocity anomaly score q_i in [0, 1].
 
     The existing preprocessing standardizes TSP attributes with Vp in column 0.
-    Scores are min-max inverted within the active snapshot, so lower relative Vp
-    corresponds to larger anomaly score without exposing unbounded z-values.
+    Scores use fixed training active-zone reference quantiles when supplied, so
+    descriptor values remain comparable across chainage steps.
     """
     if rock_attrs.ndim != 2 or rock_attrs.shape[1] < 1:
         return np.zeros(len(rock_attrs), dtype=np.float32)
     vp = rock_attrs[:, 0].astype(np.float32)
     if len(vp) == 0:
         return np.zeros(0, dtype=np.float32)
-    span = float(np.max(vp) - np.min(vp))
+    if reference is None:
+        q5 = float(np.percentile(vp, 5))
+        q95 = float(np.percentile(vp, 95))
+    else:
+        q5 = float(reference["q5"])
+        q95 = float(reference["q95"])
+    span = q95 - q5
     if span <= 1e-8:
         return np.zeros(len(vp), dtype=np.float32)
-    return ((np.max(vp) - vp) / span).astype(np.float32)
+    return np.clip((q95 - vp) / span, 0.0, 1.0).astype(np.float32)
 
 
 def component_descriptors_for_snapshot(
     snapshot: GraphSnapshot,
     anomaly_scores: np.ndarray | None = None,
+    anomaly_reference: dict[str, float] | None = None,
     component_names: dict[int, str] | None = None,
     eps: float = 1e-8,
 ) -> list[DescriptorResult]:
@@ -76,7 +86,7 @@ def component_descriptors_for_snapshot(
     tbm_components = snapshot.tbm_components.argmax(dim=1).detach().cpu().numpy()
     rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
     if anomaly_scores is None:
-        anomaly_scores = vp_anomaly_from_standardized_attrs(rock_attrs)
+        anomaly_scores = vp_anomaly_from_standardized_attrs(rock_attrs, anomaly_reference)
     else:
         anomaly_scores = np.asarray(anomaly_scores, dtype=np.float32)
 
@@ -134,6 +144,7 @@ def component_descriptors_for_snapshot(
 
 def descriptors_for_graph_sequences(
     graph_sequences: Iterable[list[GraphSnapshot]],
+    anomaly_reference: dict[str, float] | None = None,
     component_names: dict[int, str] | None = None,
 ) -> list[DescriptorResult]:
     """Compute descriptors from the last snapshot of each sample sequence."""
@@ -141,7 +152,13 @@ def descriptors_for_graph_sequences(
     for seq in graph_sequences:
         if not seq:
             continue
-        rows.extend(component_descriptors_for_snapshot(seq[-1], component_names=component_names))
+        rows.extend(
+            component_descriptors_for_snapshot(
+                seq[-1],
+                anomaly_reference=anomaly_reference,
+                component_names=component_names,
+            )
+        )
     return rows
 
 

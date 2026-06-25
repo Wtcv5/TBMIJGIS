@@ -134,18 +134,23 @@ TSP-derived anomaly score
 \[
 q_i=\phi(g_i).
 \]
-In the main formulation, $q_i$ is a low-velocity anomaly score derived from the
-standardized P-wave velocity and bounded to $[0,1]$ within the active snapshot:
+In the main formulation, $q_i$ is a bounded low-velocity anomaly score derived
+from the training active-zone distribution of P-wave velocity:
 \[
 q_i=
-\frac{\max_{\ell\in V_t^r} z(Vp_\ell)-z(Vp_i)}
-{\max_{\ell\in V_t^r} z(Vp_\ell)-\min_{\ell\in V_t^r} z(Vp_\ell)+\epsilon}.
+\operatorname{clip}\left(
+\frac{Q_{95}^{\mathrm{train}}(Vp)-Vp_i}
+{Q_{95}^{\mathrm{train}}(Vp)-Q_{5}^{\mathrm{train}}(Vp)+\epsilon},
+0,1
+\right).
 \]
-Thus lower relative $V_p$ corresponds to a higher anomaly score without using
-an unbounded negative z-value. This single-attribute definition is intentionally
-transparent and reproducible across the BSLL and SJLS cases. Multi-attribute
-variants can be examined as sensitivity checks, but they are not required for
-the main descriptor.
+This fixed training-reference scaling avoids per-chainage min--max
+normalisation and keeps descriptor values comparable along chainage. Lower
+$V_p$ values therefore correspond to higher geological anomaly scores under a
+common reference distribution. This single-attribute definition is
+intentionally transparent and reproducible across the BSLL and SJLS cases.
+Multi-attribute variants can be examined as sensitivity checks, but they are
+not required for the main descriptor.
 
 For each TBM component $c$, let $V_c^m$ denote the set of TBM surface nodes whose
 component label is $c$. Two component--chainage descriptors are then defined.
@@ -156,7 +161,12 @@ A_c(t)=
 \sum_{i:(i,j)\in E_t^{rm}}
 w_{ij}^{rm}(t),
 \]
-and the geology-weighted spatial interaction intensity is
+where $A_c(t)$ is a total geometric exposure measure. It is affected by
+component surface extent, surface-node sampling density, candidate-edge count,
+and active-zone geometry. It is therefore used mainly to describe total
+candidate-relation exposure; when direct cross-component comparison is
+required, a node-normalised or area-normalised exposure can be used.
+The geology-weighted spatial interaction intensity is
 \[
 I_c(t)=
 \frac{

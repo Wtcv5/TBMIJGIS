@@ -24,7 +24,7 @@ from src.diagnostics.context import build_descriptor_context
 
 FIXED_SENSITIVITY_PAIRS = {
     "bsll_dyk1017_205": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
-    "bsll_dyk1017_205_h3": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
+    "bsll_dyk1017_205_h3": ("front_shield", "I_interaction_intensity", "ShieldPressure"),
     "sjls_dyk1252_411": ("cutterhead", "I_interaction_intensity", "ShieldPressure"),
 }
 

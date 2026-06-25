@@ -67,7 +67,13 @@ def descriptor_rows(context: dict[str, Any]) -> list[dict[str, Any]]:
     for sample_idx, (chainage, graph_seq, residual, target) in enumerate(
         zip(context["test_chainages"], context["test_graph_seqs"], residuals, context["y_test"])
     ):
-        descriptors = component_descriptors_for_snapshot(graph_seq[-1])
+        snapshot = graph_seq[-1]
+        descriptors = component_descriptors_for_snapshot(
+            snapshot,
+            anomaly_reference=context.get("vp_anomaly_reference"),
+        )
+        rock_node_count = int(snapshot.rock_attrs.shape[0])
+        tbm_node_count = int(snapshot.tbm_components.shape[0])
         for item in descriptors:
             # The snapshot chainage is the last observed input step. The
             # diagnostic chainage is the target response step t+h.
@@ -77,6 +83,8 @@ def descriptor_rows(context: dict[str, Any]) -> list[dict[str, Any]]:
                 "descriptor_snapshot_chainage": item.chainage,
                 "component": item.component,
                 "component_id": item.component_id,
+                "rock_node_count": rock_node_count,
+                "tbm_node_count": tbm_node_count,
                 "node_count": item.node_count,
                 "candidate_edge_count": item.candidate_edge_count,
                 "A_geometric_exposure": item.geometric_exposure,
@@ -155,12 +163,18 @@ def graph_summary(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
         total_edges = sum(row["candidate_edge_count"] for row in sample_rows)
         total_exposure = sum(row["A_geometric_exposure"] for row in sample_rows)
+        cutter_edges = sum(row["candidate_edge_count"] for row in sample_rows if row["component"] == "cutterhead")
+        shield_edges = total_edges - cutter_edges
         out = {
             "sample_idx": sample_idx,
             "chainage": sample_rows[0]["chainage"],
             "descriptor_snapshot_chainage": sample_rows[0]["descriptor_snapshot_chainage"],
+            "rock_node_count": sample_rows[0]["rock_node_count"],
+            "tbm_node_count": sample_rows[0]["tbm_node_count"],
             "total_candidate_edges": total_edges,
             "total_geometric_exposure": total_exposure,
+            "cutterhead_edge_share": cutter_edges / total_edges if total_edges else 0.0,
+            "shield_edge_share": shield_edges / total_edges if total_edges else 0.0,
         }
         for row in sample_rows:
             comp = row["component"]
@@ -212,9 +226,10 @@ def main() -> None:
                 "A_c(t)": "sum of geometry weights w_ij over candidate relations incident to component c",
                 "I_c(t)": "geometry-weighted mean q_i over candidate relations incident to component c",
                 "w_ij": "exp(-distance/tau_edge) * kappa",
-                "q_i": "[0, 1] low-velocity anomaly score from min-max inverted standardized Vp_i",
+                "q_i": "[0, 1] low-velocity anomaly score using training active-zone Q5/Q95 Vp reference",
                 "residual": "r_{t+h}^{(k)} - r_t^{(k)} using the last observed monitoring response",
             },
+            "vp_anomaly_reference": context.get("vp_anomaly_reference", {}),
             "component_summary": summary,
             "graph_construction_summary": graph_rows,
             "association": assoc,
