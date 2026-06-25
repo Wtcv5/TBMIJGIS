@@ -74,15 +74,14 @@ Case & Cutterhead radius & Shield radius & Front & Middle & Tail & TBM nodes \\
 \midrule
 BSLL h=1 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 1352 \\
 BSLL h=3 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 1352 \\
-SJLS h=3 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 352 \\
+SJLS h=3 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 1352 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The BSLL runs use a 0.5\,m surface sampling resolution. The SJLS run uses a
-coarser 1.0\,m surface sampling resolution to keep the external case
-lightweight while preserving the same component partition and geometry
-constraints.
+All formal runs use a 0.5\,m surface sampling resolution, so the strongest
+SJLS diagnostic evidence is not produced under a coarser TBM surface
+discretisation than the BSLL cases.
 
 TSP preprocessing follows a common voxel schema. Coordinates are converted to a
 local excavation coordinate by subtracting the minimum longitudinal coordinate,
@@ -100,7 +99,7 @@ ratio, and density are not used in the main descriptor calculation.
 \subsection{Diagnostic evaluation metrics}
 \label{sec:evaluation_principle}
 
-The primary outputs are component--chainage descriptors. For each component
+The diagnostic outputs are component--chainage descriptors. For each component
 $c$, $A_c(t)$ is a supporting exposure descriptor that reports the sum of
 geometry weights over candidate relations, and $I_c(t)$ is the main
 geology-weighted descriptor. The response consistency target is the persistence
@@ -113,6 +112,6 @@ sensitivity analysis varies $\tau_{\mathrm{edge}}$ and $\eta_{\min}$ to check
 whether the descriptor--residual pattern is tied to one specific
 graph-construction setting. Null-model comparisons, detrending, circular-shift
 checks, anomaly-definition sensitivity, and edge-level traceability are applied
-to the fixed primary diagnostic pairs. The results are interpreted as
+to the predefined diagnostic pairs. The results are interpreted as
 chainage-local diagnostic co-variation, not as causal evidence or calibrated
 operational risk.

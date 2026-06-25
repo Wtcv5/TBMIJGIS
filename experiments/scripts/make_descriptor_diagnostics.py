@@ -44,7 +44,7 @@ CASE_LABELS = {
     "sjls_dyk1252_411": "SJLS h=3",
 }
 
-PRIMARY_PAIRS = {
+DIAGNOSTIC_PAIRS = {
     "bsll_dyk1017_205": ("front_shield", "AdvanceRate"),
     "bsll_dyk1017_205_h3": ("front_shield", "ShieldPressure"),
     "sjls_dyk1252_411": ("cutterhead", "ShieldPressure"),
@@ -90,17 +90,14 @@ def low_attribute_score(rock_attrs: np.ndarray, col: int) -> np.ndarray:
 
 def descriptor_series_for_component(context: dict[str, Any], component: str) -> dict[str, np.ndarray]:
     """Return proposed and null descriptor series for one component."""
-    component_ids = {name: cid for cid, name in COMPONENT_NAMES.items()}
-    component_id = component_ids[component]
-    shuffled_component_id = (component_id + 1) % len(COMPONENT_NAMES)
-    shuffled_component = COMPONENT_NAMES[shuffled_component_id]
+    rng = np.random.default_rng(20260625)
 
     proposed = []
     chainage = []
     global_anomaly = []
     distance_only = []
     uniform_edge = []
-    component_shuffle = []
+    component_permutation = []
 
     for graph_seq, ch in zip(context["test_graph_seqs"], context["test_chainages"]):
         snapshot = graph_seq[-1]
@@ -110,7 +107,8 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         )
         by_component = {row.component: row for row in rows}
         row = by_component[component]
-        shuffle_row = by_component[shuffled_component]
+        other_components = [name for name in by_component if name != component]
+        permuted_component = other_components[int(rng.integers(0, len(other_components)))]
 
         rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
         q = vp_anomaly_from_standardized_attrs(rock_attrs, context.get("vp_anomaly_reference"))
@@ -119,7 +117,7 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         global_anomaly.append(float(np.mean(q)) if len(q) else 0.0)
         distance_only.append(row.geometric_exposure)
         uniform_edge.append(row.mean_anomaly)
-        component_shuffle.append(shuffle_row.interaction_intensity)
+        component_permutation.append(by_component[permuted_component].interaction_intensity)
 
     return {
         "proposed": np.asarray(proposed, dtype=np.float64),
@@ -127,8 +125,36 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         "global_vp_anomaly": np.asarray(global_anomaly, dtype=np.float64),
         "distance_only_exposure": np.asarray(distance_only, dtype=np.float64),
         "uniform_edge_anomaly": np.asarray(uniform_edge, dtype=np.float64),
-        "component_shuffle": np.asarray(component_shuffle, dtype=np.float64),
+        "component_permutation": np.asarray(component_permutation, dtype=np.float64),
     }
+
+
+def alignment_offset_rows(case_id: str, component: str, response: str, series: dict[str, np.ndarray], residual: np.ndarray) -> list[dict[str, Any]]:
+    """Approximate +/-1 m longitudinal alignment uncertainty by shifting descriptor chainage."""
+    chainage = series["chainage_only"]
+    values = series["proposed"]
+    rows = []
+    for offset in [-1.0, 0.0, 1.0]:
+        shifted_values = np.interp(chainage + offset, chainage, values, left=np.nan, right=np.nan)
+        mask = ~np.isnan(shifted_values)
+        r, _ = safe_spearman(shifted_values[mask], residual[mask])
+        detrended_r, _ = safe_spearman(
+            linear_detrend(shifted_values[mask], chainage[mask]),
+            linear_detrend(residual[mask], chainage[mask]),
+        )
+        rows.append(
+            {
+                "case_id": case_id,
+                "case_label": CASE_LABELS[case_id],
+                "component": component,
+                "response": response,
+                "offset_m": offset,
+                "n": int(mask.sum()),
+                "spearman_r": r,
+                "detrended_spearman_r": detrended_r,
+            }
+        )
+    return rows
 
 
 def response_residual_series(context: dict[str, Any], response: str) -> np.ndarray:
@@ -248,7 +274,7 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
         cfg = yaml.safe_load(f)
     case_id = cfg.get("case", {}).get("id", config_path.stem)
     context = build_descriptor_context(cfg, "cpu")
-    component, response = PRIMARY_PAIRS[case_id]
+    component, response = DIAGNOSTIC_PAIRS[case_id]
     descriptor_series = descriptor_series_for_component(context, component)
     residual = response_residual_series(context, response)
     chainage = descriptor_series["chainage_only"]
@@ -299,10 +325,12 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
         )
 
     trace_rows = top_contributing_edges(context, component, response)
+    offset_rows = alignment_offset_rows(case_id, component, response, descriptor_series, residual)
 
     case_dir = output_dir / case_id
     write_csv(null_rows, case_dir / "primary_null_comparison.csv")
     write_csv(anomaly_rows, case_dir / "anomaly_sensitivity.csv")
+    write_csv(offset_rows, case_dir / "alignment_offset_sensitivity.csv")
     write_csv(trace_rows, case_dir / "top_contributing_edges.csv")
     save_json(
         {
@@ -313,6 +341,7 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
             "split_counts": context["split_counts"],
             "null_comparison": null_rows,
             "anomaly_sensitivity": anomaly_rows,
+            "alignment_offset_sensitivity": offset_rows,
             "traceability_top_edges": trace_rows,
         },
         case_dir / "descriptor_diagnostics_summary.json",
@@ -322,6 +351,7 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
         "primary_rows": primary_rows,
         "null_rows": null_rows,
         "anomaly_rows": anomaly_rows,
+        "offset_rows": offset_rows,
         "trace_rows": trace_rows,
     }
 
@@ -333,17 +363,20 @@ def main() -> None:
     all_primary = []
     all_null = []
     all_anomaly = []
+    all_offset = []
     all_trace = []
     for rel_config in CASE_CONFIGS:
         result = process_case(exp_dir / rel_config, output_dir)
         all_primary.extend(result["primary_rows"])
         all_null.extend(result["null_rows"])
         all_anomaly.extend(result["anomaly_rows"])
+        all_offset.extend(result["offset_rows"])
         all_trace.extend(result["trace_rows"])
 
     write_csv(all_primary, output_dir / "primary_pair_diagnostics.csv")
     write_csv(all_null, output_dir / "null_model_comparison.csv")
     write_csv(all_anomaly, output_dir / "anomaly_definition_sensitivity.csv")
+    write_csv(all_offset, output_dir / "alignment_offset_sensitivity.csv")
     write_csv(all_trace, output_dir / "top_contributing_edges_all.csv")
     print(f"Saved descriptor diagnostics to {output_dir}")
 

@@ -128,12 +128,22 @@ zone:
 \[
 \Omega_t=\Omega_t^{\mathrm{face}}\cup\Omega_t^{\mathrm{shield}} .
 \]
-Here $\Omega_t^{\mathrm{face}}$ contains voxels ahead of the cutterhead within
-the look-ahead distance used for face interaction screening, and
-$\Omega_t^{\mathrm{shield}}$ contains voxels within the shield-side annular
-buffer used for shield interaction screening. This definition separates
-face-contact plausibility from shield-side proximity while keeping both parts
-within one active rock volume for graph construction.
+With $x_f(t)$ denoting the cutterhead chainage, $x_{\mathrm{tail}}(t)$ the tail
+shield chainage, $r_i=\sqrt{y_i^2+z_i^2}$, cutterhead radius $R_c$, shield
+radius $R_s$, face look-ahead length $L_f$, and radial active-zone buffer
+$\tau_{\mathrm{zone}}$, the two parts are
+\[
+\Omega_t^{\mathrm{face}}=
+\left\{i \mid 0 \leq x_i-x_f(t) \leq L_f,\;
+r_i \leq R_c+\tau_{\mathrm{zone}}\right\},
+\]
+\[
+\Omega_t^{\mathrm{shield}}=
+\left\{i \mid x_{\mathrm{tail}}(t)\leq x_i\leq x_f(t),\;
+R_s \leq r_i \leq R_s+\tau_{\mathrm{zone}}\right\}.
+\]
+This definition separates face-contact plausibility from shield-side proximity
+while keeping both parts within one active rock volume for graph construction.
 
 \begin{figure}[htbp]
 \centering
@@ -240,12 +250,15 @@ within the evaluated chainage interval, not as causal attribution.
 
 \subsection{Null-model, sensitivity, and traceability checks}
 \label{sec:null_sensitivity_traceability}
-The primary descriptor--residual pairs are fixed before sensitivity analysis:
-BSLL h=1 uses front-shield $I_c(t)$ against advance-rate residuals, BSLL h=3
-uses front-shield $I_c(t)$ against shield-pressure residuals, and SJLS h=3 uses
-cutterhead $I_c(t)$ against shield-pressure residuals. These pairs are used for
-diagnostic comparison only; the full exploratory component--response matrix is
-reported separately.
+The predefined diagnostic descriptor--residual pairs are fixed before
+sensitivity analysis: BSLL h=1 uses front-shield $I_c(t)$ against advance-rate
+residuals, BSLL h=3 uses front-shield $I_c(t)$ against shield-pressure
+residuals, and SJLS h=3 uses cutterhead $I_c(t)$ against shield-pressure
+residuals. They were selected as representative component--response
+comparisons from the main matrix while preserving one fixed pair per case for
+all subsequent null and sensitivity checks. They are used for diagnostic
+comparison only; the full exploratory component--response matrix is reported
+separately.
 
 Five descriptor-level null variants are used to test whether the proposed
 descriptor is reducible to simpler summaries. The chainage-only variant uses
@@ -254,21 +267,29 @@ low-velocity anomaly score over active rock voxels, without component-specific
 geometry. The distance-only variant uses $A_c(t)$ and therefore contains
 geometry exposure but no geological anomaly weighting. The uniform-edge variant
 replaces geometry-weighted averaging with an unweighted mean anomaly over
-candidate edges. The component-shuffle variant uses the same graph construction
-but assigns the primary response comparison to the next TBM component in a
-cyclic order, breaking the intended component label.
+candidate edges. The component-permutation variant uses the same graph
+construction but randomly assigns the comparison to non-target TBM components
+with a fixed random seed, breaking the intended component label.
 
-Two small-sample robustness checks are then applied to each primary pair. First,
-both descriptor and residual series are linearly detrended against chainage,
-and Spearman correlation is recomputed on the detrended series. Second, a
+Two small-sample robustness checks are then applied to each predefined
+diagnostic pair. First, both descriptor and residual series are linearly
+detrended against chainage, and Spearman correlation is recomputed on the
+detrended series. Second, a
 circular-shift check rolls the residual sequence by all non-zero shifts and
 reports the proportion of shifted correlations whose absolute value is at least
 as large as the observed value. These values are descriptive diagnostics rather
 than confirmatory $p$-values.
 
+To account for TSP--TBM chainage alignment uncertainty, the predefined
+diagnostic descriptor series is also shifted by $\delta_x\in\{-1,0,+1\}$\,m
+using linear interpolation along target chainage, and raw and detrended
+Spearman correlations are recomputed. This test does not replace a full
+geophysical registration analysis, but it checks whether the reported
+diagnostic pattern depends on exact metre-level alignment.
+
 Anomaly-definition sensitivity is evaluated by replacing the main Vp-based
 score with Vs-low, Vp/Vs-low, and mean(Vp, Vs) low-anomaly variants. For
-traceability, candidate edges for a selected primary-pair sample are ranked by
+traceability, candidate edges for a selected predefined diagnostic sample are ranked by
 their contribution $w_{ij}^{rm}(t)q_i$, retaining the rock voxel, TBM node,
 distance, normal compatibility, geometry weight, anomaly score, and weighted
 contribution.

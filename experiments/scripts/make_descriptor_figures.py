@@ -54,7 +54,7 @@ VARIANT_LABELS = {
     "global_vp_anomaly": "Global Vp",
     "distance_only_exposure": "Distance-only",
     "uniform_edge_anomaly": "Uniform edge",
-    "component_shuffle": "Component shuffle",
+    "component_permutation": "Component perm.",
 }
 
 FIG_DPI = 600
@@ -380,37 +380,6 @@ def plot_sensitivity(root: Path, out_dir: Path) -> None:
     save_pdf_and_png(fig, out_dir / "fig7_descriptor_sensitivity.pdf")
 
 
-def plot_association_matrix_heatmap(root: Path, out_dir: Path) -> None:
-    apply_ijgis_style()
-    assoc = read_csv(root / "descriptor_association_all.csv")
-    assoc = assoc[assoc["descriptor"] == "I_interaction_intensity"].copy()
-    fig, axes = plt.subplots(1, len(CASE_LABELS), figsize=figure_size("double", aspect=0.32), squeeze=False)
-    im = None
-    for ax, case_id in zip(axes[0], CASE_LABELS):
-        case = assoc[assoc["case_id"] == case_id]
-        matrix = (
-            case.pivot(index="component", columns="response", values="spearman_r")
-            .reindex(index=COMPONENT_ORDER, columns=RESPONSE_ORDER)
-        )
-        im = ax.imshow(matrix.values, cmap=IJGIS_CMAPS["diverging"], vmin=-1, vmax=1, aspect="auto")
-        ax.set_title(CASE_LABELS.get(case_id, case_id))
-        ax.set_xticks(np.arange(len(RESPONSE_LABELS)), RESPONSE_LABELS)
-        ax.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS)
-        for i in range(matrix.shape[0]):
-            for j in range(matrix.shape[1]):
-                value = matrix.values[i, j]
-                ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=6.5, color="#222222")
-    if im is not None:
-        set_colorbar_style(
-            fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02),
-            "Spearman rho",
-        )
-    for label, ax in zip("abc", axes[0]):
-        add_panel_label(ax, label)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    save_pdf_and_png(fig, out_dir / "fig8_descriptor_matrix_heatmap.pdf")
-
-
 def plot_null_model_comparison(root: Path, out_dir: Path) -> None:
     apply_ijgis_style()
     path = root / "descriptor_diagnostics" / "null_model_comparison.csv"
@@ -418,14 +387,15 @@ def plot_null_model_comparison(root: Path, out_dir: Path) -> None:
         return
     df = read_csv(path)
     cases = list(CASE_LABELS)
-    fig, axes = plt.subplots(1, len(cases), figsize=figure_size("double", aspect=0.34), squeeze=False)
+    fig, axes = plt.subplots(1, len(cases), figsize=figure_size("double", aspect=0.38), squeeze=False)
     for ax, case_id in zip(axes[0], cases):
         case = df[df["case_id"] == case_id].copy()
         case["variant_label"] = case["variant"].map(VARIANT_LABELS)
         x = np.arange(len(case))
         ax.axhline(0, color="#999999", linewidth=0.6)
-        ax.plot(x, case["spearman_r"], marker="o", color=IJGIS_COLORS["full_model"], label="Raw")
-        ax.plot(x, case["detrended_spearman_r"], marker="s", color=IJGIS_COLORS["xgboost"], label="Detrended")
+        width = 0.36
+        ax.bar(x - width / 2, case["spearman_r"], width=width, color=IJGIS_COLORS["full_model"], alpha=0.82, label="Raw")
+        ax.bar(x + width / 2, case["detrended_spearman_r"], width=width, color=IJGIS_COLORS["xgboost"], alpha=0.82, label="Detrended")
         ax.set_xticks(x, case["variant_label"], rotation=35, ha="right")
         ax.set_ylim(-1.05, 1.05)
         ax.set_title(CASE_LABELS[case_id])
@@ -449,13 +419,13 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
     if case.empty:
         case = df.copy()
     case = case.head(8)
-    fig, axes = plt.subplots(1, 2, figsize=figure_size("double", aspect=0.36), gridspec_kw={"width_ratios": [1.1, 1.0]})
+    fig, axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.34), gridspec_kw={"width_ratios": [1.05, 0.95, 0.92]})
     ax = axes[0]
     norm = plt.Normalize(case["weighted_contribution"].min(), case["weighted_contribution"].max())
     cmap = plt.get_cmap(IJGIS_CMAPS["sequential"])
     for _, row in case.iterrows():
         color = cmap(norm(row["weighted_contribution"]))
-        ax.plot([row["tbm_y"], row["rock_y"]], [row["tbm_z"], row["rock_z"]], color=color, linewidth=1.0, alpha=0.85)
+        ax.plot([row["tbm_y"], row["rock_y"]], [row["tbm_z"], row["rock_z"]], color=color, linewidth=0.9, alpha=0.75)
     sc = ax.scatter(case["rock_y"], case["rock_z"], c=case["weighted_contribution"], cmap=IJGIS_CMAPS["sequential"],
                     s=34, edgecolor="white", linewidth=0.4, label="Rock voxel")
     ax.scatter(case["tbm_y"], case["tbm_z"], color=IJGIS_COLORS["tbm"], s=22, marker="s", label="TBM node")
@@ -476,9 +446,18 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
     ax.set_title(f"{title_row['component'].replace('_', ' ')} at {title_row['chainage']:.0f} m")
     ax.grid(axis="x", alpha=0.25)
     add_panel_label(ax, "b")
-    set_colorbar_style(fig.colorbar(sc, ax=axes.tolist(), fraction=0.025, pad=0.02), r"$w_{ij}q_i$")
+
+    ax = axes[2]
+    metrics = case[["distance", "kappa", "anomaly_score"]].to_numpy(dtype=float)
+    im = ax.imshow(metrics, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
+    ax.set_yticks(np.arange(len(case)), [f"#{int(r)}" for r in case["rank"]])
+    ax.set_xticks([0, 1, 2], ["Distance", r"$\kappa$", r"$q_i$"], rotation=30, ha="right")
+    ax.set_title("Edge attributes")
+    add_panel_label(ax, "c")
+    set_colorbar_style(fig.colorbar(sc, ax=axes[:2].tolist(), fraction=0.025, pad=0.02), r"$w_{ij}q_i$")
+    set_colorbar_style(fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02), "Value")
     out_dir.mkdir(parents=True, exist_ok=True)
-    save_pdf_and_png(fig, out_dir / "fig10_traceability_example.pdf")
+    save_pdf_and_png(fig, out_dir / "fig8_traceability_example.pdf")
 
 
 def main() -> None:
@@ -491,7 +470,6 @@ def main() -> None:
     plot_case_context(out_dir)
     plot_descriptor_evidence(root, out_dir)
     plot_sensitivity(root, out_dir)
-    plot_association_matrix_heatmap(root, out_dir)
     plot_null_model_comparison(exp_dir / "outputs", out_dir)
     plot_traceability_example(exp_dir / "outputs", out_dir)
     print(f"Saved descriptor figures to {out_dir}")
