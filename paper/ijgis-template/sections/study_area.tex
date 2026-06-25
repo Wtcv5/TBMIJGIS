@@ -24,16 +24,17 @@ monitoring records.
 \includegraphics[width=0.95\linewidth]{fig5_case_context.pdf}
 \caption{Real tunnel scenarios used to instantiate the common descriptor
 framework. BSLL DyK1017+205 provides compact h=1 and h=3 cases, while SJLS
-Dyk1252+411 provides the strongest external TSP descriptor evidence.}
+Dyk1252+411 provides the clearest external TSP descriptor evidence.}
 \label{fig:case_context}
 \end{figure}
 
 \subsection{Samples and graph-construction settings}
 \label{sec:samples_settings}
 
-All cases use mileage-ordered partitioning. For a historical window of $K=5$,
-the last observed response at step $t$ is used to define the persistence
-residual for a target response at $t+h$. The formal case runs are summarised in
+All cases use mileage-ordered partitioning. Descriptor values are computed from
+the last observed graph snapshot of each target sample, and the last observed
+response at step $t$ is used to define the persistence residual for a target
+response at $t+h$. The formal case runs are summarised in
 Table~\ref{tab:data_summary}.
 
 \begin{table}[htbp]
@@ -65,7 +66,8 @@ local excavation coordinate by subtracting the minimum longitudinal coordinate,
 so the local $X$ axis is aligned with advance direction. Each voxel stores
 $[V_p,V_s,E,V_p/V_s,\nu,\rho]$, and these attributes are standardised using
 statistics fitted on the training active-zone margin. The main geological
-anomaly score is $q_i=-z(Vp_i)$.
+anomaly score is a $[0,1]$ low-velocity anomaly score derived from the
+standardized $V_p$ field.
 
 \subsection{Diagnostic evaluation metrics}
 \label{sec:evaluation_principle}

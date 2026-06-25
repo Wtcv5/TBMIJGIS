@@ -41,24 +41,13 @@ def main() -> None:
         if not associations:
             continue
 
-        strongest_spearman = max(associations, key=lambda row: abs(row["spearman_r"]))
-        strongest_pearson = max(associations, key=lambda row: abs(row["pearson_r"]))
         summary_rows.append(
             {
                 "case_id": case_id,
                 "tunnel": case.get("tunnel", ""),
                 "start_chainage": case.get("start_chainage", ""),
                 "test_samples": data.get("split_counts", {}).get("test", ""),
-                "strongest_spearman_component": strongest_spearman["component"],
-                "strongest_spearman_descriptor": strongest_spearman["descriptor"],
-                "strongest_spearman_response": strongest_spearman["response"],
-                "strongest_spearman_r": strongest_spearman["spearman_r"],
-                "strongest_spearman_p": strongest_spearman["spearman_p"],
-                "strongest_pearson_component": strongest_pearson["component"],
-                "strongest_pearson_descriptor": strongest_pearson["descriptor"],
-                "strongest_pearson_response": strongest_pearson["response"],
-                "strongest_pearson_r": strongest_pearson["pearson_r"],
-                "strongest_pearson_p": strongest_pearson["pearson_p"],
+                "association_rows": len(associations),
             }
         )
 

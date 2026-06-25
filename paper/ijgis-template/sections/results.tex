@@ -17,18 +17,17 @@ is what monitoring-only curves do not provide.
 \subsection{Component--chainage spatial interaction patterns}
 \label{sec:component_chainage_patterns}
 The main output of the revised framework is the component--chainage descriptor
-map built from $A_c(t)$ and $I_c(t)$. In the final result set, this subsection
-should report the cutterhead, front-shield, middle-shield, and tail-shield
-descriptor values across chainage for each case. The values should be described
-as geometry-weighted TSP anomaly summaries over candidate rock--machine
-relations, not as contact pressure, contact force, jamming probability, or
-calibrated risk.
+map built from $A_c(t)$ and $I_c(t)$. In each case, the cutterhead,
+front-shield, middle-shield, and tail-shield values are computed across the
+test chainage interval as geometry-weighted TSP anomaly summaries over
+candidate rock--machine relations. They are not contact pressure, contact
+force, jamming probability, or calibrated risk.
 
 Figure~\ref{fig:descriptor_evidence} summarises the descriptor evidence chain.
 The heatmap panel shows the SJLS component--chainage pattern of $I_c(t)$, the
-correlation panel reports the strongest $I_c(t)$--residual association in each
-formal case, and the graph-density panel confirms that the result is based on
-explicitly constructed candidate rock--machine relations.
+correlation panel reports fixed descriptor--residual pairs used for subsequent
+sensitivity analysis, and the graph-density panel confirms that the result is
+based on explicitly constructed candidate rock--machine relations.
 
 \begin{figure}[htbp]
 \centering
@@ -36,9 +35,10 @@ explicitly constructed candidate rock--machine relations.
 \caption{Component--chainage spatial interaction descriptor evidence.
 Panel (a) shows SJLS $I_c(t)$ values aggregated from geometry-weighted TSP
 anomaly scores over candidate rock--machine relations. Panel (b) reports the
-strongest descriptor--persistence-residual association for each formal case.
-Panel (c) reports the mean number of constructed candidate relations per sample.
-The descriptors are not measured contact pressure or risk probability.}
+fixed $I_c(t)$--persistence-residual association used in the threshold
+sensitivity analysis. Panel (c) reports the mean number of constructed
+candidate relations per sample. The descriptors are not measured contact
+pressure or risk probability.}
 \label{fig:descriptor_evidence}
 \end{figure}
 
@@ -50,59 +50,74 @@ residual is
 \[
 e_{t+h}^{(k)}=r_{t+h}^{(k)}-r_t^{(k)}.
 \]
-The descriptor evidence should therefore report the association between
-$I_c(t)$ and $e_{t+h}^{(k)}$ across the evaluated chainage interval. Suitable
-summaries include Pearson correlation, Spearman correlation, and overlap
-between high-$I_c(t)$ intervals and high-$|e_{t+h}^{(k)}|$ intervals.
+The descriptor evidence reports the association between $I_c(t)$ and
+$e_{t+h}^{(k)}$ across the evaluated chainage interval. Table~\ref{tab:descriptor_residual}
+gives the full component--response Spearman matrix for $I_c(t)$. These
+correlations are exploratory and unadjusted for multiple testing; they are used
+to diagnose whether the spatial descriptor contains response-consistent
+structure, not to claim a calibrated operational rule.
 
-Table~\ref{tab:descriptor_residual} reports the strongest descriptor--residual
-association in each case. The clearest support is obtained in SJLS, where
-cutterhead $I_c(t)$ is strongly associated with the shield-pressure residual
-($\rho=-0.907$). BSLL h=3 provides a suggestive front-shield
-$I_c(t)$--shield-pressure residual association ($\rho=-0.750$), while BSLL h=1
-is weaker and mainly supports construction of the descriptor rather than a
-strong residual claim.
+The clearest support is obtained in SJLS, where cutterhead $I_c(t)$ is
+negatively associated with the shield-pressure residual
+($\rho=-0.811$, $p=7.74\times10^{-5}$), while the complete matrix also reveals
+strong component-specific contrasts such as the positive tail-shield
+shield-pressure association. BSLL h=3 provides a front-shield
+$I_c(t)$--advance-rate residual association ($\rho=0.786$, $p=0.036$). BSLL h=1
+is weaker ($\rho=0.381$, $p=0.352$ for the same front-shield advance-rate
+pair), so it mainly supports descriptor construction rather than a strong
+residual-consistency claim.
 
 \begin{table}[htbp]
 \centering
-\caption{Strongest descriptor--persistence-residual association in each formal
-case. Correlations are Spearman coefficients computed over the test chainage
-interval.}
+\caption{Full unadjusted component--response Spearman matrix for
+$I_c(t)$--persistence-residual association. Correlations are computed over the
+test chainage interval and are interpreted as exploratory descriptor diagnostics.}
 \label{tab:descriptor_residual}
-\begin{tabular}{lclcc}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrrrr}
 \toprule
-Case & Test $n$ & Descriptor--response pair & Spearman $\rho$ & $p$ \\
+Case & Component & Adv. rate & Torque & Thrust & Penetr. & Shield press. \\
 \midrule
-BSLL h=1 & 8 & Cutterhead $A_c(t)$--Thrust residual & $-0.577$ & 0.134 \\
-BSLL h=3 & 7 & Front-shield $I_c(t)$--ShieldPressure residual & $-0.750$ & 0.052 \\
-SJLS h=1 & 17 & Cutterhead $I_c(t)$--ShieldPressure residual & $-0.907$ & $<10^{-6}$ \\
+BSLL h=1 & Cutterhead & 0.238 & -0.286 & 0.048 & -0.095 & 0.095 \\
+BSLL h=1 & Front shield & 0.381 & -0.119 & 0.286 & 0.119 & -0.214 \\
+BSLL h=1 & Middle shield & -0.143 & 0.238 & 0.357 & -0.190 & 0.071 \\
+BSLL h=1 & Tail shield & -0.238 & 0.286 & -0.048 & 0.095 & -0.095 \\
+BSLL h=3 & Cutterhead & -0.214 & -0.714 & -0.036 & -0.214 & -0.536 \\
+BSLL h=3 & Front shield & 0.786 & 0.786 & 0.429 & 0.036 & 0.107 \\
+BSLL h=3 & Middle shield & 0.214 & 0.714 & 0.036 & 0.214 & 0.536 \\
+BSLL h=3 & Tail shield & 0.179 & 0.750 & 0.107 & 0.143 & 0.571 \\
+SJLS h=1 & Cutterhead & 0.836 & 0.309 & -0.706 & 0.723 & -0.811 \\
+SJLS h=1 & Front shield & 0.326 & -0.260 & -0.105 & 0.272 & -0.458 \\
+SJLS h=1 & Middle shield & -0.632 & -0.728 & 0.706 & -0.520 & 0.451 \\
+SJLS h=1 & Tail shield & -0.828 & -0.569 & 0.483 & -0.517 & 0.971 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Sensitivity to graph-construction thresholds}
 \label{sec:sensitivity}
-Figure~\ref{fig:descriptor_sensitivity} tests whether the strongest
-$I_c(t)$--residual association is preserved when the edge-distance threshold
+Figure~\ref{fig:descriptor_sensitivity} tests whether the fixed
+$I_c(t)$--residual pairs are preserved when the edge-distance threshold
 $\tau_{\mathrm{edge}}$ and normal-compatibility threshold $\eta_{\min}$ are
-varied. The SJLS association remains strong across the tested grid, while the
-BSLL associations remain more sample-limited and should be interpreted
-conservatively.
+varied. The SJLS cutterhead--shield-pressure pair remains strong across the
+tested grid. The BSLL front-shield--advance-rate pairs are more sample-limited
+and are interpreted conservatively.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig7_descriptor_sensitivity.pdf}
-\caption{Sensitivity of the strongest $I_c(t)$--residual Spearman association
-to graph-construction thresholds. Each panel varies $\tau_{\mathrm{edge}}$ and
-$\eta_{\min}$ for one formal case. The plot evaluates descriptor stability, not
-prediction accuracy.}
+\caption{Sensitivity of fixed $I_c(t)$--residual Spearman pairs to
+graph-construction thresholds. Each panel varies $\tau_{\mathrm{edge}}$ and
+$\eta_{\min}$ for one formal case while holding the descriptor--response pair
+fixed. The plot evaluates descriptor stability, not prediction accuracy.}
 \label{fig:descriptor_sensitivity}
 \end{figure}
 
 \subsection{Robustness and remaining checks}
 \label{sec:robustness}
-The current evidence supports a bounded descriptor-based claim. SJLS provides
-strong descriptor--residual consistency, BSLL h=3 provides suggestive evidence,
-and BSLL h=1 remains weak because the test interval is short. Alternative
-definitions of $q_i$, spatial detrending, and additional tunnel cases remain
-necessary before stronger diagnostic claims are made.
+The current evidence supports a bounded descriptor claim. SJLS provides strong
+residual consistency, BSLL h=3 provides suggestive evidence, and BSLL h=1
+remains weak because the test interval is short. Alternative definitions of
+$q_i$, spatial detrending, and additional tunnel cases remain necessary before
+stronger diagnostic claims are made.

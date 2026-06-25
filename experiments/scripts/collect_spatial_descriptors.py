@@ -212,7 +212,7 @@ def main() -> None:
                 "A_c(t)": "sum of geometry weights w_ij over candidate relations incident to component c",
                 "I_c(t)": "geometry-weighted mean q_i over candidate relations incident to component c",
                 "w_ij": "exp(-distance/tau_edge) * kappa",
-                "q_i": "-standardized Vp_i",
+                "q_i": "[0, 1] low-velocity anomaly score from min-max inverted standardized Vp_i",
                 "residual": "r_{t+h}^{(k)} - r_t^{(k)} using the last observed monitoring response",
             },
             "component_summary": summary,
@@ -222,16 +222,8 @@ def main() -> None:
         output_dir / "descriptor_summary.json",
     )
 
-    strongest = max(assoc, key=lambda row: abs(row["spearman_r"])) if assoc else None
     print(f"Saved descriptors to {output_dir}")
     print(f"Rows: descriptors={len(rows)}, associations={len(assoc)}")
-    if strongest:
-        print(
-            "Strongest Spearman association: "
-            f"{strongest['component']} {strongest['descriptor']} vs "
-            f"{strongest['response']} residual, "
-            f"rho={strongest['spearman_r']:.4f}, p={strongest['spearman_p']:.4f}"
-        )
 
 
 if __name__ == "__main__":

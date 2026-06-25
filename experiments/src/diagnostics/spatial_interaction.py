@@ -41,14 +41,21 @@ class DescriptorResult:
 
 
 def vp_anomaly_from_standardized_attrs(rock_attrs: np.ndarray) -> np.ndarray:
-    """Return the main TSP-derived anomaly score q_i = -z(Vp_i).
+    """Return the main low-velocity anomaly score q_i in [0, 1].
 
     The existing preprocessing standardizes TSP attributes with Vp in column 0.
-    Lower relative Vp therefore corresponds to larger anomaly score.
+    Scores are min-max inverted within the active snapshot, so lower relative Vp
+    corresponds to larger anomaly score without exposing unbounded z-values.
     """
     if rock_attrs.ndim != 2 or rock_attrs.shape[1] < 1:
         return np.zeros(len(rock_attrs), dtype=np.float32)
-    return -rock_attrs[:, 0].astype(np.float32)
+    vp = rock_attrs[:, 0].astype(np.float32)
+    if len(vp) == 0:
+        return np.zeros(0, dtype=np.float32)
+    span = float(np.max(vp) - np.min(vp))
+    if span <= 1e-8:
+        return np.zeros(len(vp), dtype=np.float32)
+    return ((np.max(vp) - vp) / span).astype(np.float32)
 
 
 def component_descriptors_for_snapshot(

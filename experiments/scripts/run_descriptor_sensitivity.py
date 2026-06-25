@@ -22,6 +22,13 @@ from scripts.collect_spatial_descriptors import association_rows, descriptor_row
 from src.diagnostics.context import build_descriptor_context
 
 
+FIXED_SENSITIVITY_PAIRS = {
+    "bsll_dyk1017_205": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
+    "bsll_dyk1017_205_h3": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
+    "sjls_dyk1252_411": ("cutterhead", "I_interaction_intensity", "ShieldPressure"),
+}
+
+
 def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = list(rows[0].keys()) if rows else ["empty"]
@@ -49,25 +56,31 @@ def parse_float_list(raw: str) -> list[float]:
 
 
 def summarize_associations(case_id: str, variant: str, tau_edge: float, eta_min: float, assoc: list[dict[str, Any]]) -> dict[str, Any]:
-    strongest_spearman = max(assoc, key=lambda row: abs(row["spearman_r"])) if assoc else {}
-    strongest_i = max(
-        [row for row in assoc if row["descriptor"] == "I_interaction_intensity"],
-        key=lambda row: abs(row["spearman_r"]),
-    ) if assoc else {}
+    component, descriptor, response = FIXED_SENSITIVITY_PAIRS.get(
+        case_id,
+        ("cutterhead", "I_interaction_intensity", "ShieldPressure"),
+    )
+    fixed = next(
+        (
+            row for row in assoc
+            if row["component"] == component
+            and row["descriptor"] == descriptor
+            and row["response"] == response
+        ),
+        {},
+    )
     return {
         "case_id": case_id,
         "variant": variant,
         "tau_edge": tau_edge,
         "eta_min": eta_min,
-        "strongest_component": strongest_spearman.get("component", ""),
-        "strongest_descriptor": strongest_spearman.get("descriptor", ""),
-        "strongest_response": strongest_spearman.get("response", ""),
-        "strongest_spearman_r": strongest_spearman.get("spearman_r", 0.0),
-        "strongest_spearman_p": strongest_spearman.get("spearman_p", 1.0),
-        "strongest_I_component": strongest_i.get("component", ""),
-        "strongest_I_response": strongest_i.get("response", ""),
-        "strongest_I_spearman_r": strongest_i.get("spearman_r", 0.0),
-        "strongest_I_spearman_p": strongest_i.get("spearman_p", 1.0),
+        "fixed_component": component,
+        "fixed_descriptor": descriptor,
+        "fixed_response": response,
+        "fixed_spearman_r": fixed.get("spearman_r", 0.0),
+        "fixed_spearman_p": fixed.get("spearman_p", 1.0),
+        "fixed_pearson_r": fixed.get("pearson_r", 0.0),
+        "fixed_pearson_p": fixed.get("pearson_p", 1.0),
     }
 
 

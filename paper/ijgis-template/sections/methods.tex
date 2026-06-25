@@ -95,6 +95,17 @@ is the signed-normal compatibility. The active zone $\Omega_t$ restricts
 candidate relations to the excavation-relevant rock volume, while $s_i(t)$
 prevents already excavated voxels from repeatedly contributing to later graph
 snapshots.
+It is defined as the union of the face look-ahead zone and the shield-adjacent
+zone:
+\[
+\Omega_t=\Omega_t^{\mathrm{face}}\cup\Omega_t^{\mathrm{shield}} .
+\]
+Here $\Omega_t^{\mathrm{face}}$ contains voxels ahead of the cutterhead within
+the look-ahead distance used for face interaction screening, and
+$\Omega_t^{\mathrm{shield}}$ contains voxels within the shield-side annular
+buffer used for shield interaction screening. This definition separates
+face-contact plausibility from shield-side proximity while keeping both parts
+within one active rock volume for graph construction.
 
 \begin{figure}[htbp]
 \centering
@@ -123,15 +134,18 @@ TSP-derived anomaly score
 \[
 q_i=\phi(g_i).
 \]
-In the main formulation, $q_i$ is defined from the standardized P-wave velocity
-as
+In the main formulation, $q_i$ is a low-velocity anomaly score derived from the
+standardized P-wave velocity and bounded to $[0,1]$ within the active snapshot:
 \[
-q_i=-z(Vp_i),
+q_i=
+\frac{\max_{\ell\in V_t^r} z(Vp_\ell)-z(Vp_i)}
+{\max_{\ell\in V_t^r} z(Vp_\ell)-\min_{\ell\in V_t^r} z(Vp_\ell)+\epsilon}.
 \]
-so lower relative $V_p$ corresponds to a higher geological anomaly score. This
-single-attribute definition is intentionally transparent and reproducible across
-the BSLL and SJLS cases. Multi-attribute variants can be examined as sensitivity
-checks, but they are not required for the main descriptor.
+Thus lower relative $V_p$ corresponds to a higher anomaly score without using
+an unbounded negative z-value. This single-attribute definition is intentionally
+transparent and reproducible across the BSLL and SJLS cases. Multi-attribute
+variants can be examined as sensitivity checks, but they are not required for
+the main descriptor.
 
 For each TBM component $c$, let $V_c^m$ denote the set of TBM surface nodes whose
 component label is $c$. Two component--chainage descriptors are then defined.
@@ -177,7 +191,7 @@ I_c(t)\rightarrow e_{t+h}^{(k)} .
 \]
 This analysis can be reported using Pearson or Spearman correlations, overlap
 between high-descriptor and high-absolute-residual intervals, and component-wise
-comparisons. The result should be interpreted as descriptor--response residual
+comparisons. The result is interpreted as descriptor--response residual
 co-variation within the evaluated chainage interval, not as causal attribution.
 
 \FloatBarrier
