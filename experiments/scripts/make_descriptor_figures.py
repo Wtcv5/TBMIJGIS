@@ -20,7 +20,6 @@ from src.visualization.style import (
     add_panel_label,
     apply_ijgis_style,
     figure_size,
-    save_publication_figure,
 )
 
 
@@ -48,6 +47,24 @@ FIXED_RESPONSE_PAIRS = {
     "bsll_dyk1017_205_h3": ("front_shield", "I_interaction_intensity", "ShieldPressure"),
     "sjls_dyk1252_411": ("cutterhead", "I_interaction_intensity", "ShieldPressure"),
 }
+
+FIG_DPI = 600
+
+
+def set_colorbar_style(cbar, label: str | None = None) -> None:
+    """Apply the same typography and tick styling to all manuscript colorbars."""
+    if label:
+        cbar.set_label(label, fontsize=8)
+    cbar.ax.tick_params(labelsize=7, width=0.6, length=2.5)
+    cbar.outline.set_linewidth(0.6)
+
+
+def save_pdf_and_png(fig, pdf_path: Path) -> None:
+    """Save editable vector PDF plus high-DPI PNG preview."""
+    pdf_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(pdf_path, dpi=FIG_DPI, bbox_inches="tight", facecolor="white")
+    fig.savefig(pdf_path.with_suffix(".png"), dpi=FIG_DPI, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
 
 
 def read_csv(path: Path) -> pd.DataFrame:
@@ -111,9 +128,7 @@ def plot_method_framework(out_dir: Path) -> None:
     for i in range(3):
         arrow(axes[i], (0.96, 0.5), (1.10, 0.5))
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "fig1_method_framework.pdf", dpi=600, bbox_inches="tight", facecolor="white")
-    fig.savefig(out_dir / "fig1_method_framework.png", dpi=600, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
+    save_pdf_and_png(fig, out_dir / "fig1_method_framework.pdf")
 
 
 def plot_spatial_entity_formalisation(out_dir: Path) -> None:
@@ -163,13 +178,11 @@ def plot_spatial_entity_formalisation(out_dir: Path) -> None:
     ax.set_xticks([0, 3, 7], [f"t+{i}" for i in [0, 3, 7]], fontsize=7)
     ax.set_xlabel("Target chainage step")
     ax.set_ylabel("Component")
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02).set_label("$I_c(t)$")
+    set_colorbar_style(fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02), "$I_c(t)$")
     add_panel_label(ax, "c")
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "fig2_spatial_entity_formalisation.pdf", dpi=600, bbox_inches="tight", facecolor="white")
-    fig.savefig(out_dir / "fig2_spatial_entity_formalisation.png", dpi=600, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
+    save_pdf_and_png(fig, out_dir / "fig2_spatial_entity_formalisation.pdf")
 
 
 def plot_geometry_constrained_edges(out_dir: Path) -> None:
@@ -218,9 +231,7 @@ def plot_geometry_constrained_edges(out_dir: Path) -> None:
     add_panel_label(ax, "c")
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "fig3_geometry_constrained_edges.pdf", dpi=600, bbox_inches="tight", facecolor="white")
-    fig.savefig(out_dir / "fig3_geometry_constrained_edges.png", dpi=600, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
+    save_pdf_and_png(fig, out_dir / "fig3_geometry_constrained_edges.pdf")
 
 
 def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
@@ -228,50 +239,42 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
     fig, heat_axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.34), squeeze=False)
     heat_axes = heat_axes[0]
 
-    for idx, (ax_heat, case_id) in enumerate(zip(heat_axes, CASE_LABELS)):
+    heatmaps = {}
+    global_min = np.inf
+    global_max = -np.inf
+    for case_id in CASE_LABELS:
         case_df = read_csv(root / case_id / "component_spatial_descriptors.csv")
         heat = case_df.pivot(index="component", columns="chainage", values="I_interaction_intensity")
         heat = heat.loc[COMPONENT_ORDER]
-        im = ax_heat.imshow(heat.values, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
-        ax_heat.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS if idx == 0 else [])
-        cols = heat.columns.to_numpy(dtype=float)
-        tick_idx = np.linspace(0, len(cols) - 1, min(4, len(cols)), dtype=int)
-        ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
-        ax_heat.set_xlabel("Chainage (m)")
-        ax_heat.set_title(CASE_LABELS.get(case_id, case_id))
-        cbar = fig.colorbar(im, ax=ax_heat, fraction=0.046, pad=0.02)
-        if idx == len(heat_axes) - 1:
-            cbar.set_label("$I_c(t)$")
-        add_panel_label(ax_heat, "abc"[idx])
+        heatmaps[case_id] = heat
+        global_min = min(global_min, float(np.nanmin(heat.values)))
+        global_max = max(global_max, float(np.nanmax(heat.values)))
 
-    out_dir.mkdir(parents=True, exist_ok=True)
-    save_publication_figure(fig, out_dir / "fig6_descriptor_evidence.pdf")
-    # Save PNG preview too.
-    plot_descriptor_evidence_png(root, out_dir)
-
-
-def plot_descriptor_evidence_png(root: Path, out_dir: Path) -> None:
-    # Re-run via PDF path helper would not create PNG sibling; keep explicit preview.
-    apply_ijgis_style()
-    fig, heat_axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.34), squeeze=False)
-    heat_axes = heat_axes[0]
+    im = None
     for idx, (ax_heat, case_id) in enumerate(zip(heat_axes, CASE_LABELS)):
-        case_df = read_csv(root / case_id / "component_spatial_descriptors.csv")
-        heat = case_df.pivot(index="component", columns="chainage", values="I_interaction_intensity").loc[COMPONENT_ORDER]
-        im = ax_heat.imshow(heat.values, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
+        heat = heatmaps[case_id]
+        im = ax_heat.imshow(
+            heat.values,
+            aspect="auto",
+            cmap=IJGIS_CMAPS["sequential"],
+            vmin=global_min,
+            vmax=global_max,
+        )
         ax_heat.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS if idx == 0 else [])
         cols = heat.columns.to_numpy(dtype=float)
         tick_idx = np.linspace(0, len(cols) - 1, min(4, len(cols)), dtype=int)
         ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
         ax_heat.set_xlabel("Chainage (m)")
         ax_heat.set_title(CASE_LABELS.get(case_id, case_id))
-        cbar = fig.colorbar(im, ax=ax_heat, fraction=0.046, pad=0.02)
-        if idx == len(heat_axes) - 1:
-            cbar.set_label("$I_c(t)$")
         add_panel_label(ax_heat, "abc"[idx])
+    if im is not None:
+        set_colorbar_style(
+            fig.colorbar(im, ax=heat_axes.tolist(), fraction=0.025, pad=0.02),
+            "$I_c(t)$",
+        )
+
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "fig6_descriptor_evidence.png", dpi=600, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
+    save_pdf_and_png(fig, out_dir / "fig6_descriptor_evidence.pdf")
 
 
 def plot_sensitivity(root: Path, out_dir: Path) -> None:
@@ -290,13 +293,14 @@ def plot_sensitivity(root: Path, out_dir: Path) -> None:
         ax.set_yticks(np.arange(len(pivot.index)), [f"{i:g}" for i in pivot.index])
         ax.set_xlabel(r"$\tau_{edge}$")
         ax.set_ylabel(r"$\eta_{min}$")
-    fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02, label="Fixed-pair $I_c$ Spearman rho")
+    set_colorbar_style(
+        fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02),
+        "Fixed-pair $I_c$ Spearman rho",
+    )
     for label, ax in zip("abc", axes[0]):
         add_panel_label(ax, label)
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "fig7_descriptor_sensitivity.pdf", dpi=600, bbox_inches="tight", facecolor="white")
-    fig.savefig(out_dir / "fig7_descriptor_sensitivity.png", dpi=600, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
+    save_pdf_and_png(fig, out_dir / "fig7_descriptor_sensitivity.pdf")
 
 
 def plot_association_matrix_heatmap(root: Path, out_dir: Path) -> None:
@@ -320,13 +324,14 @@ def plot_association_matrix_heatmap(root: Path, out_dir: Path) -> None:
                 value = matrix.values[i, j]
                 ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=6.5, color="#222222")
     if im is not None:
-        fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02, label="Spearman rho")
+        set_colorbar_style(
+            fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02),
+            "Spearman rho",
+        )
     for label, ax in zip("abc", axes[0]):
         add_panel_label(ax, label)
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "fig8_descriptor_matrix_heatmap.pdf", dpi=600, bbox_inches="tight", facecolor="white")
-    fig.savefig(out_dir / "fig8_descriptor_matrix_heatmap.png", dpi=600, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
+    save_pdf_and_png(fig, out_dir / "fig8_descriptor_matrix_heatmap.pdf")
 
 
 def main() -> None:
