@@ -33,7 +33,7 @@ IJGIS_COLORS = {
 
 # Preferred colormaps (colorblind-safe)
 IJGIS_CMAPS = {
-    "sequential": "cividis",      # hotspot, attention, magnitude
+    "sequential": "cividis",      # descriptors and magnitudes
     "sequential_alt": "viridis",  # alternative sequential
     "diverging": "RdBu_r",       # residuals, centered differences
     "rock_geology": "turbo",      # 3D debug renders only (not for manuscript)

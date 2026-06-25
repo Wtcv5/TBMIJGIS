@@ -1,22 +1,25 @@
-| Section | Paragraph Slot | Exemplar Move | Reader Question Answered | Required Inputs From Our Paper | Sentence-Level Pattern | GIScience Framing |
-|---|---:|---|---|---|---|---|
-| Introduction | 1 | engineering problem setup | Why should the reader care about abnormal excavation response? | TBM context, complex geology, monitoring variables | In complex excavation settings, response anomalies arise from ... | Frame as coupled spatial interaction, not just signal anomaly |
-| Introduction | 2 | GIScience elevation | Why is this a geographic-information representation problem? | TSP, monitoring, multi-source heterogeneity, spatial support mismatch | The challenge is not only data availability, but how to organize heterogeneous sources into ... | Must explicitly name GIScience concepts: spatial representation, entity integration, spatial support |
-| Introduction | 3 | representational gap | Why are common sequence models insufficient? | prior LSTM/Transformer/XGBoost baselines | Although sequence models are effective for ..., they treat excavation as ... rather than ... | Gap is representational, not predictive |
-| Introduction | 4 | method-family justification with boundary | Why a graph sequence, and why constrained? | object-relation structure, geometry constraints | Graph learning is attractive because ..., but candidate relations must ... | Constrained graph = spatially plausible relation modeling |
-| Introduction | 5 | paper aim, questions, contributions | What exactly does this paper contribute? | final framing, 3 questions, 4 contributions | Motivated by this gap, this study proposes ... | Contributions should emphasize spatial representation and interpretable learning |
-| Methods | 1 | overview and notation | What are the inputs, outputs, and three stages? | chainage steps, graph snapshots, workflow stages | Let excavation advance be discretized into ... | Frame as spatial entity modeling pipeline |
-| Methods | 2 | geological and machine entity definition | What are the spatial entities? | TSP voxel field, TBM surface model, feature definitions | The geological input is ..., whereas the machine input is ... | Emphasize spatial entity formalization |
-| Methods | 3 | graph snapshot definition | How is one excavation step represented? | node/edge sets, dynamic graph notation | At each excavation step, a graph snapshot is defined as ... | Graph = spatial representation of interaction structure |
-| Methods | 4 | constrained edge construction | How are plausible relations selected? | thresholds, active zone, normals, state variable | A rock voxel and a TBM surface node are linked only if ... | Constraint = relation plausibility under geometry |
-| Methods | 5 | edge features and geometric prior | What information do edges carry? | distance, normal, geological context, component label | Each candidate edge is associated with ... | Prior = spatial compatibility guidance |
-| Methods | 6 | supervision and learning target | What is learned from monitoring response? | response variables, graph encoder, temporal encoder | Instead of using sparse event labels, the model learns ... | Response supervision = interpretable learning under incomplete observability |
-| Methods | 7 | interpretation mapping | How do latent relations become spatially interpretable? | hotspot projection, chainage view | Learned relevance is projected back onto ... | Projection = spatial reasoning beyond prediction |
-| Methods | 8 | evaluation design | How will the framework be validated? | baselines, ablations, metrics | The experimental design compares ... against ... | Validation = both prediction and spatial interpretability |
-| Results | 1 | predictive comparison | Does the method outperform baselines? | metrics table, baselines | Compared with sequence and tabular baselines, the proposed framework ... | Prediction validates the representation, not the goal itself |
-| Results | 2 | graph-structure ablation | Do geometry constraints and structured edges matter? | ablation table, component analysis | Performance degrades when ..., indicating that ... | Ablation proves spatial structure matters, not just features |
-| Results | 3 | interpretation output | What newly becomes visible spatially? | hotspot maps, chainage evolution plots | The projected relevance maps show that ... | Interpretation = primary GIScience result |
-| Discussion | 1 | scientific interpretation | What does the representation add beyond prediction? | results + interpretation outputs | These findings suggest that the framework captures ... | Connect to spatial representation and interpretable learning |
-| Discussion | 2 | boundary and caution | What should not be overclaimed? | physical vs learned relevance distinction | The learned edge relevance should be interpreted as ... rather than ... | Boundary protects GIScience credibility |
-| Discussion | 3 | GIScience fit and broader implications | Why does this matter beyond one tunnel case? | spatial organization argument | More broadly, the framework demonstrates how ... | Must connect to GIScience themes explicitly |
-| Conclusion | 1 | concise close | What is the resolved contribution? | problem, answer, evidence, limitation | This study proposed ... for ... | End on GIScience contribution, not engineering application |
+# Section Blueprints After 2026-06-24 Repositioning
+
+The manuscript spine is now: geometry-constrained rock--TBM spatial interaction
+graphs + component--chainage descriptors + persistence-residual consistency.
+GNN--GRU is an exploratory readout only.
+
+| Section | Motivation Job | Target Move Sequence | Evidence Inputs | Required Changes |
+|---|---|---|---|---|
+| Title/Abstract | State that the paper is about spatial interaction graphs and diagnostic residual consistency, not deep prediction. | Monitoring models preserve time but miss spatial relations; define graph entities and candidate relations; derive descriptors; evaluate against persistence residuals; bound claims. | User-provided repositioning note; existing case names. | Avoid GNN-GRU, learned relevance, prediction improvement as central terms. |
+| 1 Introduction | Make graph representation necessary. | TBM responses are spatially coupled; monitoring curves are temporally useful but spatially silent; rock voxels and TBM components form a heterogeneous spatial relation problem; contributions. | Existing intro, user note. | Replace response-supervised learning spine with explicit descriptor spine. |
+| 2 Related work | Support the representation gap. | TBM response analysis; TSP geological representation; graph-based spatial relation modelling. | Current related-work section and bibliography. | Reduce emphasis on deep spatiotemporal prediction SOTA; emphasise graph data models and relation modelling. |
+| 3 Methodology | Define the explicit model. | 3.1 chainage-referenced spatial entities; 3.2 geometry-constrained candidate relation graph; 3.3 component--chainage descriptors $A_c(t)$ and $I_c(t)$; 3.4 response-residual consistency. | Existing graph construction code; user-provided formulas. | Promote $\pi_{ij}^{rm}$ to $w_{ij}^{rm}(t)$; define $q_i=-z(Vp_i)$; remove GNN-GRU from the main experimental route. |
+| 4 Case studies and experimental design | Explain data and evaluation without promising prediction superiority. | Case roles; TSP voxelisation; TBM surface sampling; graph construction settings; diagnostic metrics. | Current study-area section; config files; outputs. | Add descriptor-generation settings after code is implemented. |
+| 5 Results | Test the new promises. | 5.1 constructed graph sequences; 5.2 component--chainage interaction patterns; 5.3 association with persistence residuals; 5.4 sensitivity to graph-construction thresholds. | Descriptor outputs under `experiments/outputs/descriptors`. | Use $A_c(t)$, $I_c(t)$ maps and residual association tables as main evidence. |
+| 6 Discussion | Resolve why this is not a prediction paper. | Why graph representation is necessary; what descriptors add beyond monitoring curves; interpretation boundary and future validation. | Descriptor outputs and persistence-residual logic. | Avoid contact-force, jamming-risk, causal, and prediction-superiority claims. |
+| 7 Conclusion | Close on representation and diagnostic workflow. | Restate graph model; restate descriptors and residual consistency; name missing descriptor-level evidence as next step. | Revised Methods/Results. | Do not conclude with prediction improvement. |
+
+## Result Evidence Still Needed
+
+| Needed Output | Purpose | Suggested Source |
+|---|---|---|
+| Graph construction summary by case and chainage | Show graph is actually constructed, not conceptual. | Cached graph snapshots or rerun graph construction. |
+| Component--chainage maps of $A_c(t)$ and $I_c(t)$ | Main diagnostic result. | New descriptor script using $w_{ij}^{rm}(t)$ and $q_i=-z(Vp_i)$. |
+| Descriptor--residual association table | Main response-consistency evidence. | Persistence residuals from monitoring targets. |
+| Threshold/anomaly-score sensitivity | Robustness. | Vary $\tau_{\mathrm{edge}}$, $\eta_{\min}$, and $q_i$ definitions. |

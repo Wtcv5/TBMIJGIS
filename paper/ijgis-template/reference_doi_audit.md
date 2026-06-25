@@ -21,7 +21,6 @@ Resolved and title-matched DOI entries:
 - wu2020comprehensive: 10.1109/TNNLS.2020.2978386
 - zhou2020graph: 10.1016/j.aiopen.2021.01.001
 - hochreiter1997long: 10.1162/neco.1997.9.8.1735
-- wang2019heterogeneous: 10.1145/3308558.3313562
 - zhang2019heterogeneous: 10.1145/3292500.3330961
 - wu2019graph: 10.1145/3394486.3403118
 - geng2019spatiotemporal: 10.1609/aaai.v33i01.33013656
@@ -42,13 +41,11 @@ references without DOI in the manuscript bibliography:
 
 - goodchild1992geographical
 - longley2005geographic
-- velivckovic2018graph
 - sanchez2020learning
 - pfaff2021learning
 - cho2014learning
 - li2018diffusion
 - openshaw1984modifiable
-- vaswani2017attention
 - couclelis1996geographic
 - zhang2020deep
 
@@ -63,4 +60,3 @@ not resolve or resolved to a different title:
 - yin2019tunnel
 - li2025geospatial
 - zhu2025spatial
-

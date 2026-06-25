@@ -51,7 +51,7 @@
 \usepackage{placeins}
 \graphicspath{{../../experiments/outputs/figures/}}
 
-\title{Spatially Explicit Rock--TBM Interaction Graph Sequences for Response-Consistent Interpretation of TBM Excavation Processes}
+\title{Geometry-Constrained Rock--TBM Spatial Interaction Graphs for Chainage-Resolved Diagnostic Analysis of Excavation Responses}
 
 \author{
 \name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
@@ -76,48 +76,32 @@ Second Author\textsuperscript{b}} \\
 \maketitle
 
 \begin{abstract}
-Existing representations of rock--TBM interaction during excavation treat monitoring
-responses as temporal sequences, which preserve temporal dependence but lack the
-spatial explicitness needed to resolve where interactions occur, which machine
-components are implicated, and how interaction structure evolves along chainage.
-This study proposes a response-supervised, geometry-constrained graph sequence
-framework for spatially explicit representation and interpretable learning of
-rock--TBM interaction.  The framework introduces three key innovations:
-(i)~a heterogeneous graph-sequence representation that formalizes TSP-derived
-rock voxels and parameterized TBM surface nodes as spatial entities with explicit
-candidate interaction relations; (ii)~a geometry-constrained edge construction
-strategy based on spatial proximity, signed-normal consistency, active-zone
-filtering, and excavation-state constraints, which restricts learning to spatially
-plausible rock--machine relations rather than unconstrained connectivity; and
-(iii)~a diagnostic relevance aggregation procedure that summarises raw
-rock--machine edge scores at surface-node, component, and chainage levels to
-support response-consistent spatial diagnostics.  Rather than relying on sparse jamming labels or
-manually calibrated contact forces, the framework uses continuously recorded
-monitoring responses to supervise the relative importance of geometry-screened
-candidate relations, enabling interpretable spatial learning under incomplete
-observability.  The evaluation uses two tunnel cases: BSLL DyK1017+205 and
-SJLS Dyk1252+411.  BSLL is used for one-step, multi-step, and interpretation
-analysis, while SJLS provides an external TSP case for testing prediction
-consistency and geometry ablation.  The framework remains competitive with
-temporal baselines, and SJLS is consistent with a small case-specific
-geometry-related MAE difference,
-but the experiments do not establish a broad forecasting improvement.  The
-more consistent evidence is interpretive:
-checkpoint-based diagnostics show positively clustered diagnostic relevance in all
-evaluated runs, relevance that is not simply explained by candidate-edge
-degree, and case-specific association with local TSP velocity and monitoring
-responses.  These patterns are reported as response-consistent diagnostics, not
-as proof of actual contact conditions or geological causality.  By unifying geological
-sensing, machine geometry, monitoring response, and diagnostic relevance
-within a constrained graph sequence, the framework offers a spatially explicit
-approach to excavation interaction analysis that complements existing temporal
-prediction methods.
+Existing monitoring-based TBM response models preserve temporal dependence, but
+they do not explicitly represent the spatial relations between geological units
+and TBM components. This study proposes a chainage-referenced rock--TBM spatial
+interaction graph model for diagnostic analysis of excavation responses.
+TSP-derived rock voxels and parameterized TBM surface components are formalised
+as heterogeneous spatial entities, and candidate rock--machine relations are
+constrained by active-zone membership, distance decay, surface-normal
+compatibility, and excavation state. Based on the resulting graph sequence,
+component--chainage spatial interaction descriptors are derived by aggregating
+TSP-derived geological anomaly scores over geometry-weighted candidate
+relations. Instead of claiming direct contact force, calibrated jamming risk, or
+broad forecasting superiority, the descriptors are evaluated through their
+consistency with persistence residuals of TBM monitoring responses. Case studies
+in BSLL DyK1017+205 and SJLS Dyk1252+411 show that the proposed graph
+representation organises rock--machine relations into interpretable
+component--chainage patterns and provides diagnostic information that monitoring
+curves alone do not explicitly encode. The contribution is therefore a
+geometry-constrained spatial entity-relation representation and
+residual-consistency diagnostic workflow for rock--TBM interaction, rather than
+a new deep prediction model.
 \end{abstract}
 
 \begin{keywords}
-spatial representation; heterogeneous graph sequence; rock--machine interaction;
-geometry-constrained edge construction; response supervision; interpretable
-geospatial learning; TBM excavation; diagnostic relevance
+spatial representation; heterogeneous graph; rock--machine interaction;
+geometry-constrained relation graph; component--chainage descriptor; persistence
+residual; TBM excavation; diagnostic analysis
 \end{keywords}
 
 \ifijgisclass\else

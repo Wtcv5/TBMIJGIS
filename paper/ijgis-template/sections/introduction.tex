@@ -1,47 +1,54 @@
-Tunnel boring machines (TBMs) are widely used in long and deep tunnel construction,
-where excavation responses emerge from the coupled effects of geological conditions,
-machine geometry, and operational process. Under fractured, water-rich, high-stress, or
-locally deformable ground conditions, the interaction state between surrounding rock
-and the TBM may change rapidly and manifest through abnormal thrust, torque,
-penetration, advance rate, or shield-related responses. These monitoring variables are
-informative external expressions of rock--TBM interaction, but the geological body and
-the cutterhead or shield form a spatial relation that evolves as excavation advances.
-Monitoring curves alone provide limited evidence about where the interaction occurs,
-which machine components are implicated, and how local interaction relations evolve
-along chainage.
+Tunnel boring machines (TBMs) operate through a moving contact zone in which
+geological conditions, machine geometry, and operating state jointly shape
+excavation responses. Abnormal thrust, torque, penetration, advance rate, or
+shield-pressure behaviour may indicate that the local rock--machine interaction
+state has changed. Monitoring curves record the temporal expression of these
+responses, but they do not by themselves identify which geological units are
+near the TBM, which machine components are implicated, or how these spatial
+relations evolve along chainage.
 
-Most existing methods process TSP-derived geological indicators and TBM parameters as
-tabular variables or time-series variables. Such representations can support trend
-prediction, but they cannot answer which rock spatial unit forms a candidate interaction
-relation with which machine component at a given excavation step
+This limitation is not only a forecasting problem. Traditional monitoring
+models represent recent observations as a temporal sequence,
+$u_{t-K+1:t} \rightarrow r_{t+h}$, and can exploit the strong inertia of TBM
+responses. They do not, however, answer spatial relation questions: which TSP
+voxel is close to the cutterhead or shield at a given step, whether the
+proximity is geometrically compatible with the local surface normal, or how the
+candidate rock--machine relation set changes as excavation advances
 \citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction,hochreiter1997long}.
-Sequence models preserve temporal dependence but treat excavation as an ordered signal
-rather than a spatially structured interaction process, so rock location, machine
-component structure, and local rock--machine candidate relations are not retained within
-a unified representation.
+Rock voxels, TBM surface components, and candidate interaction relations
+therefore form a heterogeneous spatial entity-relation problem rather than a
+plain time-series problem.
 
-Rather than pursuing a more complex prediction model, this study constructs a
-chainage-referenced rock--TBM interaction graph sequence that organises rock voxels,
-TBM surface samples, and operational response sequences into a computable
-spatio-temporal graph. TSP-derived geological attributes are formalised as rock voxel
-nodes, while the cutterhead and shield are discretised as parameterised TBM surface
-nodes. Candidate rock--machine edges are screened through spatial proximity,
-signed-normal consistency, active-zone filtering, and excavation-state constraints.
-Instead of interpreting edge weights as contact-force measurements or relying on
-sparse jamming labels, the framework uses continuously recorded monitoring responses to
-supervise the relative importance of geometry-screened candidate relations, and
-aggregates the learned relevance at edge, surface-node, component, and chainage
-levels to generate response-consistent diagnostic views.
+This study addresses that representation problem by constructing
+chainage-referenced rock--TBM spatial interaction graphs. TSP-derived rock
+voxels and parameterized TBM surface samples are placed in a unified local
+chainage coordinate system. Candidate rock--machine edges are then screened by
+active-zone membership, distance decay, surface-normal compatibility, and
+excavation state. The resulting graph at each excavation step explicitly
+represents the spatially plausible relation set
+$G_t=(V_t^r \cup V_t^m, E_t^{rr} \cup E_t^{mm} \cup E_t^{rm})$, where
+$E_t^{rm}$ is not an arbitrary learned connectivity pattern but a
+geometry-constrained candidate relation set.
 
-The main contributions are threefold. First, the study proposes a chainage-referenced
-rock--TBM spatial representation that formalises heterogeneous spatial entities---TSP
-voxels, TBM surface components, and chainage-indexed monitoring responses---into a
-unified entity model preserving geometric and topological properties. Second, it
-proposes a geometry-constrained rock--machine interaction graph sequence in which
-candidate edges are restricted by active-zone membership, distance, surface-normal
-compatibility, and excavation state, ensuring that learned relations remain
-geometrically plausible rather than unconstrained. Third, it uses response-supervised
-prediction to examine the response consistency of the learned graph relations and
-outputs edge-, component-, and chainage-level relevance diagnostics, with clear
-interpretation limits, as spatially organised diagnostics rather than contact-force or
-risk estimates.
+The paper does not claim that a deep forecasting model is the main solution.
+The available effective samples and current response-modelling results do not
+support broad forecasting superiority over persistence. Instead, the central
+method is an explicit spatial interaction descriptor. A
+geometry-compatible edge weight summarises the plausibility of each candidate
+rock--machine relation, and a restrained TSP-derived geological anomaly score
+summarises local unfavourability. Aggregating these quantities over TBM
+components and chainage produces component--chainage descriptors that can be
+compared with persistence residuals, i.e., the part of the monitoring response
+not already explained by temporal inertia.
+
+The contributions are threefold. First, the study proposes a
+chainage-referenced rock--TBM spatial entity model that places TSP voxels, TBM
+surface components, and monitoring responses in a common excavation coordinate
+system. Second, it defines a geometry-constrained rock--machine candidate
+relation graph using active-zone filtering, distance decay, surface-normal
+compatibility, and excavation-state constraints. Third, it derives
+component--chainage spatial interaction descriptors from geometry-weighted TSP
+anomaly summaries and evaluates their consistency with persistence residuals of
+TBM responses. These descriptors are diagnostic summaries of plausible spatial
+relations; they are not contact-force measurements, jamming probabilities, or
+calibrated operational risk estimates.

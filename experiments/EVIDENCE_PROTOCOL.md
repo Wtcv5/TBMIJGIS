@@ -1,54 +1,40 @@
 # Evidence Protocol
 
-This protocol defines which generated results can be used in the manuscript and
-how to regenerate them.
+The current evidence chain is descriptor-based. It does not require trained
+prediction checkpoints.
 
-## Formal Runs
-
-Run from `experiments/`:
+## Formal Descriptor Runs
 
 ```powershell
-python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205.yaml
-python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205_h3.yaml
-python scripts/run_graph_sequence_case.py --config config/sjls_dyk1252_411.yaml
+python scripts/collect_spatial_descriptors.py --config config/bsll_dyk1017_205.yaml --output-dir outputs/descriptors/bsll_dyk1017_205
+python scripts/collect_spatial_descriptors.py --config config/bsll_dyk1017_205_h3.yaml --output-dir outputs/descriptors/bsll_dyk1017_205_h3
+python scripts/collect_spatial_descriptors.py --config config/sjls_dyk1252_411.yaml --output-dir outputs/descriptors/sjls_dyk1252_411
+python scripts/summarize_spatial_descriptors.py
 ```
 
-Formal run directories:
-
-- `outputs/bsll_dyk1017_205/`
-- `outputs/bsll_dyk1017_205_h3/`
-- `outputs/sjls_dyk1252_411/`
-
-Each formal run should contain:
-
-- `metrics_global.json`
-- `metrics_per_variable.json`
-- `ablation_metrics.json`
-- `bootstrap_ci.json`
-- `significance_tests.json`
-- `preprocessing_audit.json`
-- `best_graph_model.pt`
-
-## Post-Hoc Spatial Evidence
-
-Regenerate checkpoint-derived interpretation evidence without retraining:
+## Sensitivity
 
 ```powershell
-python scripts/collect_evidence.py --config config/bsll_dyk1017_205.yaml --run-dir outputs/bsll_dyk1017_205 --output-dir outputs/evidence/bsll_dyk1017_205
-python scripts/collect_evidence.py --config config/bsll_dyk1017_205_h3.yaml --run-dir outputs/bsll_dyk1017_205_h3 --output-dir outputs/evidence/bsll_dyk1017_205_h3
-python scripts/collect_evidence.py --config config/sjls_dyk1252_411.yaml --run-dir outputs/sjls_dyk1252_411 --output-dir outputs/evidence/sjls_dyk1252_411
-python scripts/summarize_interpretation_evidence.py
+python scripts/run_descriptor_sensitivity.py --config config/bsll_dyk1017_205.yaml
+python scripts/run_descriptor_sensitivity.py --config config/bsll_dyk1017_205_h3.yaml
+python scripts/run_descriptor_sensitivity.py --config config/sjls_dyk1252_411.yaml
 ```
 
-The evidence collector rebuilds the test set, loads `best_graph_model.pt`,
-extracts attention-derived TBM surface relevance, and writes:
+## Figures
 
-- `posthoc_evidence.json`
-- `posthoc_evidence_summary.csv`
-- `component_relevance.csv`
+```powershell
+python scripts/make_descriptor_figures.py
+```
 
-## Manuscript Rule
+## Evidence Files
 
-Only values traceable to JSON/CSV files under the formal output directories or
-`outputs/evidence/` should be reported as experimental evidence. Exploratory
-runs must be labelled as exploratory.
+- `outputs/descriptors/<case>/component_spatial_descriptors.csv`
+- `outputs/descriptors/<case>/descriptor_residual_association.csv`
+- `outputs/descriptors/<case>/graph_construction_summary.csv`
+- `outputs/descriptors/<case>/sensitivity/descriptor_sensitivity_summary.csv`
+- `outputs/descriptors/descriptor_case_summary.csv`
+- `outputs/descriptors/descriptor_association_all.csv`
+
+All descriptor values are geometry-weighted TSP anomaly summaries over screened
+candidate rock--machine relations. They are diagnostic summaries, not contact
+force, contact pressure, jamming probability, or calibrated risk.

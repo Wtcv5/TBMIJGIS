@@ -1,25 +1,23 @@
-This study proposed a response-supervised, geometry-constrained graph sequence
-framework for spatially explicit rock--TBM interaction representation. The
-method formalises TSP-derived rock voxels and TBM surface components as
-heterogeneous spatial entities, screens candidate rock--machine relations by
-geometric compatibility, and aggregates learned relevance into component- and
-chainage-resolved diagnostic views.
+This study repositioned rock--TBM response analysis as a
+chainage-referenced spatial entity-relation problem. The proposed framework
+formalises TSP-derived rock voxels, TBM surface components, and monitoring
+responses in a common excavation coordinate system, constructs
+geometry-constrained candidate rock--machine relations, and derives
+component--chainage spatial interaction descriptors from geometry-weighted TSP
+anomaly summaries.
 
-The revised experiments clarify the strength and boundary of the contribution.
-Across BSLL DyK1017+205 and SJLS Dyk1252+411, the framework remains competitive
-with temporal baselines but does not establish a broad, statistically
-detectable accuracy improvement. BSLL mainly supports the multi-step and
-diagnostic-interpretation use case, while SJLS provides the clearest small
-case-specific geometry-related prediction difference. The consistent evidence is interpretive:
-all three saved checkpoints produce spatially organised diagnostic relevance, and
-the degree-control checks indicate that relevance is not simply a proxy for
-candidate-edge count.
+The main contribution is not a claim of broad forecasting superiority.
+Persistence remains a strong temporal baseline, so the diagnostic target is the
+response change left after persistence rather than absolute response prediction.
+The defensible contribution is the explicit graph representation and the
+workflow that evaluates spatial interaction descriptors against persistence
+residuals of TBM responses. This framing preserves the need for graph
+representation while avoiding overclaims about contact-force recovery, jamming
+risk, or predictive dominance.
 
-The main contribution is therefore not a claim of broad forecasting improvement
-but a spatial entity-relation representation and an auditable route from
-response supervision to component- and chainage-resolved diagnostic relevance.
-Future work should test
-multi-seed stability, label-shuffle controls, threshold sensitivity, spatially
-detrended geology association, and additional tunnel cases before broader
-claims are made about contact-condition recovery or operational risk
-estimation.
+The current descriptor-level evidence shows the clearest support in the SJLS
+case and more limited, sample-sensitive support in BSLL. Future work should
+therefore focus on additional tunnel intervals, alternative but transparent
+definitions of the TSP-derived anomaly score, and independent engineering
+validation before the descriptors are connected to operational risk or actual
+contact conditions.

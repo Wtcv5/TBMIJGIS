@@ -2,53 +2,44 @@
 \label{sec:case_roles}
 
 The experiments use two real tunnel cases with complementary evidential roles.
-The first is the BSLL tunnel case starting from DyK1017+205. It provides the
-main graph-sequence construction example, the one-step response prediction run,
-and the three-step advance-prediction sensitivity run. The second is the SJLS
-tunnel case starting from Dyk1252+411. It uses an external TSP-derived velocity
-field and real mileage-aligned TBM monitoring labels, and is used to test whether
-the same spatial representation remains meaningful in a second tunnel setting.
+The BSLL tunnel case starts from DyK1017+205 and is evaluated under two
+diagnostic horizons: h=1 and h=3. It provides a compact case for testing whether
+component--chainage descriptors can be constructed and related to response
+residuals over short target intervals. The SJLS tunnel case starts from
+Dyk1252+411 and provides the clearest external TSP contrast, with a longer test
+interval for descriptor--residual association.
 
-The two cases are not treated as sequential data releases or replacement
-datasets. BSLL is used to examine one-step and multi-step settings, while SJLS
-provides an external TSP contrast. BSLL is used mainly to illustrate multi-step
-prediction and spatial interpretation under a compact test interval. SJLS is used
-mainly for prediction consistency and geometry-ablation evidence under an external
-TSP case.
-
-For each excavation step, the monitoring vector contains advance rate, cutterhead
-RPM, torque, thrust, penetration, and shield pressure. The prediction target is
-the future multivariate response vector consisting of advance rate, torque,
-thrust, penetration, and shield pressure. The geological input is a TSP-derived
-voxel field. For BSLL, the project TSP voxel field contains P-wave velocity,
-S-wave velocity, density, dynamic Young's modulus, velocity ratio, and Poisson's
-ratio around the tunnel alignment. For SJLS, dense external P-wave and S-wave
-velocity profiles at Dyk1252+411 are preprocessed into the same project TSP
-schema and paired with mileage-aligned monitoring labels.
+For each excavation step, the monitoring vector contains advance rate,
+cutterhead RPM, torque, thrust, penetration, and shield pressure. The diagnostic
+responses are advance rate, torque, thrust, penetration, and shield pressure.
+The geological input is a TSP-derived voxel field. For BSLL, the project TSP
+voxel field contains P-wave velocity, S-wave velocity, density, dynamic Young's
+modulus, velocity ratio, and Poisson's ratio around the tunnel alignment. For
+SJLS, external P-wave and S-wave velocity profiles at Dyk1252+411 are
+preprocessed into the same project TSP schema and paired with mileage-aligned
+monitoring records.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig5_case_context.pdf}
-\caption{Real tunnel scenarios used to instantiate the common method. BSLL
-DyK1017+205 provides compact one-step and three-step case runs for prediction
-checks, multi-step behaviour, and diagnostic interpretation. SJLS Dyk1252+411
-provides an external TSP case for prediction consistency and geometry-ablation
-evidence.}
+\caption{Real tunnel scenarios used to instantiate the common descriptor
+framework. BSLL DyK1017+205 provides compact h=1 and h=3 cases, while SJLS
+Dyk1252+411 provides the strongest external TSP descriptor evidence.}
 \label{fig:case_context}
 \end{figure}
 
-\subsection{Excavation-step samples and graph settings}
+\subsection{Samples and graph-construction settings}
 \label{sec:samples_settings}
 
-All experiments use mileage-ordered partitioning to preserve forward prediction.
-For a historical window of $K=5$, each sample uses the preceding monitoring and
-graph snapshots as input and predicts a future response at horizon $h$. The
-formal case runs are summarised in Table~\ref{tab:data_summary}.
+All cases use mileage-ordered partitioning. For a historical window of $K=5$,
+the last observed response at step $t$ is used to define the persistence
+residual for a target response at $t+h$. The formal case runs are summarised in
+Table~\ref{tab:data_summary}.
 
 \begin{table}[htbp]
 \centering
-\caption{Formal case runs used in the experiments. Effective samples are
-sequence windows after applying the history window and prediction horizon.}
+\caption{Formal case runs used in the descriptor experiments. Effective samples
+are sequence windows after applying the history window and diagnostic horizon.}
 \label{tab:data_summary}
 \begin{tabular}{lccccc}
 \toprule
@@ -61,70 +52,34 @@ SJLS h=1 & SJLS & Dyk1252+411 & 1 & 76 / 16 / 17 \\
 \end{tabular}
 \end{table}
 
-The BSLL one-step run contains 30 training samples, 6 validation samples, and 8
-test samples (target chainages 41--48\,m). The BSLL three-step run contains 29
-training samples, 6 validation samples, and 7 test samples (target chainages
-42--48\,m). The SJLS run contains 76 training samples, 16 validation samples, and
-17 test samples (target chainages 99--115\,m).
+The BSLL one-step run has target chainages 41--48\,m in the test interval. The
+BSLL three-step run has target chainages 42--48\,m. The SJLS run has target
+chainages 99--115\,m. The graph construction uses
+$\tau_{\mathrm{edge}}=2.0$\,m, $\eta_{\min}=0.3$, and
+$\tau_{\mathrm{zone}}=5.0$\,m in the main setting. The TBM surface is
+discretised into cutterhead, front-shield, middle-shield, and tail-shield
+surface nodes at a resolution of 0.5\,m.
 
-The graph construction uses $\tau_{\mathrm{edge}}=2.0$\,m,
-$\eta_{\min}=0.3$, and $\tau_{\mathrm{zone}}=5.0$\,m. The TBM surface is
-discretised into 1352 nodes (cutterhead disc $+$ front, middle, and tail shield
-cylinders) at a surface resolution of 0.5\,m. The TSP voxel field yields
-approximately 3500 active-zone rock nodes per excavation step. The historical
-window length is $K=5$. The BSLL one-step and SJLS cases use $h=1$, while the
-BSLL multi-step sensitivity case uses $h=3$.
+TSP preprocessing follows a common voxel schema. Coordinates are converted to a
+local excavation coordinate by subtracting the minimum longitudinal coordinate,
+so the local $X$ axis is aligned with advance direction. Each voxel stores
+$[V_p,V_s,E,V_p/V_s,\nu,\rho]$, and these attributes are standardised using
+statistics fitted on the training active-zone margin. The main geological
+anomaly score is $q_i=-z(Vp_i)$.
 
-The TSP preprocessing follows the same voxel schema for both cases. Coordinates
-are converted to a local excavation coordinate by subtracting the minimum
-longitudinal coordinate, so the local $X$ axis is aligned with advance direction.
-Each voxel stores $[V_p,V_s,E,V_p/V_s,\nu,\rho]$, and these attributes are
-standardised using statistics fitted on the training active-zone margin. For
-SJLS, the external velocity profiles are first averaged onto a 1\,m $X$--$Y$
-profile grid, then expanded to a 1\,m vertical grid over $\pm 10$\,m to match
-the project voxel schema. At each excavation step, active rock nodes are selected
-from two component-aware regions: a cutterhead look-ahead region in front of the
-face and a shield annular region around the shield body. The active-zone range
-$\tau_{\mathrm{zone}}$ is therefore used for node selection, whereas
-$\tau_{\mathrm{edge}}$ is used later for candidate rock--machine edge screening.
-
-All model and optimiser settings are kept fixed across the formal case runs and
-recorded in the experiment configuration files. Validation samples are used only
-for learning-rate scheduling and early stopping; all reported metrics are
-computed on the mileage-ordered test intervals.
-
-\subsection{Baselines and graph ablation settings}
-\label{sec:baselines_ablations}
-
-The experimental design compares the proposed framework against a persistence
-baseline and graph-structure ablations that are reported in the result tables.
-
-\emph{Prediction baseline.} Persistence uses the most recent observed response as
-the forecast. The full graph-sequence model uses the heterogeneous graph sequence
-with geometry-constrained candidate edges.
-
-\emph{Graph ablations.} Random-edge replaces the geometry-constrained candidate
-edges with randomised rock--machine edges of matched density. No-prior removes
-the geometric prior $\pi_{ij}^{rm}$ from the edge features. No-monitoring removes
-the monitoring-sequence input from the predictor, retaining the graph sequence.
-These ablations isolate the contribution of graph topology, geometric prior
-guidance, monitoring-sequence input, and geometry-based candidate screening.
-
-\subsection{Evaluation and reporting principle}
+\subsection{Diagnostic evaluation metrics}
 \label{sec:evaluation_principle}
 
-The formal evaluation uses a chronological mileage-ordered split. The first 70\%
-of prediction-target samples are used for training, the next 15\% for validation,
-and the remaining 15\% for testing. This design evaluates forward generalisation
-to a later continuous tunnel interval and deliberately retains the geological
-distribution shift encountered by the advancing TBM.
+The primary outputs are component--chainage descriptors. For each component
+$c$, $A_c(t)$ reports the sum of geometry weights over candidate relations, and
+$I_c(t)$ reports the geometry-weighted mean TSP anomaly score. The response
+consistency target is the persistence residual
+$e_{t+h}^{(k)}=r_{t+h}^{(k)}-r_t^{(k)}$ for each response variable $k$.
 
-An important reporting principle is stated in advance: prediction metrics are used
-as forward response checks, whereas relevance diagnostics are used to examine
-whether the learned graph relations are spatially organized. Moran's $I$ is
-computed using inverse-distance weights on TBM surface node positions within each
-chainage. Component CV is the coefficient of variation of mean $C_j$ across the
-four TBM components (cutterhead, front, middle, tail shield). Attention--geology
-correlation is the Pearson and Spearman correlation between mean $C_j$ and TSP
-$V_p$ across test chainages. These two evaluation axes---prediction accuracy and
-spatial diagnostic quality---are reported separately and should not be conflated.
+Descriptor--residual association is reported with Pearson and Spearman
+correlations and with overlap between high-descriptor and high-absolute-residual
+intervals. A threshold sensitivity analysis varies $\tau_{\mathrm{edge}}$ and
+$\eta_{\min}$ to check whether the descriptor--residual pattern is tied to one
+specific graph-construction setting. The results are interpreted as
+chainage-local diagnostic co-variation, not as causal evidence or calibrated
+operational risk.

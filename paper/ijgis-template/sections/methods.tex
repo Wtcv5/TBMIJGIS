@@ -1,323 +1,183 @@
 \label{sec:methods}
-This section formalizes the proposed framework as a geometry-constrained heterogeneous
-graph sequence supervised by continuously recorded TBM monitoring response. The method
-represents excavation as an evolving system of spatial entities---rock units and TBM
-surface components---and their candidate interaction relations, rather than as a
-monitoring-only signal sequence. By formalizing spatial entities, constraining
-candidate relations by geometric compatibility, and aggregating learned relevance
-into component- and chainage-resolved diagnostics, the framework addresses the geographic-information
-representation problem identified in the Introduction: how to organize heterogeneous
-spatial entities into a representation that preserves spatial explicitness, relation
-plausibility, and interpretability.
+This section formalizes rock--TBM interaction as a chainage-referenced spatial
+entity-relation graph. The method has four steps: defining rock and machine
+spatial entities, constructing geometry-constrained candidate relations,
+aggregating component--chainage spatial interaction descriptors, and evaluating
+descriptor consistency with persistence residuals of monitoring responses.
 
-\subsection{Chainage-referenced rock--TBM representation}
+\subsection{Chainage-referenced rock--TBM spatial entity model}
 \label{sec:representation}
 Let excavation advance be discretized into chainage-indexed steps
-$t = 1, 2, \ldots, T$. For each step, the framework constructs a graph snapshot
-$G_t$ and then models the ordered graph sequence $\{G_t\}_{t=1}^{T}$. The
-framework is organised into three coupled levels: chainage-referenced
-rock--TBM representation, geometry-constrained relation graph construction, and
-response-supervised diagnostic learning (Figure~\ref{fig:pipeline}).
-Given the most recent $K$ excavation steps, the model uses graph snapshots together
-with synchronized TBM monitoring vectors to predict a future response at step $t+h$:
-\[
-\hat{r}_{t+h} = f_{\Theta}\left(G_{t-K+1:t}, u_{t-K+1:t}\right),
-\]
-where $u_t$ denotes the monitoring vector at step $t$, $r_{t+h}$ denotes the target
-future response, $K$ is the historical window length, and $h$ is the forecasting
-horizon. In this study, the learned rock--machine raw edge scores and derived
-diagnostic relevance are interpreted as response-consistent model diagnostics under
-the forecasting task, not as true contact force, contact pressure, jamming
-probability, or any direct engineering risk quantity.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.95\linewidth]{fig1_method_framework.pdf}
-\caption{Overview of the proposed rock--TBM interaction graph-sequence
-framework. The figure summarises three methodological levels:
-chainage-referenced rock--TBM representation, geometry-constrained interaction
-graph-sequence construction, and response-supervised prediction with diagnostic
-relevance views. The relevance outputs are model-derived diagnostics and are
-not interpreted as contact force, contact pressure, or calibrated jamming risk.}
-\label{fig:pipeline}
-\end{figure}
-
-The monitoring input vector can include
+$t = 1,2,\ldots,T$. The monitoring vector at step $t$ is
 \[
 u_t = [\mathrm{AdvanceRate}_t,\; \mathrm{RPM}_t,\; \mathrm{Torque}_t,\;
 \mathrm{Thrust}_t,\; \mathrm{Penetration}_t,\; \mathrm{ShieldPressure}_t],
 \]
-while the prediction target can be defined as a multivariate future response vector
-\[
-r_{t+h} = [\mathrm{AdvanceRate}_{t+h},\; \mathrm{Torque}_{t+h},\;
-\mathrm{Thrust}_{t+h},\; \mathrm{Penetration}_{t+h},\;
-\mathrm{ShieldPressure}_{t+h}].
-\]
-Because TSP coordinates and TBM shield mileage are usually recorded in different local
-reference systems, the method also requires a local offset mapping. A simple alignment
-is to define
-\[
-x_{\mathrm{local}}(t) = \mathrm{ShieldMileage}(t) - \mathrm{ShieldMileage}_{\mathrm{start}},
-\]
-and then map $x_{\mathrm{local}}(t)$ into the TSP coordinate range used for voxelized
-geological representation.
+and the response variables used for residual diagnostics are denoted
+$r_t^{(k)}$, where $k$ indexes variables such as torque, thrust, penetration,
+advance rate, or shield pressure.
 
-\emph{Geological and machine inputs.}
 The geological input is a TSP-derived voxel field
-$D_{\mathrm{geo}} = \{(c_i, g_i)\}$, where $c_i = (x_i, y_i, z_i)$ denotes the
-spatial coordinate of rock voxel $i$, and $g_i$ denotes its geological attribute
-vector. Depending on the available inversion and interpretation products, $g_i$ may
-include seismic velocity, elastic indicators, ratio features, or other derived
-geological descriptors.
+$D_{\mathrm{geo}}=\{(c_i,g_i)\}$, where $c_i=(x_i,y_i,z_i)$ is the coordinate
+of rock voxel $i$ and $g_i$ is its geological attribute vector. The machine
+input is a parameterized TBM surface
+$M_{\mathrm{TBM}}=\{p_j(0),n_j,\rho_j\}$, where $p_j(0)$ is the initial surface
+node coordinate, $n_j$ is the local surface normal, and $\rho_j$ is the machine
+component label. The current implementation partitions the machine surface into
+cutterhead, front shield, middle shield, and tail shield components.
 
-The TBM input is represented as a parameterized surface model
-$M_{\mathrm{TBM}} = \{p_j(0), n_j, \rho_j\}$, where $p_j(0)$ is the initial coordinate
-of TBM surface node $j$, $n_j$ is the local surface normal, and $\rho_j$ is a machine
-component label such as cutterhead or shield. The excavation process is further
-described by advance direction $d$, step length $\Delta x$, step-dependent active zone
-$\Omega_t$, candidate-edge distance threshold $\tau_{\mathrm{edge}}$, and normal-compatibility threshold
-$\eta_{\min}$.
-When a detailed three-dimensional TBM model is unavailable, the surface can be
-approximated by a parameterized geometry in which the cutterhead is represented as a
-disc and the shield as cylindrical surface components. In the current formulation, the
-surface is partitioned into cutterhead, front shield, middle shield, and tail shield,
-and nodes are sampled at fixed radial, circumferential, and axial resolutions.
+Because TSP coordinates and TBM monitoring mileage are commonly recorded in
+different local frames, all entities are mapped to a common local chainage
+coordinate. A simple alignment is
+\[
+x_{\mathrm{local}}(t)=
+\mathrm{ShieldMileage}(t)-\mathrm{ShieldMileage}_{\mathrm{start}},
+\]
+after which TBM surface nodes are advanced along the excavation direction $d$:
+\[
+p_j(t+1)=p_j(t)+\Delta x\,d .
+\]
 
-\subsection{Geometry-constrained rock--machine relation graph sequence}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{fig1_method_framework.pdf}
+\caption{Overview of the proposed chainage-referenced rock--TBM spatial
+interaction graph workflow. The main manuscript focuses on spatial entities,
+geometry-constrained candidate relations, component--chainage descriptors, and
+response-residual consistency. The descriptors are not contact pressure, contact
+force, jamming probability, or calibrated risk.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Geometry-constrained rock--machine candidate relation graph}
 \label{sec:graph_sequence}
+At each excavation step, a graph snapshot is defined as
+\[
+G_t=\left(V_t^r \cup V_t^m,\; E_t^{rr} \cup E_t^{mm} \cup E_t^{rm}\right),
+\]
+where $V_t^r$ and $V_t^m$ are rock and TBM surface node sets,
+$E_t^{rr}$ denotes rock--rock voxel adjacency, $E_t^{mm}$ denotes TBM surface
+adjacency, and $E_t^{rm}$ denotes candidate rock--machine relations.
 
-\emph{Graph-sequence construction.}
-At each excavation step $t$, a graph snapshot is defined as
+Rock node features are
 \[
-G_t = \left(V_t^r \cup V_t^m,\; E_t^{rr} \cup E_t^{mm} \cup E_t^{rm}\right),
+x_i^r(t)=[c_i,g_i,s_i(t)],
 \]
-where $V_t^r$ and $V_t^m$ are rock and TBM node sets, respectively, $E_t^{rr}$ denotes
-rock--rock adjacency, $E_t^{mm}$ denotes TBM-surface adjacency, and $E_t^{rm}$ denotes
-candidate rock--machine interaction edges.
+where $s_i(t)$ records whether voxel $i$ remains active and eligible for
+interaction at step $t$. TBM node features are
+\[
+x_j^m(t)=[p_j(t),n_j(t),\rho_j].
+\]
+The intra-rock edge set $E_t^{rr}$ is constructed from voxel neighbourhoods,
+and $E_t^{mm}$ is constructed from local neighbourhoods on the parameterized
+TBM surface. The key graph-design decision is the construction of $E_t^{rm}$.
 
-Rock node features are defined as
-\[
-x_i^r(t) = [c_i, g_i, s_i(t)],
-\]
-where $s_i(t)$ records whether a voxel remains active and eligible for interaction at
-step $t$. TBM node features are defined as
-\[
-x_j^m(t) = [p_j(t), n_j(t), \rho_j].
-\]
-With constant advance step length, TBM surface nodes are updated along the advance
-direction by
-\[
-p_j(t+1) = p_j(t) + \Delta x\, d.
-\]
-
-For intra-rock connectivity, $E_t^{rr}$ is constructed from voxel adjacency, for
-example a 26-neighbourhood relation. For TBM-surface connectivity, $E_t^{mm}$ is
-constructed from local surface neighbourhood relations inherited from the discretized
-machine geometry. The key design choice concerns the candidate interaction edges
-$E_t^{rm}$, which are not fully connected but screened by geometric plausibility.
-This constrained construction contrasts with unconstrained graph learning
-\citep{wu2020comprehensive,zhou2020graph} and reflects the domain requirement
-that candidate rock--machine relations must be geometrically plausible.
-
-\emph{Geometry-constrained candidate interaction edges.}
-A rock voxel $i$ and TBM surface node $j$ are linked at step $t$ only if the candidate
-relation satisfies a geometry-constrained rule:
-\[
-e_{ij}^{rm}(t)=1
-\]
-if
+A candidate edge $(i,j)$ is included in $E_t^{rm}$ only when four conditions
+are satisfied:
 \[
 \begin{cases}
-d_{ij}(t) \le \tau_{\mathrm{edge}}, \\
-\kappa_{ij}(t) \ge \eta_{\min}, \\
-c_i \in \Omega_t, \\
-s_i(t) = 1,
+d_{ij}(t)\leq \tau_{\mathrm{edge}},\\
+\kappa_{ij}(t)\geq \eta_{\min},\\
+c_i\in\Omega_t,\\
+s_i(t)=1,
 \end{cases}
 \]
-and the edge is absent otherwise. Here,
+where
 \[
 d_{ij}(t)=\|c_i-p_j(t)\|
 \]
-is the rock-to-surface distance, and
+is the distance between rock voxel $i$ and TBM surface node $j$, and
 \[
-\kappa_{ij}(t)=\max\left(0,\frac{n_j(t)^{\top}(c_i-p_j(t))}{d_{ij}(t)+\epsilon}\right)
+\kappa_{ij}(t)=
+\max\left(0,\frac{n_j(t)^\top(c_i-p_j(t))}{d_{ij}(t)+\epsilon}\right)
 \]
-measures signed-normal compatibility between the TBM surface orientation and the
-rock-voxel direction. The active-zone condition restricts candidate relations to the
-geological region currently relevant to excavation, while the state variable $s_i(t)$
-prevents already excavated or inactive voxels from repeatedly contributing to later
-interaction snapshots.
-
-This design intentionally limits graph learning to a screened candidate set. The edge
-relevance learned later in the model is therefore interpreted as the relative
-importance of geometrically plausible candidate interactions, rather than as a direct
-estimate of contact force or stress.
+is the signed-normal compatibility. The active zone $\Omega_t$ restricts
+candidate relations to the excavation-relevant rock volume, while $s_i(t)$
+prevents already excavated voxels from repeatedly contributing to later graph
+snapshots.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig3_geometry_constrained_edges.pdf}
-\caption{Geometry-compatible rock--machine relation construction. Candidate
-edges are restricted by active-zone membership, distance, surface-normal
-compatibility, and the geometric prior $\pi_{ij}^{rm}$. The ablation variants
-test relation plausibility and prior guidance; they are not interpreted as
-contact recovery experiments.}
+\caption{Geometry-constrained rock--machine candidate relation construction.
+Candidate relations are controlled by active-zone membership, distance decay,
+surface-normal compatibility, and excavation state. The construction defines
+spatially plausible relations; it does not recover measured contact.}
 \label{fig:geometry_edges}
 \end{figure}
 
-\emph{Edge features and geometric prior.}
-Each candidate rock--machine edge is further associated with an edge-feature vector
+For each candidate relation, the geometric interaction weight is defined as
 \[
-a_{ij}^{rm} = \left[d_{ij}/\tau_{\mathrm{edge}},\; \kappa_{ij},\; (c_i-p_j)/\tau_{\mathrm{edge}},\; g_i,\;
-\mathrm{onehot}(\rho_j)\right],
+w_{ij}^{rm}(t)=
+\exp\left(-\frac{d_{ij}(t)}{\tau_{\mathrm{edge}}}\right)\kappa_{ij}(t).
 \]
-which combines three kinds of information: geometric compatibility, local geological
-context, and machine-component semantics. In addition, a simple geometric prior is
-defined as
+This weight is the explicit form of geometry-compatible interaction intensity
+used by the main descriptors. It increases when a rock voxel is closer to the
+TBM surface and more compatible with the local surface normal. It remains a
+geometric descriptor, not a contact force or pressure.
+
+\subsection{Component--chainage spatial interaction descriptors}
+\label{sec:interaction_descriptors}
+The geological contribution of each rock voxel is represented by a restrained
+TSP-derived anomaly score
 \[
-\pi_{ij}^{rm} = \exp(-d_{ij}/\tau_{\mathrm{edge}})\,\kappa_{ij}.
+q_i=\phi(g_i).
 \]
-This prior increases when the rock voxel is closer to the TBM surface and more
-consistent with the local outward normal. It is used only as geometric guidance for
-learning and should not be interpreted as contact force, contact pressure, or a direct
-risk indicator.  The full graph-sequence construction procedure is summarised in
-Algorithm~\ref{alg:construction}.
-
-\begin{algorithm}[htbp]
-\caption{Geometry-constrained graph-sequence construction}
-\label{alg:construction}
-\begin{algorithmic}[1]
-\REQUIRE Rock voxel field $D_{\mathrm{geo}}$, TBM surface $M_{\mathrm{TBM}}$,
-  thresholds $\tau_{\mathrm{edge}}$, $\eta_{\min}$, active-zone $\Omega_t$
-\FOR{each excavation step $t = 1, \ldots, T$}
-  \STATE Update TBM surface positions: $p_j(t) \leftarrow p_j(t-1) + \Delta x\, d$
-  \STATE Build rock--rock edges $E_t^{rr}$ from 26-neighbourhood
-  \STATE Build TBM--TBM edges $E_t^{mm}$ from surface adjacency
-  \STATE Build candidate rock--machine edges:
-    \[
-    E_t^{rm} \leftarrow \{(i,j) : d_{ij}(t) \le \tau_{\mathrm{edge}},\;
-    \kappa_{ij}(t) \ge \eta_{\min},\; c_i \in \Omega_t,\; s_i(t)=1\}
-    \]
-  \STATE Compute edge features $a_{ij}^{rm}$ and geometric prior
-    $\pi_{ij}^{rm}$
-  \STATE Assemble graph snapshot $G_t = (V_t^r \cup V_t^m,\;
-    E_t^{rr} \cup E_t^{mm} \cup E_t^{rm})$
-\ENDFOR
-\RETURN Graph sequence $\{G_t\}_{t=1}^{T}$
-\end{algorithmic}
-\end{algorithm}
-
-\subsection{Response-supervised graph-sequence learning and diagnostic relevance}
-\label{sec:learning_interpretation}
-
-\emph{Response-supervised interaction learning.}
-After graph construction, each snapshot is encoded by a graph encoder to produce an
-interaction-aware latent representation. Message passing integrates geological
-attributes, machine-surface context, and candidate interaction structure across the
-heterogeneous graph. The resulting stepwise graph embeddings are then passed to a
-temporal encoder, which models graph-state evolution along chainage and links the
-sequence of graph states to continuously recorded TBM monitoring response.
-
-For each graph snapshot, the graph encoder computes raw (pre-softmax) edge scores
-$s_{ij}^{rm}(t)$ for each candidate rock--machine edge, which are then normalised
-over all source rock nodes incident to each destination TBM node $j$ to obtain
-attention weights:
+In the main formulation, $q_i$ is defined from the standardized P-wave velocity
+as
 \[
-\alpha_{ij}^{rm}(t)=
-\frac{\exp\!\left(s_{ij}^{rm}(t)\right)}
-{\sum_{i':(i',j)\in E_t^{rm}}\exp\!\left(s_{i'j}^{rm}(t)\right)} .
+q_i=-z(Vp_i),
 \]
-These weights are used in message passing
-\citep{velivckovic2018graph,vaswani2017attention}. The encoder also produces a
-graph-level representation $z_t$. The
-graph-level representation is concatenated with the synchronized monitoring vector
-$u_t$ and passed to a gated recurrent unit (GRU) \citep{cho2014learning}, which models graph-sequence
-evolution across consecutive excavation steps.
+so lower relative $V_p$ corresponds to a higher geological anomaly score. This
+single-attribute definition is intentionally transparent and reproducible across
+the BSLL and SJLS cases. Multi-attribute variants can be examined as sensitivity
+checks, but they are not required for the main descriptor.
 
-The supervision signal is provided by monitoring response variables recorded during
-excavation, rather than by sparse binary jamming labels or manually assigned edge
-weights.  Under this design, the model learns which screened candidate rock--machine
-relations are most relevant for explaining or anticipating response variation.  The
-resulting raw scores $s_{ij}^{rm}(t)$ are therefore response-consistent relevance
-indicators under geometric screening.  The training procedure is summarised in
-Algorithm~\ref{alg:learning}.
+For each TBM component $c$, let $V_c^m$ denote the set of TBM surface nodes whose
+component label is $c$. Two component--chainage descriptors are then defined.
+The pure geometric exposure is
+\[
+A_c(t)=
+\sum_{j\in V_c^m}
+\sum_{i:(i,j)\in E_t^{rm}}
+w_{ij}^{rm}(t),
+\]
+and the geology-weighted spatial interaction intensity is
+\[
+I_c(t)=
+\frac{
+\sum_{j\in V_c^m}
+\sum_{i:(i,j)\in E_t^{rm}}
+w_{ij}^{rm}(t)q_i
+}{
+\sum_{j\in V_c^m}
+\sum_{i:(i,j)\in E_t^{rm}}
+w_{ij}^{rm}(t)+\epsilon
+}.
+\]
+$A_c(t)$ describes how strongly component $c$ is geometrically exposed to the
+screened candidate rock--machine relation set, whereas $I_c(t)$ describes the
+weighted geological anomaly intensity around that component. These descriptors
+are defined for cutterhead, front shield, middle shield, and tail shield at each
+chainage step, producing a component-by-chainage diagnostic map.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.95\linewidth]{fig4_graph_sequence_network.pdf}
-\caption{Graph-sequence network architecture. Each graph snapshot is encoded by
-type-specific node encoders, an edge-feature encoder, geometry-guided
-rock--machine attention message passing, and graph readout. The graph embedding
-is concatenated with the monitoring sequence and passed through a GRU temporal
-encoder to predict future response. Raw edge scores are aggregated as
-model diagnostic relevance, not contact-force measurements.}
-\label{fig:network}
-\end{figure}
-
-\begin{algorithm}[htbp]
-\caption{Response-supervised interaction learning}
-\label{alg:learning}
-\begin{algorithmic}[1]
-\REQUIRE Graph sequence $\{G_t\}$, monitoring vectors $\{u_t\}$,
-  window $K$, horizon $h$
-\FOR{each training step}
-  \FOR{each sample window $t-K+1$ to $t$}
-    \STATE Encode each $G_s$ by heterogeneous GNN:
-      $z_s, \{s_{ij}^{rm}(s)\} \leftarrow \mathrm{GNN}(G_s)$
-    \STATE Concatenate graph and monitoring: $h_s = [z_s; u_s]$
-  \ENDFOR
-  \STATE Model temporal evolution: $\{h_s\} \leftarrow \mathrm{GRU}(\{h_s\})$
-  \STATE Predict: $\hat{r}_{t+h} = \mathrm{FC}(h_T)$
-  \STATE Compute loss: $\mathcal{L} = \mathrm{Huber}(\hat{r}_{t+h}, r_{t+h})$
-  \STATE Update parameters $\Theta$ by back-propagation
-\ENDFOR
-\RETURN Trained model $f_{\Theta}$, raw edge scores $\{s_{ij}^{rm}(t)\}$
-\end{algorithmic}
-\end{algorithm}
-
-\emph{Diagnostic relevance aggregation.}
-To recover spatial interpretability, the learned relevance associated with candidate
-rock--machine relations is aggregated into surface-node, component, and chainage
-summaries.
-
-\paragraph{Notation.}
-We distinguish three quantities in the interpretation pipeline:
-\begin{itemize}
-\item \emph{Raw edge score} $s_{ij}^{rm}(t)$: the pre-softmax attention score
-  computed by the graph encoder for candidate edge $(i,j)$ at step $t$.  This
-  quantity preserves absolute magnitude differences across edges and is used for
-  all spatial interpretation outputs.
-\item \emph{Normalised attention weight} $\alpha_{ij}^{rm}(t)$: the post-softmax
-  weight used in message passing, obtained by normalising raw scores over all
-  source rock nodes incident to destination TBM node $j$:
-  \[
-  \alpha_{ij}^{rm}(t) = \frac{\exp\!\bigl(s_{ij}^{rm}(t)\bigr)}
-       {\sum_{i' : (i',j) \in E_t^{rm}} \exp\!\bigl(s_{i'j}^{rm}(t)\bigr)}.
-  \]
-  Because $\sum_{i : (i,j) \in E_t^{rm}} \alpha_{ij}^{rm}(t) = 1$ for each TBM
-  node $j$, aggregating $\alpha_{ij}^{rm}$ per node yields a constant and is
-  therefore unsuitable for spatial interpretation.
-\item \emph{Surface-node diagnostic relevance} $C_j(t)$: the degree-normalised aggregated
-  non-negative-transformed raw score incident to TBM surface node $j$,
-  defined as
-  \[
-  C_j(t) = \frac{1}{d_j(t)+\epsilon} \sum_{i : (i,j) \in E_t^{rm}}
-           \mathrm{softplus}\!\bigl(s_{ij}^{rm}(t)\bigr),
-  \]
-  where $d_j(t) = |\{i : (i,j) \in E_t^{rm}\}|$ is the degree of TBM node $j$
-  in the rock--machine subgraph at step $t$, $\epsilon = 10^{-8}$ avoids
-  division by zero, and $\mathrm{softplus}(x) = \log(1+e^{x})$ is a smooth
-  non-negative transform.  Softplus transforms raw pre-softmax scores into
-  non-negative relevance summaries, while degree normalisation prevents surface
-  nodes with more incident candidate edges from being trivially assigned higher
-  relevance. No further per-chainage standardisation is applied to $C_j$ for the
-  quantitative spatial consistency indicators.
-\end{itemize}
-
-\paragraph{Aggregation.}
-$C_j(t)$ is summarised over TBM components and tracked along excavation chainage
-to form component- and chainage-resolved diagnostic relevance views. These
-outputs indicate where the response-supervised model places diagnostic emphasis
-within the screened candidate relation set, while remaining bounded by the
-monitored response signal used for supervision.
+\subsection{Response-residual consistency analysis}
+\label{sec:residual_consistency}
+Persistence is a strong baseline for short-horizon TBM monitoring responses.
+The proposed graph descriptors therefore do not attempt to replace temporal
+inertia. Instead, they are evaluated against persistence residuals:
+\[
+e_{t+h}^{(k)} = r_{t+h}^{(k)}-r_t^{(k)},
+\]
+where $h$ is the diagnostic horizon and $k$ indexes a response variable. The
+diagnostic question is whether component--chainage descriptors co-vary with the
+remaining response change after persistence has been removed:
+\[
+I_c(t)\rightarrow e_{t+h}^{(k)} .
+\]
+This analysis can be reported using Pearson or Spearman correlations, overlap
+between high-descriptor and high-absolute-residual intervals, and component-wise
+comparisons. The result should be interpreted as descriptor--response residual
+co-variation within the evaluated chainage interval, not as causal attribution.
 
 \FloatBarrier

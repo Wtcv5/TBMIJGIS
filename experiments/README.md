@@ -1,33 +1,35 @@
 # Experiments
 
-This directory contains the runnable pipeline for the rock-TBM interaction graph
-sequence framework.
+This directory contains the runnable pipeline for the explicit rock--TBM spatial
+interaction descriptor framework.
 
 ## Case Configs
 
 | Config | Purpose |
 |---|---|
-| `config/bsll_dyk1017_205.yaml` | BSLL, DyK1017+205, one-step response prediction |
-| `config/bsll_dyk1017_205_h3.yaml` | BSLL, DyK1017+205, three-step advance prediction |
-| `config/sjls_dyk1252_411.yaml` | SJLS, Dyk1252+411, external Vp/Vs TSP case |
-| `config/*_quick.yaml` | short smoke-test versions with reduced training cost |
+| `config/bsll_dyk1017_205.yaml` | BSLL, DyK1017+205, h=1 descriptor-residual case |
+| `config/bsll_dyk1017_205_h3.yaml` | BSLL, DyK1017+205, h=3 descriptor-residual case |
+| `config/sjls_dyk1252_411.yaml` | SJLS, Dyk1252+411, external TSP descriptor case |
+| `config/*_quick.yaml` | short smoke-test versions |
 
 ## Core Commands
 
 ```powershell
-# Formal graph-sequence experiments
-python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205.yaml
-python scripts/run_graph_sequence_case.py --config config/bsll_dyk1017_205_h3.yaml
-python scripts/run_graph_sequence_case.py --config config/sjls_dyk1252_411.yaml
+# Explicit component-chainage descriptors
+python scripts/collect_spatial_descriptors.py --config config/bsll_dyk1017_205.yaml --output-dir outputs/descriptors/bsll_dyk1017_205
+python scripts/collect_spatial_descriptors.py --config config/bsll_dyk1017_205_h3.yaml --output-dir outputs/descriptors/bsll_dyk1017_205_h3
+python scripts/collect_spatial_descriptors.py --config config/sjls_dyk1252_411.yaml --output-dir outputs/descriptors/sjls_dyk1252_411
 
-# Case-level metrics summary
-python scripts/summarize_case_results.py
+# Cross-case summaries
+python scripts/summarize_spatial_descriptors.py
 
-# Post-hoc interpretation evidence
-python scripts/collect_evidence.py --config config/bsll_dyk1017_205.yaml --run-dir outputs/bsll_dyk1017_205 --output-dir outputs/evidence/bsll_dyk1017_205
-python scripts/collect_evidence.py --config config/bsll_dyk1017_205_h3.yaml --run-dir outputs/bsll_dyk1017_205_h3 --output-dir outputs/evidence/bsll_dyk1017_205_h3
-python scripts/collect_evidence.py --config config/sjls_dyk1252_411.yaml --run-dir outputs/sjls_dyk1252_411 --output-dir outputs/evidence/sjls_dyk1252_411
-python scripts/summarize_interpretation_evidence.py
+# Graph-threshold sensitivity
+python scripts/run_descriptor_sensitivity.py --config config/bsll_dyk1017_205.yaml
+python scripts/run_descriptor_sensitivity.py --config config/bsll_dyk1017_205_h3.yaml
+python scripts/run_descriptor_sensitivity.py --config config/sjls_dyk1252_411.yaml
+
+# Publication figures for the descriptor evidence chain
+python scripts/make_descriptor_figures.py
 ```
 
 ## Source Modules
@@ -35,17 +37,24 @@ python scripts/summarize_interpretation_evidence.py
 ```text
 src/data/           TSP loading, monitoring preprocessing, geometry alignment
 src/graph/          node, edge, and graph-sequence construction
-src/models/         baselines, GNN encoder, graph-sequence models
-src/training/       datasets, losses, training loops, metrics
-src/visualization/  graph, prediction, hotspot, and IJGIS-style plotting
+src/diagnostics/    explicit A_c(t), I_c(t), residual, and association logic
+src/visualization/  IJGIS-style plotting helpers
 ```
 
-## Output Policy
+## Main Outputs
 
-Generated run directories under `outputs/` are reproducible artifacts. The
-formal run names are:
+```text
+outputs/descriptors/<case>/component_spatial_descriptors.csv
+outputs/descriptors/<case>/descriptor_residual_association.csv
+outputs/descriptors/<case>/graph_construction_summary.csv
+outputs/descriptors/<case>/sensitivity/
+outputs/descriptors/descriptor_case_summary.csv
+outputs/descriptors/descriptor_association_all.csv
+outputs/figures/fig1_method_framework.*
+outputs/figures/fig6_descriptor_evidence.*
+outputs/figures/fig7_descriptor_sensitivity.*
+```
 
-- `outputs/bsll_dyk1017_205/`
-- `outputs/bsll_dyk1017_205_h3/`
-- `outputs/sjls_dyk1252_411/`
-- `outputs/evidence/`
+The descriptor values are geometry-weighted TSP anomaly summaries over screened
+candidate rock--machine relations. They are not contact force, contact pressure,
+or calibrated jamming risk.
