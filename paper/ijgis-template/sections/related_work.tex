@@ -18,31 +18,37 @@ distributed descriptions of the geological field ahead of or around excavation
 \citep{li2019tunnel}. TSP-derived geological information can be transformed into
 chainage-referenced rock voxels that preserve spatial support and local geological
 context. Voxelised geological models and three-dimensional geological representation
-have been used to describe subsurface heterogeneity along tunnel alignments. However,
-this representation still needs to be linked to machine geometry: a geological voxel
-field alone does not specify which rock units are candidate interaction partners for
-which TBM surface components at a given excavation step. Bridging geological spatial
-representation and machine surface geometry is therefore a prerequisite for
-spatially explicit rock--machine interaction modelling.
+have been used to describe subsurface heterogeneity along tunnel alignments.
+Surface-based 3D geological models and broader 3D geospatial data models provide
+useful precedents for representing volumetric or surface-supported subsurface
+objects and linking them to other spatial entities
+\citep{caumon2009surface,kolbe2009citygml,worboys2004gis}. However, this
+representation still needs to be linked to machine geometry: a geological voxel
+field alone does not specify which rock units are candidate interaction partners
+for which TBM surface components at a given excavation step. Bridging geological
+spatial representation and machine surface geometry is therefore a prerequisite
+for spatially explicit rock--machine interaction modelling.
 
 \subsection{Graph-based spatial relation modelling and spatial interaction descriptors}
 Graph concepts are useful for this problem because they provide a formal way to
-represent irregular spatial objects, contiguity, and interaction. In GIScience,
-graphs have long been used to express spatial neighbourhoods and interaction
-relations \citep{wu2008contiguity}. Recent IJGIS and IJDE studies further show
-that graph-based representations can organise spatial units, neighbourhood
-structure, and urban network morphology
+represent irregular spatial objects, contiguity, topology, and interaction. In
+GIScience, spatial relation models and graph-based data models have long been
+used to express neighbourhoods, topological relations, and interaction
+\citep{egenhofer1991point,peuquet1994time,worboys2004gis,wu2008contiguity}.
+Recent IJGIS and IJDE studies further show that graph-based representations can
+organise spatial units, neighbourhood structure, and urban network morphology
 \citep{desabbata2023graph,liu2025urban}. The important point for the present
 study is not that a graph must be used as a deep learning architecture, but that
 it can define an explicit spatial entity--relation data model.
 
 Spatial interaction models also emphasise that relations are not arbitrary:
 they are shaped by distance decay, compatibility, direction, and spatial
-support. This logic is directly relevant to rock--TBM analysis, where a
-candidate rock--machine relation should depend on active-zone membership,
-surface proximity, surface-normal compatibility, and excavation state. A graph
-therefore provides a disciplined representation of plausible candidate
-relations before any predictive model is considered.
+support \citep{wilson1971spatial,fotheringham1989spatial}. This logic is
+directly relevant to rock--TBM analysis, where a candidate rock--machine
+relation should depend on active-zone membership, surface proximity,
+surface-normal compatibility, and excavation state. A graph therefore provides
+a disciplined representation of plausible candidate relations before any
+predictive model is considered.
 
 Graph neural networks and heterogeneous graph networks remain relevant as
 possible extensions for learning on such structured data
