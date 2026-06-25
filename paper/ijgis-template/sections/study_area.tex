@@ -65,9 +65,14 @@ TSP preprocessing follows a common voxel schema. Coordinates are converted to a
 local excavation coordinate by subtracting the minimum longitudinal coordinate,
 so the local $X$ axis is aligned with advance direction. Each voxel stores
 $[V_p,V_s,E,V_p/V_s,\nu,\rho]$, and these attributes are standardised using
-statistics fitted on the training active-zone margin. The main geological
-anomaly score is a $[0,1]$ low-velocity anomaly score derived from the training
-active-zone reference distribution of $V_p$.
+statistics fitted on the training active-zone margin. This multi-attribute
+schema is retained to keep the BSLL and SJLS inputs in a common voxel format.
+However, the main spatial interaction descriptor uses only the cross-case
+consistent P-wave velocity attribute. The geological anomaly score is therefore
+a $[0,1]$ low-velocity anomaly score derived from the training active-zone
+reference distribution of $V_p$; derived or case-specific attributes such as
+$V_s$, modulus, velocity ratio, Poisson's ratio, and density are not used in
+the main descriptor calculation.
 
 \subsection{Diagnostic evaluation metrics}
 \label{sec:evaluation_principle}

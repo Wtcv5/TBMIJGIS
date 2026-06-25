@@ -32,8 +32,16 @@ CASE_LABELS = {
 
 COMPONENT_ORDER = ["cutterhead", "front_shield", "middle_shield", "tail_shield"]
 COMPONENT_LABELS = ["Cutterhead", "Front shield", "Middle shield", "Tail shield"]
+COMPONENT_DISPLAY = dict(zip(COMPONENT_ORDER, COMPONENT_LABELS))
 RESPONSE_ORDER = ["AdvanceRate", "Torque", "Thrust", "Penetration", "ShieldPressure"]
 RESPONSE_LABELS = ["Advance\nrate", "Torque", "Thrust", "Penetr.", "Shield\npress."]
+RESPONSE_DISPLAY = {
+    "AdvanceRate": "advance rate",
+    "Torque": "torque",
+    "Thrust": "thrust",
+    "Penetration": "penetration",
+    "ShieldPressure": "shield pressure",
+}
 
 FIXED_RESPONSE_PAIRS = {
     "bsll_dyk1017_205": ("front_shield", "I_interaction_intensity", "AdvanceRate"),
@@ -217,26 +225,26 @@ def plot_geometry_constrained_edges(out_dir: Path) -> None:
 
 def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
     apply_ijgis_style()
-    fig = plt.figure(figsize=figure_size("double", aspect=0.72))
-    gs = fig.add_gridspec(2, 2, width_ratios=[1.1, 1.0], height_ratios=[1.0, 1.0],
-                          wspace=0.28, hspace=0.34)
-    ax_heat = fig.add_subplot(gs[:, 0])
-    ax_corr = fig.add_subplot(gs[0, 1])
-    ax_edges = fig.add_subplot(gs[1, 1])
+    fig = plt.figure(figsize=figure_size("double", aspect=0.74))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.05, 0.95], wspace=0.34, hspace=0.42)
+    heat_axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
+    ax_corr = fig.add_subplot(gs[1, :2])
+    ax_edges = fig.add_subplot(gs[1, 2])
 
-    sjls = read_csv(root / "sjls_dyk1252_411" / "component_spatial_descriptors.csv")
-    heat = sjls.pivot(index="component", columns="chainage", values="I_interaction_intensity")
-    heat = heat.loc[COMPONENT_ORDER]
-    im = ax_heat.imshow(heat.values, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
-    ax_heat.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS)
-    cols = heat.columns.to_numpy(dtype=float)
-    tick_idx = np.linspace(0, len(cols) - 1, min(6, len(cols)), dtype=int)
-    ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
-    ax_heat.set_xlabel("Target chainage (m)")
-    ax_heat.set_title("SJLS component-chainage interaction intensity $I_c(t)$")
-    cbar = fig.colorbar(im, ax=ax_heat, fraction=0.046, pad=0.02)
-    cbar.set_label("$I_c(t)$")
-    add_panel_label(ax_heat, "a")
+    for idx, (ax_heat, case_id) in enumerate(zip(heat_axes, CASE_LABELS)):
+        case_df = read_csv(root / case_id / "component_spatial_descriptors.csv")
+        heat = case_df.pivot(index="component", columns="chainage", values="I_interaction_intensity")
+        heat = heat.loc[COMPONENT_ORDER]
+        im = ax_heat.imshow(heat.values, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
+        ax_heat.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS if idx == 0 else [])
+        cols = heat.columns.to_numpy(dtype=float)
+        tick_idx = np.linspace(0, len(cols) - 1, min(4, len(cols)), dtype=int)
+        ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
+        ax_heat.set_xlabel("Chainage (m)")
+        ax_heat.set_title(CASE_LABELS.get(case_id, case_id))
+        cbar = fig.colorbar(im, ax=ax_heat, fraction=0.046, pad=0.02)
+        cbar.set_label("$I_c(t)$")
+    add_panel_label(heat_axes[0], "a")
 
     assoc = read_csv(root / "descriptor_association_all.csv")
     fixed_df = fixed_pair_rows(assoc)
@@ -245,7 +253,8 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
     ax_corr.axvline(0, color="#888888", linewidth=0.7)
     ax_corr.barh(y, fixed_df["spearman_r"], color=colors)
     labels = [
-        f"{CASE_LABELS.get(r.case_id, r.case_id)}\n{r.component}, {r.response}"
+        f"{CASE_LABELS.get(r.case_id, r.case_id)}\n"
+        f"{COMPONENT_DISPLAY.get(r.component, r.component)}, {RESPONSE_DISPLAY.get(r.response, r.response)}"
         for r in fixed_df.itertuples()
     ]
     ax_corr.set_yticks(y, labels)
@@ -271,7 +280,7 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
     ax_edges.set_xticks(x, [CASE_LABELS.get(c, c) for c in gdf["case_id"]], rotation=20, ha="right")
     ax_edges.set_ylabel("Candidate edges per sample")
     ax_edges.set_title("Constructed rock-machine relation density")
-    add_panel_label(ax_edges, "c")
+    add_panel_label(ax_edges, "c", x=-0.24, y=1.10)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     save_publication_figure(fig, out_dir / "fig6_descriptor_evidence.pdf")
@@ -282,30 +291,37 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
 def plot_descriptor_evidence_png(root: Path, out_dir: Path) -> None:
     # Re-run via PDF path helper would not create PNG sibling; keep explicit preview.
     apply_ijgis_style()
-    fig = plt.figure(figsize=figure_size("double", aspect=0.72))
-    gs = fig.add_gridspec(2, 2, width_ratios=[1.1, 1.0], height_ratios=[1.0, 1.0],
-                          wspace=0.28, hspace=0.34)
-    ax_heat = fig.add_subplot(gs[:, 0])
-    ax_corr = fig.add_subplot(gs[0, 1])
-    ax_edges = fig.add_subplot(gs[1, 1])
-    sjls = read_csv(root / "sjls_dyk1252_411" / "component_spatial_descriptors.csv")
-    heat = sjls.pivot(index="component", columns="chainage", values="I_interaction_intensity").loc[COMPONENT_ORDER]
-    im = ax_heat.imshow(heat.values, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
-    ax_heat.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS)
-    cols = heat.columns.to_numpy(dtype=float)
-    tick_idx = np.linspace(0, len(cols) - 1, min(6, len(cols)), dtype=int)
-    ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
-    ax_heat.set_xlabel("Target chainage (m)")
-    ax_heat.set_title("SJLS component-chainage interaction intensity $I_c(t)$")
-    fig.colorbar(im, ax=ax_heat, fraction=0.046, pad=0.02).set_label("$I_c(t)$")
-    add_panel_label(ax_heat, "a")
+    fig = plt.figure(figsize=figure_size("double", aspect=0.74))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.05, 0.95], wspace=0.34, hspace=0.42)
+    heat_axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
+    ax_corr = fig.add_subplot(gs[1, :2])
+    ax_edges = fig.add_subplot(gs[1, 2])
+    for idx, (ax_heat, case_id) in enumerate(zip(heat_axes, CASE_LABELS)):
+        case_df = read_csv(root / case_id / "component_spatial_descriptors.csv")
+        heat = case_df.pivot(index="component", columns="chainage", values="I_interaction_intensity").loc[COMPONENT_ORDER]
+        im = ax_heat.imshow(heat.values, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
+        ax_heat.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS if idx == 0 else [])
+        cols = heat.columns.to_numpy(dtype=float)
+        tick_idx = np.linspace(0, len(cols) - 1, min(4, len(cols)), dtype=int)
+        ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
+        ax_heat.set_xlabel("Chainage (m)")
+        ax_heat.set_title(CASE_LABELS.get(case_id, case_id))
+        fig.colorbar(im, ax=ax_heat, fraction=0.046, pad=0.02).set_label("$I_c(t)$")
+    add_panel_label(heat_axes[0], "a")
     assoc = read_csv(root / "descriptor_association_all.csv")
     fixed_df = fixed_pair_rows(assoc)
     y = np.arange(len(fixed_df))
     colors = [IJGIS_COLORS["accent"] if p < 0.05 else IJGIS_COLORS["persistence"] for p in fixed_df["spearman_p"]]
     ax_corr.axvline(0, color="#888888", linewidth=0.7)
     ax_corr.barh(y, fixed_df["spearman_r"], color=colors)
-    ax_corr.set_yticks(y, [f"{CASE_LABELS.get(r.case_id, r.case_id)}\n{r.component}, {r.response}" for r in fixed_df.itertuples()])
+    ax_corr.set_yticks(
+        y,
+        [
+            f"{CASE_LABELS.get(r.case_id, r.case_id)}\n"
+            f"{COMPONENT_DISPLAY.get(r.component, r.component)}, {RESPONSE_DISPLAY.get(r.response, r.response)}"
+            for r in fixed_df.itertuples()
+        ],
+    )
     ax_corr.set_xlabel("Spearman rho")
     ax_corr.set_title("Fixed $I_c(t)$--residual association")
     ax_corr.set_xlim(-1.0, 1.0)
@@ -320,7 +336,7 @@ def plot_descriptor_evidence_png(root: Path, out_dir: Path) -> None:
     ax_edges.set_xticks(x, [CASE_LABELS.get(c, c) for c in gdf["case_id"]], rotation=20, ha="right")
     ax_edges.set_ylabel("Candidate edges per sample")
     ax_edges.set_title("Constructed rock-machine relation density")
-    add_panel_label(ax_edges, "c")
+    add_panel_label(ax_edges, "c", x=-0.24, y=1.10)
     out_dir.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_dir / "fig6_descriptor_evidence.png", dpi=600, bbox_inches="tight", facecolor="white")
     plt.close(fig)

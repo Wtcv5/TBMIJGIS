@@ -50,21 +50,25 @@ candidate rock--machine relations. They are not contact pressure, contact
 force, jamming probability, or calibrated risk.
 
 Figure~\ref{fig:descriptor_evidence} summarises the descriptor evidence chain.
-The heatmap panel shows the SJLS component--chainage pattern of $I_c(t)$, the
-correlation panel reports fixed descriptor--residual pairs used for subsequent
-sensitivity analysis, and the graph-density panel confirms that the result is
-based on explicitly constructed candidate rock--machine relations.
+Panel (a) shows component--chainage $I_c(t)$ patterns in all three formal
+cases. Panel (b) reports representative fixed descriptor--residual pairs for
+subsequent sensitivity analysis. Panel (c) confirms that the result is based on
+explicitly constructed candidate rock--machine relations.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig6_descriptor_evidence.pdf}
 \caption{Component--chainage spatial interaction descriptor evidence.
-Panel (a) shows SJLS $I_c(t)$ values aggregated from geometry-weighted TSP
-anomaly scores over candidate rock--machine relations. Panel (b) reports the
-fixed $I_c(t)$--persistence-residual association used in the threshold
-sensitivity analysis. Panel (c) reports the mean number of constructed
-candidate relations per sample. The descriptors are not measured contact
-pressure or risk probability.}
+Panel (a) shows $I_c(t)$ values for BSLL h=1, BSLL h=3, and SJLS h=1,
+aggregated from geometry-weighted TSP anomaly scores over candidate
+rock--machine relations. Colour scales are case-specific and should not be
+compared across panels. Panel (b) reports representative fixed
+$I_c(t)$--persistence-residual pairs used in the threshold sensitivity analysis;
+the complete association results are reported in
+Table~\ref{tab:descriptor_residual} and
+Figure~\ref{fig:descriptor_matrix_heatmap}. Panel (c) reports the mean number
+of constructed candidate relations per sample. The descriptors are not measured
+contact pressure or risk probability.}
 \label{fig:descriptor_evidence}
 \end{figure}
 
@@ -81,7 +85,11 @@ $e_{t+h}^{(k)}$ across the evaluated chainage interval. Table~\ref{tab:descripto
 gives the full component--response Spearman matrix for $I_c(t)$. These
 correlations are exploratory and unadjusted for multiple testing; they are used
 to diagnose whether the spatial descriptor contains response-consistent
-structure, not to claim a calibrated operational rule.
+structure, not to claim a calibrated operational rule. The associated
+$p$-values are reported only as descriptive indicators of within-case
+association strength. They are not used as confirmatory hypothesis tests because
+the matrices are exploratory, the samples are limited, and no multiplicity
+adjustment is applied.
 
 The full matrix is treated as the primary diagnostic result. The SJLS case
 shows the clearest descriptor--residual structure, including a negative
@@ -125,7 +133,10 @@ Figure~\ref{fig:descriptor_matrix_heatmap} visualises the same matrix to make
 the component--response structure easier to inspect. Values are exploratory and
 unadjusted for multiple testing; the figure is used to diagnose case-specific
 descriptor--residual co-variation rather than confirm universal
-component--response rules.
+component--response rules. Together, Table~\ref{tab:descriptor_residual} and
+Figure~\ref{fig:descriptor_matrix_heatmap} provide the full result set, whereas
+Figure~\ref{fig:descriptor_evidence}(b) only highlights representative fixed
+pairs for threshold-sensitivity checking.
 
 \begin{figure}[htbp]
 \centering
