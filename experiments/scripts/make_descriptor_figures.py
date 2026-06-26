@@ -470,44 +470,79 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
     case = df[df["component"] == "cutterhead"].copy()
     if case.empty:
         case = df.copy()
-    case = case.head(8)
-    fig, axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.34), gridspec_kw={"width_ratios": [1.05, 0.95, 0.92]})
-    ax = axes[0]
+    case = case.head(8).copy()
+    top3 = case.head(3).copy()
+    fig = plt.figure(figsize=figure_size("double", aspect=0.50))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 0.58], width_ratios=[1.0, 1.05], hspace=0.34, wspace=0.28)
+    ax = fig.add_subplot(gs[0, 0])
     norm = plt.Normalize(case["weighted_contribution"].min(), case["weighted_contribution"].max())
     cmap = plt.get_cmap(IJGIS_CMAPS["sequential"])
-    for _, row in case.iterrows():
+    for _, row in top3.iterrows():
         color = cmap(norm(row["weighted_contribution"]))
-        ax.plot([row["tbm_y"], row["rock_y"]], [row["tbm_z"], row["rock_z"]], color=color, linewidth=0.9, alpha=0.75)
-    sc = ax.scatter(case["rock_y"], case["rock_z"], c=case["weighted_contribution"], cmap=IJGIS_CMAPS["sequential"],
-                    s=34, edgecolor="white", linewidth=0.4, label="Rock voxel")
-    ax.scatter(case["tbm_y"], case["tbm_z"], color=IJGIS_COLORS["tbm"], s=22, marker="s", label="TBM node")
+        ax.plot([row["tbm_y"], row["rock_y"]], [row["tbm_z"], row["rock_z"]],
+                color=color, linewidth=1.1, alpha=0.85)
+        ax.text(row["rock_y"], row["rock_z"], f"#{int(row['rank'])}",
+                fontsize=6.5, ha="left", va="bottom")
+    sc = ax.scatter(top3["rock_y"], top3["rock_z"], c=top3["weighted_contribution"],
+                    cmap=IJGIS_CMAPS["sequential"], s=42, edgecolor="white",
+                    linewidth=0.4, label="Rock voxel")
+    ax.scatter(top3["tbm_y"], top3["tbm_z"], color=IJGIS_COLORS["tbm"], s=28,
+               marker="s", label="TBM node")
+    y_min = min(top3["rock_z"].min(), top3["tbm_z"].min())
+    y_max = max(top3["rock_z"].max(), top3["tbm_z"].max())
+    x_min = min(top3["rock_y"].min(), top3["tbm_y"].min())
+    x_max = max(top3["rock_y"].max(), top3["tbm_y"].max())
+    ax.set_xlim(x_min - 0.35, x_max + 0.35)
+    ax.set_ylim(y_min - 0.35, y_max + 0.45)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_xlabel("Local y (m)")
-    ax.set_ylabel("Local z (m)")
-    ax.set_title("Candidate edge trace")
-    ax.legend(loc="upper right")
-    add_panel_label(ax, "a")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_title("Top-3 spatial edge trace", fontsize=8, pad=4)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.text(0.02, 0.05, "local cross-section", transform=ax.transAxes, fontsize=6.5)
+    add_panel_label(ax, "a", x=-0.08, y=1.08)
 
-    ax = axes[1]
+    ax = fig.add_subplot(gs[0, 1])
     y = np.arange(len(case))[::-1]
-    labels = [f"#{int(r)} rock {int(node)}" for r, node in zip(case["rank"], case["rock_node_id"])]
+    labels = [f"#{int(r)}" for r in case["rank"]]
     ax.barh(y, case["weighted_contribution"], color=IJGIS_COLORS["full_model"], alpha=0.85)
     ax.set_yticks(y, labels)
     ax.set_xlabel(r"$w_{ij}q_i$")
     title_row = case.iloc[0]
-    ax.set_title(f"{title_row['component'].replace('_', ' ')} at {title_row['chainage']:.0f} m")
+    ax.set_title(f"Top-8 edge contributions: {title_row['component'].replace('_', ' ')} at {title_row['chainage']:.0f} m", fontsize=8)
     ax.grid(axis="x", alpha=0.25)
-    add_panel_label(ax, "b")
+    add_panel_label(ax, "b", x=-0.08, y=1.08)
 
-    ax = axes[2]
-    metrics = case[["distance", "kappa", "anomaly_score"]].to_numpy(dtype=float)
-    im = ax.imshow(metrics, aspect="auto", cmap=IJGIS_CMAPS["sequential"])
-    ax.set_yticks(np.arange(len(case)), [f"#{int(r)}" for r in case["rank"]])
-    ax.set_xticks([0, 1, 2], ["Distance", r"$\kappa$", r"$q_i$"], rotation=30, ha="right")
-    ax.set_title("Edge attributes")
+    ax = fig.add_subplot(gs[1, :])
+    ax.axis("off")
+    table_rows = []
+    for _, row in case.iterrows():
+        table_rows.append([
+            f"#{int(row['rank'])}",
+            f"{row['distance']:.2f}",
+            f"{row['kappa']:.2f}",
+            f"{row['anomaly_score']:.2f}",
+            f"{row['weighted_contribution']:.3f}",
+        ])
+    ax.text(0.0, 0.98, "Traceable edge attributes for the top-8 contributions",
+            transform=ax.transAxes, fontsize=8, ha="left", va="top")
+    table = ax.table(
+        cellText=table_rows,
+        colLabels=["Edge", "Distance", r"$\kappa$", r"$q_i$", r"$w_{ij}q_i$"],
+        bbox=[0.02, 0.02, 0.96, 0.82],
+        cellLoc="center",
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(6.3)
+    for (row, col), cell in table.get_celld().items():
+        cell.set_linewidth(0.4)
+        if row == 0:
+            cell.set_facecolor("#F2F2F2")
+            cell.set_text_props(weight="bold")
     add_panel_label(ax, "c")
-    set_colorbar_style(fig.colorbar(sc, ax=axes[:2].tolist(), fraction=0.025, pad=0.02), r"$w_{ij}q_i$")
-    set_colorbar_style(fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02), "Value")
     out_dir.mkdir(parents=True, exist_ok=True)
     save_pdf_and_png(fig, out_dir / "fig8_traceability_example.pdf")
 

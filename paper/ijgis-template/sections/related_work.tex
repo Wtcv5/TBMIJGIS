@@ -1,84 +1,170 @@
 \label{sec:related_work}
 
-\subsection{TBM response prediction and jamming-related analysis}
-Existing TBM prediction and warning studies have shown that tabular models and sequence
-models can be effective for forecasting penetration, thrust, torque, or jamming-related
-responses \citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction}.
-Sequence models are effective for learning temporal dependence in monitoring records
-\citep{hochreiter1997long,cho2014learning}, but they usually treat excavation as an ordered signal
-sequence rather than as a spatially structured interaction process. As a consequence,
-existing studies usually represent geological and machine variables as feature vectors
-or sequences, rather than explicit spatial relations between geological entities and
-TBM components. This limitation matters when the objective is not only response
-prediction, but also spatially consistent interpretation of interaction dynamics.
+\subsection{Monitoring-based TBM response modelling and jamming diagnosis}
+Traditional TBM performance studies estimate penetration, advance rate,
+thrust, torque, or related operational responses from rock mass properties and
+machine parameters. Empirical, statistical, and machine-learning formulations
+have been used for planning and performance assessment in hard-rock tunnelling
+\citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction}. These
+studies provide important response-prediction baselines, but their spatial
+unit is usually a tunnel section, a sample, or a feature vector rather than an
+explicit relation between a geological object and a TBM component.
 
-\subsection{Spatial representation of geological conditions in tunnel excavation}
-Tunnel seismic prediction (TSP) and advance geological prediction provide spatially
-distributed descriptions of the geological field ahead of or around excavation
-\citep{li2019tunnel}. TSP-derived geological information can be transformed into
-chainage-referenced rock voxels that preserve spatial support and local geological
-context. Voxelised geological models and three-dimensional geological representation
-have been used to describe subsurface heterogeneity along tunnel alignments.
-Surface-based 3D geological models and broader 3D geospatial data models provide
-useful precedents for representing volumetric or surface-supported subsurface
-objects and linking them to other spatial entities
-\citep{goodchild1992geographical,longley2005geographic,caumon2009surface,kolbe2009citygml,worboys2004gis}.
-This broader GIScience view is useful because tunnel geology, TBM geometry,
-and monitoring records have different spatial supports, and support mismatch
-can change the meaning of any aggregated descriptor
-\citep{openshaw1984modifiable}. However, this
-representation still needs to be linked to machine geometry: a geological voxel
-field alone does not specify which rock units are candidate interaction partners
-for which TBM surface components at a given excavation step. Bridging geological
-spatial representation and machine surface geometry is therefore a prerequisite
-for spatially explicit rock--machine interaction modelling.
+With the accumulation of TBM monitoring data, data-driven response modelling
+has increasingly used operational parameters, geological indicators, and
+historical responses as predictive features. Such models can improve local
+forecasting or anomaly recognition, especially when the operational state is
+stable and the training records are sufficiently dense. Their representation,
+however, usually remains feature-vector based: geological and machine
+variables are aligned as attributes, not as spatial entities with explicit
+neighbourhood, proximity, or component-contact plausibility.
 
-\subsection{Graph-based spatial relation modelling and spatial interaction descriptors}
-Graph concepts are useful for this problem because they provide a formal way to
-represent irregular spatial objects, contiguity, topology, and interaction. In
-GIScience, spatial relation models and graph-based data models have long been
-used to express neighbourhoods, topological relations, temporal dynamics, and
-geographical objects
-\citep{egenhofer1991point,peuquet1994time,worboys2004gis,galton2001spatial,couclelis1996geographic,wu2008contiguity}.
-Recent IJGIS and IJDE studies further show that graph-based representations can
-organise spatial units, neighbourhood structure, spatial multivariate
-distributions, and urban network morphology
-\citep{zhu2020spatial,desabbata2023graph,liu2025urban}. The important point for the present
-study is not that a graph must be used as a deep learning architecture, but that
-it can define an explicit spatial entity--relation data model.
+Sequence models add temporal structure to this representation. Recurrent
+architectures such as LSTM and GRU can learn response inertia and lagged
+dependence in monitoring records \citep{hochreiter1997long,cho2014learning}.
+For short-horizon TBM response prediction, this is valuable because recent
+responses are often strong predictors of near-future responses. The limitation
+is that temporal dependence is not the same as component-level spatial
+relation. A sequence model can describe how a response changes with time or
+chainage, but it does not explicitly identify which rock voxels are plausible
+interaction partners for the cutterhead, front shield, middle shield, or tail
+shield.
 
-Spatial interaction models also emphasise that relations are not arbitrary:
-they are shaped by distance decay, compatibility, direction, and spatial
-support \citep{wilson1971spatial,fotheringham1989spatial}. This logic is
-directly relevant to rock--TBM analysis, where a candidate rock--machine
-relation depends on active-zone membership, surface proximity,
-surface-normal compatibility, and excavation state. A graph therefore provides
-a disciplined representation of plausible candidate relations before any
-predictive model is considered.
+The present paper therefore does not try to replace monitoring-based
+predictors. It asks a different question: whether a spatial relation
+representation can add diagnostic information about the rock--machine
+configuration that monitoring curves alone do not encode. This shifts the
+evaluation from pure prediction accuracy toward spatially interpretable
+residual consistency.
 
-Graph neural networks and heterogeneous graph networks remain relevant as
-possible extensions for learning on such structured data
-\citep{schlichtkrull2018modeling,zhang2019heterogeneous,wu2020comprehensive,zhou2020graph}, and graph-based
-forecasting models have been successful in other spatiotemporal domains
-\citep{li2018diffusion,wu2019graph,zhang2020deep,geng2019spatiotemporal}.
-Graph networks have also been used to represent local interactions in physical
-systems and mesh-based simulation, which reinforces the value of explicit
-relation sets for spatially constrained processes
-\citep{sanchez2020learning,pfaff2021learning}.
-However, the present paper does not position the graph primarily as a
-black-box forecasting backbone. It uses the graph to derive auditable
-component--chainage spatial interaction descriptors from geometry-constrained
-rock--machine candidate relations.
+\subsection{Spatial representation of tunnel geology and advance prediction}
+Advance geological prediction methods, including TSP and related geophysical
+or drilling-based approaches, are used to identify faults, fractured zones,
+water-rich zones, weak surrounding rock, and other geological anomalies before
+or during tunnel excavation \citep{li2019tunnel}. For TBM analysis, such data
+are valuable because they describe spatial heterogeneity that is not contained
+in the monitoring record itself.
+
+TSP results can be represented as velocity profiles, sections, or voxelised
+attribute fields along the tunnel direction. Voxelisation is useful for the
+present problem because it preserves spatial support, local attribute values,
+and chainage-referenced geological context. It allows geological anomalies to
+be queried as spatial objects rather than as a single global label attached to
+an excavation interval.
+
+The broader literature on 3D geological modelling and geospatial data models
+also provides useful precedents. Surface-based and volumetric geological
+models can represent bodies, surfaces, faults, and material boundaries
+\citep{caumon2009surface,kolbe2009citygml,worboys2004gis}. GIScience further
+emphasises that spatial support and aggregation units affect interpretation
+\citep{goodchild1992geographical,longley2005geographic,openshaw1984modifiable}.
+This point is directly relevant here because TSP voxels, TBM surface samples,
+and monitoring responses have different spatial and temporal supports.
+
+Geological spatial representation alone is therefore incomplete for the
+diagnostic question addressed in this paper. It can show where anomalous
+ground occurs, but it does not specify whether that anomaly is adjacent to the
+cutterhead or the shield, whether the adjacency is normal-compatible, or
+whether the rock voxel remains active at the current chainage. Machine geometry
+and excavation state must be introduced before geological anomalies can be
+used as component-level rock--machine interaction descriptors.
+
+\subsection{Spatial data models and entity--relation representation in GIScience}
+GIScience is concerned not only with mapping locations but also with
+representing geographical objects, spatial relations, temporal change, and
+processes \citep{goodchild1992geographical,worboys2004gis,galton2001spatial}.
+TBM excavation fits this perspective because it is a moving engineering
+process in which spatial objects and their relations change with chainage.
+The relevant question is how to represent rock units, machine surfaces, and
+monitoring responses in a common spatial framework.
+
+Spatial relation theory provides concepts for neighbourhood, adjacency,
+containment, intersection, and other topological or metric relations
+\citep{egenhofer1991point,wu2008contiguity}. In the present context,
+rock--rock neighbourhoods describe geological contiguity, machine-surface
+adjacency describes the continuity of the TBM surface, and rock--machine
+candidate edges describe plausible interaction relations between two different
+spatial entity types. These are not merely computational conveniences; they
+define the spatial meaning of the diagnostic descriptor.
+
+Space-time representation is also relevant. Object, location, and time must be
+organised together when the phenomenon is dynamic \citep{peuquet1994time}.
+For TBM excavation, chainage plays the role of the organising coordinate:
+machine components move, rock voxels become active or excavated, and monitoring
+responses are observed at corresponding excavation steps. A
+chainage-referenced model is therefore more appropriate than treating the
+geology and monitoring data as separate static tables.
+
+The spatial-support issue is central. Aggregating voxel-level geological
+attributes directly to a tunnel-level feature can obscure which machine
+component is involved and which spatial relation justified the aggregation.
+The component--chainage descriptor used here is also an aggregation, but it is
+an aggregation over explicitly screened rock--machine edges. This makes the
+support, relation type, and component target visible.
+
+Existing GIScience and geospatial data modelling literature thus provides the
+conceptual foundation for this study, but tunnel TBM studies have rarely used
+that foundation to connect geological voxels, machine components, candidate
+interaction relations, and monitoring residuals in one diagnostic
+representation. This is the representational gap addressed by the proposed
+graph.
+
+\subsection{Graph-based spatial interaction modelling}
+Graphs are a natural formalism for representing irregular spatial objects and
+their relations. Nodes can represent spatial entities, and edges can represent
+neighbourhoods, topology, networks, or candidate interactions. Recent
+geospatial studies have used graph-based representations for spatial
+classification, spatial multivariate distributions, and urban network
+morphology \citep{zhu2020spatial,desabbata2023graph,liu2025urban}. For the
+rock--TBM problem, this suggests a way to represent heterogeneous rock and
+machine entities without forcing them into a regular tabular feature vector.
+
+Spatial interaction models further emphasise that relations are not arbitrary.
+They are shaped by distance decay, compatibility, direction, accessibility, and
+spatial support \citep{wilson1971spatial,fotheringham1989spatial}. A
+rock--machine candidate relation should therefore not be defined by a fully
+connected graph or by a purely learned adjacency without physical constraints.
+It should depend on whether the rock voxel lies in the active zone, whether it
+is close enough to the machine surface, whether the surface normal is
+compatible, and whether the voxel has already been excavated.
+
+Graph neural networks and heterogeneous graph models remain relevant as
+possible extensions for learning on structured data
+\citep{schlichtkrull2018modeling,zhang2019heterogeneous,wu2020comprehensive,zhou2020graph}.
+Spatiotemporal graph models have also been successful in traffic, flow
+prediction, and physical simulation
+\citep{li2018diffusion,wu2019graph,zhang2020deep,geng2019spatiotemporal,sanchez2020learning,pfaff2021learning}.
+However, those studies mainly motivate the representational capacity of graph
+structures. They do not imply that the present small-sample tunnel cases should
+be framed primarily as a black-box graph-learning benchmark.
+
+Accordingly, the graph in this paper is used primarily as an auditable spatial
+data model. Its contribution is to make component-level candidate relations,
+geometry weights, aggregation rules, and edge-level traceability explicit. Any
+future learned graph representation should build on this data model rather
+than replace the need for spatially meaningful relation construction.
 
 \subsection{Residual-based diagnostic evaluation}
-For short-horizon TBM monitoring, persistence is a strong and transparent
-temporal baseline. A spatial descriptor is therefore evaluated more
-appropriately by asking whether it co-varies with the response change that
-remains after persistence is removed, rather than whether it replaces temporal
-inertia. This residual view also reduces overclaiming: descriptor--residual
-association can support a spatial diagnostic interpretation without implying a
-calibrated forecasting model, a causal geological source, or an operational
-risk probability. In the present study, this logic is combined with
-descriptor-level null comparisons, detrending, circular-shift checks, and
-sensitivity analyses so that the reported evidence concerns the spatial
-relation representation rather than raw temporal trend alone.
+Prediction evaluation and diagnostic evaluation answer different questions.
+If the objective is short-horizon forecasting, a model should be compared with
+strong temporal baselines such as persistence or autoregressive and sequence
+models. If the objective is spatial diagnosis, the question is whether a
+spatial descriptor explains or co-varies with the part of the response that
+temporal persistence does not already explain.
+
+Residual analysis is commonly used to inspect structure left unexplained by a
+baseline model. In this study, the persistence residual represents the
+short-horizon response change after subtracting the previous response value.
+When a component--chainage spatial descriptor co-varies with that residual, it
+does not prove causality, but it indicates that the spatial relation
+representation contains diagnostic information not explicitly encoded in the
+monitoring curve itself.
+
+The available tunnel evidence is necessarily small. BSLL contributes compact
+test intervals, whereas SJLS provides a longer interval and a clearer external
+TSP velocity contrast. For this reason, the evaluation is kept descriptive:
+Spearman association, detrending, descriptor-level null comparisons,
+circular-shift checks, sensitivity analysis, and edge-level traceability are
+used to control over-interpretation. The aim is to support a diagnostic
+spatial-representation claim, not a universal prediction or risk-calibration
+claim.

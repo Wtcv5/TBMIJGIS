@@ -5,6 +5,16 @@ spatial entities, constructing geometry-constrained candidate relations,
 aggregating component--chainage spatial interaction descriptors, and evaluating
 descriptor consistency with persistence residuals of monitoring responses.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{fig1_method_framework.pdf}
+\caption{Workflow of the chainage-referenced rock--TBM spatial interaction
+graph. The figure summarises how spatial entities are aligned, how
+geometry-screened candidate relations are constructed, and how
+component--chainage descriptors are evaluated against persistence residuals.}
+\label{fig:pipeline}
+\end{figure}
+
 \subsection{Chainage-referenced rock--TBM spatial entity model}
 \label{sec:representation}
 Let excavation advance be discretized into chainage-indexed steps
@@ -65,17 +75,6 @@ $e_{t+h}^{(k)}$ & Persistence residual of response $k$ & Response-consistency ta
 \bottomrule
 \end{tabular}
 \end{table}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.95\linewidth]{fig1_method_framework.pdf}
-\caption{Overview of the proposed chainage-referenced rock--TBM spatial
-interaction graph workflow. The main manuscript focuses on spatial entities,
-geometry-constrained candidate relations, component--chainage descriptors, and
-response-residual consistency. The descriptors are not contact pressure, contact
-force, jamming probability, or calibrated risk.}
-\label{fig:pipeline}
-\end{figure}
 
 \subsection{Geometry-constrained rock--machine candidate relation graph}
 \label{sec:graph_sequence}
@@ -224,13 +223,9 @@ w_{ij}^{rm}(t),
 \]
 where $A_c(t)$ is a supporting total geometric exposure descriptor. It is
 affected by component surface extent, surface-node sampling density,
-candidate-edge count, and active-zone geometry. It is therefore used mainly to
-document total candidate-relation exposure; when direct cross-component
-comparison is required, a node-normalised exposure
-\[
-\bar{A}_c(t)=\frac{A_c(t)}{|V_c^m|+\epsilon}
-\]
-can be used as a sensitivity form.
+candidate-edge count, and active-zone geometry. In the reported experiments it
+is used as the distance-only exposure null rather than as the main diagnostic
+descriptor.
 The geology-weighted spatial interaction intensity is
 \[
 I_c(t)=
@@ -293,8 +288,9 @@ geometry exposure but no geological anomaly weighting. The uniform-edge variant
 replaces geometry-weighted averaging with an unweighted mean anomaly over
 candidate edges. The component-reassignment null uses the same graph
 construction but randomly assigns the comparison to non-target TBM components
-with a fixed random seed, breaking the intended component label without
-claiming a formal permutation test.
+with a fixed random seed, breaking the intended component label. This null is
+used only as a simple component-label disruption check, not as a full
+randomisation test.
 
 Two small-sample robustness checks are then applied to each fixed
 diagnostic pair. First, both descriptor and residual series are linearly

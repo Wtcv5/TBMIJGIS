@@ -8,22 +8,20 @@ illustrates the construction rule: candidate relations are screened by
 active-zone membership, distance threshold, surface-normal compatibility, and
 excavation state.
 
-Table~\ref{tab:graph_construction_stats} summarises the resulting graph
-objects in the test intervals. The BSLL runs use the same tunnel section with
-different diagnostic horizons and therefore have the same graph size per step.
-All three formal runs use the same 0.5\,m TBM surface sampling resolution, so
-the SJLS evidence is not produced under a coarser surface discretisation. The
-candidate-edge counts show that the descriptors are computed from explicit
-rock--machine relation sets rather than from conceptual links. Because the
-same parameterized TBM surface, active-zone dimensions, and edge thresholds are
-used in the three formal runs, the graph-size statistics are identical. The
-case contrast is therefore expressed by the geological anomaly scores and by
-the resulting component descriptors, not by a different graph size.
+Table~\ref{tab:graph_construction_stats} reports standardized per-step graph
+support statistics. The same parameterized TBM surface, active-zone dimensions,
+surface sampling resolution, and edge thresholds are used in the three formal
+runs, so the support counts are identical by design. This does not mean that
+the descriptors are identical: spatial coordinates, TSP attributes, target
+chainages, and monitoring residuals vary by case. The case contrast is
+therefore expressed by $q_i$, $I_c(t)$, and the residual series rather than by
+different graph-size templates.
 
 \begin{table}[htbp]
 \centering
-\caption{Graph construction statistics in the test intervals. Edge shares are
-computed from candidate rock--machine relations in the main graph setting.}
+\caption{Standardized per-step graph support statistics. Edge shares are
+computed from candidate rock--machine relations under the common main graph
+setting.}
 \label{tab:graph_construction_stats}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -37,6 +35,13 @@ SJLS h=3 & 3558 & 1352 & 14620 & 0.145 & 0.855 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The descriptor statistics in Table~\ref{tab:descriptor_attribute_stats}
+explain why SJLS provides clearer diagnostic evidence despite using the same
+graph support template. SJLS is not stronger because it has a larger graph; it
+is stronger because the standardized support is populated by a more uniformly
+high low-velocity anomaly field. This produces a clearer component--chainage
+descriptor pattern than in the compact BSLL intervals.
 
 \begin{table}[htbp]
 \centering
@@ -79,7 +84,8 @@ descriptor co-varies with response changes left after persistence.
 \caption{Component--chainage spatial interaction descriptor evidence and
 diagnostic residual traces. Upper panels show $I_c(t)$ values for BSLL h=1,
 BSLL h=3, and SJLS h=3 using a common colour scale. Lower panels show the
-fixed residual series used for the fixed diagnostic pair in each case.}
+persistence residual series used for the fixed diagnostic pair in each case,
+in the standardized monitoring scale used for residual computation.}
 \label{fig:descriptor_evidence}
 \end{figure}
 
@@ -123,8 +129,9 @@ compact diagnostic checks, but they do not support a strong case-general rule.
 
 For completeness, Appendix~\ref{app:descriptor_matrix} reports the full
 component--response Spearman matrix for $I_c(t)$. The matrix is exploratory and
-unadjusted for multiple testing. The representative diagnostic pairs in
-Table~\ref{tab:primary_diagnostic} are the main result used in the text.
+unadjusted for multiple testing. The fixed pairs in
+Table~\ref{tab:primary_diagnostic} are diagnostic slices interpreted together
+with the null, detrending, sensitivity, and traceability checks below.
 
 \subsection{Descriptor-level null comparisons}
 \label{sec:null_results}
@@ -168,9 +175,11 @@ For SJLS, the raw chainage-only and global-Vp associations are high, but both
 collapse after detrending. The proposed descriptor retains a strong detrended
 association, indicating that the component-specific geometry-weighted relation
 representation contains more than a simple chainage trend. The random
-component-reassignment null is also much weaker than the proposed SJLS
-descriptor after detrending. The BSLL null comparisons are weaker and are read
-as limited-sample diagnostics.
+component-reassignment check is also much weaker than the proposed SJLS
+descriptor after detrending. Because this check only disrupts the component
+label, it is interpreted as a simple null diagnostic rather than as a formal
+randomisation test. The BSLL null comparisons are weaker and are read as
+limited-sample diagnostics.
 
 \subsection{Sensitivity to graph thresholds and anomaly definitions}
 \label{sec:sensitivity}

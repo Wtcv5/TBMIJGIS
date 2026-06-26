@@ -1,50 +1,44 @@
-TBM excavation is not only a temporal monitoring process but also a moving
-spatial interaction process. As the machine advances, geological units ahead of
-the cutterhead and around the shield continuously enter and leave the potential
-rock--machine interaction zone. Abnormal thrust, torque, penetration, advance
-rate, or shield-pressure behaviour may therefore reflect not only temporal
-response persistence but also the evolving spatial configuration between
-geological anomalies and TBM components.
+TBM excavation is a moving spatial interaction process rather than a fixed-site
+monitoring problem. As the cutterhead and shield advance along chainage,
+geological units enter, approach, and leave the machine's potential interaction
+zone. Changes in thrust, torque, penetration, advance rate, and shield pressure
+therefore reflect both operational control and the evolving spatial
+configuration between geological anomalies and machine components.
 
-Existing TBM response studies commonly represent recent monitoring observations
-as a temporal sequence, $u_{t-K+1:t}\rightarrow r_{t+h}$, and can exploit the
-strong inertia of excavation responses
-\citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction,hochreiter1997long}.
-Advance geological prediction and TSP data provide a different kind of
-information: the spatial distribution of geological properties ahead of, or
-around, the excavation. These two data views remain weakly connected. A
-monitoring curve does not state which TSP voxel is adjacent to the cutterhead
-or shield, whether that adjacency is compatible with the local surface normal,
-or how the candidate rock--machine relation set changes as excavation proceeds.
+Monitoring-based TBM response models are useful because short-horizon
+excavation responses often have strong temporal persistence. Tabular and
+sequence-based models can learn this persistence from recent operational and
+response histories \citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction,hochreiter1997long}.
+However, a monitoring curve does not state which geological unit is adjacent to
+the cutterhead or shield, whether the adjacency is geometrically plausible, or
+how the candidate rock--machine relation set changes as excavation proceeds.
+This limits the spatial interpretability of monitoring-only diagnosis.
 
-This study treats the problem as a chainage-referenced spatial entity-relation
-modelling problem. TSP-derived rock voxels, parameterized TBM surface samples,
-and monitoring responses are placed in a unified local excavation coordinate
-system. At each excavation step, a heterogeneous graph
-$G_t=(V_t^r \cup V_t^m, E_t^{rr} \cup E_t^{mm} \cup E_t^{rm})$ represents
-rock voxels, machine components, rock--rock neighbourhoods, machine-surface
-adjacency, and geometry-constrained candidate rock--machine relations.
-The rock--machine edge set $E_t^{rm}$ is not an arbitrary learned connectivity
-pattern; it is screened by active-zone membership, distance decay,
-surface-normal compatibility, and excavation state.
+Advance geological prediction and TSP surveys provide the complementary view:
+they describe spatial variation in the ground ahead of or around excavation
+\citep{li2019tunnel}. These data can be converted into chainage-referenced
+geological voxels or attribute fields, preserving where low-velocity or other
+geological anomalies occur. Yet a geological voxel field by itself answers
+where an anomaly is located, not which TBM component is a plausible interaction
+partner at a particular excavation step. A component-level diagnostic
+representation must therefore link geological spatial support to machine
+surface geometry and excavation state.
 
-The central claim is therefore not that a new deep predictor outperforms
-persistence. Given the compact diagnostic intervals and the need for spatial
-interpretation, the more defensible question is whether a graph-based spatial
-relation representation encodes diagnostic information that monitoring curves
-and global geological summaries do not explicitly provide. The proposed
-component--chainage descriptors aggregate a fixed-reference TSP anomaly score
-over geometry-weighted candidate relations and are evaluated against
-persistence residuals, the part of the monitoring response not already
-explained by temporal inertia.
+This study addresses that gap by treating rock--TBM diagnosis as a spatial
+entity--relation modelling problem. Rock voxels, TBM surface samples,
+rock--rock neighbourhoods, machine-surface adjacencies, and candidate
+rock--machine relations are heterogeneous spatial entities and relations. In
+this paper, the graph is introduced first as a spatial data model: it makes
+candidate relations explicit, constrains them by geometry and excavation state,
+aggregates them to component--chainage descriptors, and keeps them traceable
+back to individual rock--machine edges. It is not introduced primarily to use a
+black-box graph neural network.
 
-The contributions are threefold. First, the study proposes a
-chainage-referenced rock--TBM spatial entity-relation model that places TSP
+The contribution is threefold. First, the paper proposes a
+chainage-referenced rock--TBM spatial entity model that places TSP-derived rock
 voxels, TBM surface components, and monitoring responses in a common excavation
-coordinate system. Second, it defines a geometry-constrained candidate
-rock--machine relation graph using active-zone filtering, distance decay,
-surface-normal compatibility, and excavation-state constraints. Third, it
-derives component--chainage diagnostic descriptors. The evaluation uses fixed
-descriptor--residual associations, descriptor-level null comparisons,
-detrending, and circular-shift checks. It also tests graph-threshold and
-anomaly-score sensitivity and retains edge-level traceability.
+coordinate system. Second, it constructs candidate rock--machine relation
+graphs constrained by active-zone membership, distance decay, surface-normal
+compatibility, and excavation state. Third, it derives component--chainage
+diagnostic descriptors and evaluates whether they provide residual-consistency
+information beyond monitoring persistence and global geological summaries.

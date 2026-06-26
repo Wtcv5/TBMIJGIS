@@ -10,9 +10,9 @@ chainage. The proposed graph closes this representational gap by linking rock
 voxels, TBM surface nodes, geometry-compatible candidate edges, and monitoring
 residuals in one excavation coordinate system.
 
-This distinction matters for IJGIS/IJDE-style spatial modelling. The graph is
-not introduced merely as a deep-learning architecture. It is a spatial data
-model with explicit entities, relation types, screening rules, edge weights,
+This distinction matters for spatial modelling because the graph is introduced
+as an explicit data representation rather than as a predictive architecture.
+It has defined entities, relation types, screening rules, edge weights,
 component aggregation, and traceability back to individual candidate relations.
 The descriptor results are therefore interpreted as evidence that the
 representation can organise rock--machine relations into component--chainage
@@ -67,20 +67,21 @@ or contact-force estimates.
 \subsection{Limitations and future work}
 \label{sec:limitations}
 Several limitations remain. First, the current evidence comes from two tunnel
-cases and short diagnostic test intervals, so additional tunnel sections and
-geological conditions are required for generalisation. Second, independent
-engineering evidence such as geological exposure logs, jamming records, shield
-pressure anomaly logs, and construction intervention records is needed to
-validate operational interpretations. Third, TSP inversion uncertainty is not
-propagated through the voxel graph; future work needs
-uncertainty-aware voxel attributes and evaluate how spatial resolution affects
-candidate relation sets.
+cases and short diagnostic test intervals: BSLL contains only 8 and 7 test
+samples for h=1 and h=3, respectively, and SJLS contains 17 test samples.
+The reported associations are therefore descriptive diagnostics rather than
+significance-based inference or case-general component--response laws. Second,
+TSP inversion uncertainty is not propagated through the voxel graph; future
+work should attach uncertainty to voxel attributes and evaluate how inversion
+and spatial resolution affect candidate relation sets.
 
-Fourth, the main descriptor intentionally uses a transparent Vp-based
-low-velocity anomaly score. Multi-attribute scores using Vs, modulus, Vp/Vs,
-Poisson's ratio, or density require clear weighting rules
-or independent validation. Finally, with larger samples, the full heterogeneous
-graph structure $E^{rr}$, $E^{mm}$, and $E^{rm}$ could be used for learned
-representation models. Such extensions remain secondary to the spatial
-entity-relation claim unless sufficient training and validation data become
-available.
+Third, the component-reassignment null is only a component-label disruption
+check, not a formal permutation or randomisation test. Larger datasets would
+allow stronger null designs and multiplicity-aware inference. Fourth, the
+study lacks independent engineering labels such as jamming records, shield
+pressure anomaly logs, construction intervention logs, or geological exposure
+records. Such evidence would be required before the descriptors could be
+validated as operational risk indicators. Finally, the main descriptor uses a
+transparent Vp-based low-velocity anomaly score. Multi-attribute scores using
+Vs, modulus, Vp/Vs, Poisson's ratio, or density require explicit weighting
+rules or independent validation before they can replace the main descriptor.

@@ -88,16 +88,14 @@ relations are screened using active-zone membership, distance decay,
 surface-normal compatibility, and excavation-state constraints. Based on the
 resulting graph sequence, component--chainage diagnostic descriptors are
 derived by aggregating fixed-reference geological anomaly scores over
-geometry-weighted candidate relations. The descriptors are evaluated against
-persistence residuals of TBM monitoring responses using descriptor--residual
-association, descriptor-level null comparisons, detrending, circular-shift
-checks, and sensitivity analyses. Two tunnel cases indicate that the graph
-representation organises rock--machine relations into interpretable
-component--chainage patterns and provides diagnostic information not explicitly
-encoded by monitoring curves alone. The proposed descriptors are interpreted
-as geometry-weighted diagnostic summaries rather than measured
-contact forces, calibrated jamming probabilities, or universal operational risk
-rules.
+geometry-weighted candidate relations. The descriptors are evaluated through
+residual-consistency analysis with trend-based and descriptor-level null
+checks. Two tunnel cases show that descriptor evidence is strongest when the
+TSP velocity contrast is clear and the evaluated chainage interval is longer,
+whereas compact intervals provide only limited diagnostic checks. The proposed
+descriptors are interpreted as geometry-weighted diagnostic summaries rather
+than measured contact forces, calibrated jamming probabilities, or universal
+operational risk rules.
 \end{abstract}
 
 \begin{keywords}
@@ -131,11 +129,6 @@ residual; TBM excavation; diagnostic analysis
 \section{Conclusion}
 \input{sections/conclusion}
 
-\appendix
-\section{Exploratory descriptor--response matrix}
-\label{app:descriptor_matrix}
-\input{sections/appendix}
-
 \section*{Acknowledgements}
 \input{sections/acknowledgements}
 
@@ -157,5 +150,11 @@ are not redistributed.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
+
+\clearpage
+\appendix
+\section{Exploratory descriptor--response matrix}
+\label{app:descriptor_matrix}
+\input{sections/appendix}
 
 \end{document}
