@@ -13,8 +13,12 @@ objects in the test intervals. The BSLL runs use the same tunnel section with
 different diagnostic horizons and therefore have the same graph size per step.
 All three formal runs use the same 0.5\,m TBM surface sampling resolution, so
 the SJLS evidence is not produced under a coarser surface discretisation. The
-candidate-edge counts show that the descriptors are computed
-from explicit rock--machine relation sets rather than from conceptual links.
+candidate-edge counts show that the descriptors are computed from explicit
+rock--machine relation sets rather than from conceptual links. Because the
+same parameterized TBM surface, active-zone dimensions, and edge thresholds are
+used in the three formal runs, the graph-size statistics are identical. The
+case contrast is therefore expressed by the geological anomaly scores and by
+the resulting component descriptors, not by a different graph size.
 
 \begin{table}[htbp]
 \centering
@@ -30,6 +34,26 @@ Case & Rock nodes & TBM nodes & Candidate edges & Cutterhead share & Shield shar
 BSLL h=1 & 3558 & 1352 & 14620 & 0.145 & 0.855 \\
 BSLL h=3 & 3558 & 1352 & 14620 & 0.145 & 0.855 \\
 SJLS h=3 & 3558 & 1352 & 14620 & 0.145 & 0.855 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Case-level descriptor attribute statistics. Mean anomaly is the
+candidate-edge mean of the bounded low-velocity score $q_i$; $I_c(t)$ is the
+geometry-weighted anomaly descriptor pooled over components and test
+chainages.}
+\label{tab:descriptor_attribute_stats}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}
+\toprule
+Case & Mean anomaly score & $I_c(t)$ & $A_c(t)$ \\
+\midrule
+BSLL h=1 & $0.552 \pm 0.157$ & $0.552 \pm 0.158$ & $1170.8 \pm 296.9$ \\
+BSLL h=3 & $0.537 \pm 0.129$ & $0.537 \pm 0.130$ & $1170.9 \pm 297.4$ \\
+SJLS h=3 & $0.913 \pm 0.045$ & $0.913 \pm 0.045$ & $1170.9 \pm 294.2$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -55,26 +79,25 @@ descriptor co-varies with response changes left after persistence.
 \caption{Component--chainage spatial interaction descriptor evidence and
 diagnostic residual traces. Upper panels show $I_c(t)$ values for BSLL h=1,
 BSLL h=3, and SJLS h=3 using a common colour scale. Lower panels show the
-fixed residual series used for the predefined diagnostic pair in each case.}
+fixed residual series used for the fixed diagnostic pair in each case.}
 \label{fig:descriptor_evidence}
 \end{figure}
 
-\subsection{Predefined representative descriptor--residual associations}
+\subsection{Representative diagnostic descriptor--residual associations}
 \label{sec:residual_results}
 The formal diagnostic statistic is Spearman correlation between $I_c(t)$ and
 the persistence residual $e_{t+h}^{(k)}$. Table~\ref{tab:primary_diagnostic}
-reports the predefined representative diagnostic pairs together with raw
+reports the representative diagnostic pairs together with raw
 Spearman correlation, linearly detrended Spearman correlation, and the
 circular-shift diagnostic. One pair is fixed for each case to prevent
-parameter-wise re-selection during null and sensitivity checks. The pairs were
-chosen to cover the compact BSLL h=1 case, the BSLL h=3 shield-pressure case,
-and the SJLS cutterhead--shield-pressure contrast visible in the full
-component--response matrix. The values are descriptive and are not treated as
-confirmatory hypothesis tests.
+parameter-wise re-selection during null and sensitivity checks. The pairs cover
+the compact BSLL h=1 interval, the BSLL h=3 shield-pressure interval, and the
+external SJLS shield-pressure case. The values are descriptive and are not
+treated as confirmatory hypothesis tests.
 
 \begin{table}[htbp]
 \centering
-\caption{Predefined representative descriptor--residual diagnostics for fixed
+\caption{Representative diagnostic descriptor--residual diagnostics for fixed
 component--response pairs. Circular-shift values are descriptive small-sample
 checks.}
 \label{tab:primary_diagnostic}
@@ -98,42 +121,14 @@ detrending. This difference is consistent with the longer SJLS test interval
 and clearer external TSP velocity contrast. The BSLL results are retained as
 compact diagnostic checks, but they do not support a strong case-general rule.
 
-For completeness, Table~\ref{tab:descriptor_residual} reports the full
+For completeness, Appendix~\ref{app:descriptor_matrix} reports the full
 component--response Spearman matrix for $I_c(t)$. The matrix is exploratory and
-unadjusted for multiple testing; the predefined diagnostic-pair results in
+unadjusted for multiple testing. The representative diagnostic pairs in
 Table~\ref{tab:primary_diagnostic} are the main result used in the text.
-
-\begin{table}[htbp]
-\centering
-\caption{Full unadjusted component--response Spearman matrix for
-$I_c(t)$--persistence-residual association. Correlations are exploratory
-descriptor diagnostics.}
-\label{tab:descriptor_residual}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{llrrrrr}
-\toprule
-Case & Component & Adv. rate & Torque & Thrust & Penetr. & Shield press. \\
-\midrule
-BSLL h=1 & Cutterhead & 0.238 & -0.286 & 0.048 & -0.095 & 0.095 \\
-BSLL h=1 & Front shield & 0.381 & -0.429 & 0.190 & 0.095 & -0.095 \\
-BSLL h=1 & Middle shield & -0.048 & 0.262 & 0.452 & -0.167 & 0.143 \\
-BSLL h=1 & Tail shield & -0.238 & 0.286 & -0.048 & 0.095 & -0.095 \\
-BSLL h=3 & Cutterhead & -0.214 & -0.714 & -0.036 & -0.214 & -0.536 \\
-BSLL h=3 & Front shield & 0.286 & -0.179 & 0.143 & 0.250 & -0.750 \\
-BSLL h=3 & Middle shield & 0.214 & 0.714 & 0.036 & 0.214 & 0.536 \\
-BSLL h=3 & Tail shield & 0.179 & 0.750 & 0.107 & 0.143 & 0.571 \\
-SJLS h=3 & Cutterhead & 0.860 & 0.446 & -0.669 & 0.669 & -0.912 \\
-SJLS h=3 & Front shield & 0.640 & 0.152 & -0.350 & 0.475 & -0.745 \\
-SJLS h=3 & Middle shield & -0.225 & -0.449 & 0.478 & -0.282 & -0.042 \\
-SJLS h=3 & Tail shield & -0.846 & -0.324 & 0.733 & -0.811 & 0.784 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \subsection{Descriptor-level null comparisons}
 \label{sec:null_results}
-The null-model comparison tests whether the predefined diagnostic associations can be
+The null-model comparison tests whether the fixed diagnostic associations can be
 explained by simpler summaries. Figure~\ref{fig:null_model_comparison} shows
 raw and detrended correlations for the proposed descriptor and five null
 variants. The most important diagnostic is the detrended comparison, because
@@ -143,8 +138,8 @@ test intervals.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig9_null_model_comparison.pdf}
-\caption{Descriptor-level null-model comparison for the predefined
-representative diagnostic pairs. Bars report raw and linearly detrended
+\caption{Descriptor-level null-model comparison for the representative
+diagnostic pairs. Bars report raw and linearly detrended
 Spearman correlations for the proposed descriptor and five simpler variants.
 The comparison evaluates descriptor diagnostic structure, not prediction
 accuracy.}
@@ -160,7 +155,7 @@ null variants.}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrr}
 \toprule
-Case & Proposed & Chainage & Global Vp & Distance only & Component perm. \\
+Case & Proposed & Chainage & Global Vp & Distance only & Component reassign. \\
 \midrule
 BSLL h=1 & 0.214 & 0.000 & -0.190 & 0.000 & 0.071 \\
 BSLL h=3 & -0.464 & -0.145 & -0.321 & 0.000 & 0.286 \\
@@ -173,7 +168,7 @@ For SJLS, the raw chainage-only and global-Vp associations are high, but both
 collapse after detrending. The proposed descriptor retains a strong detrended
 association, indicating that the component-specific geometry-weighted relation
 representation contains more than a simple chainage trend. The random
-component-permutation null is also much weaker than the proposed SJLS
+component-reassignment null is also much weaker than the proposed SJLS
 descriptor after detrending. The BSLL null comparisons are weaker and are read
 as limited-sample diagnostics.
 
@@ -197,14 +192,14 @@ fixed.}
 \end{figure}
 
 Table~\ref{tab:anomaly_sensitivity} reports the anomaly-definition sensitivity
-for the same predefined diagnostic pairs. SJLS remains strong under Vp, Vs, and
+for the same fixed diagnostic pairs. SJLS remains strong under Vp, Vs, and
 mean(Vp, Vs) low-anomaly definitions after detrending. BSLL is more sensitive
 to the anomaly definition, which is consistent with its compact test intervals.
 
 \begin{table}[htbp]
 \centering
 \caption{Detrended Spearman correlations under alternative anomaly-score
-definitions for the predefined diagnostic pairs.}
+definitions for the fixed diagnostic pairs.}
 \label{tab:anomaly_sensitivity}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -226,7 +221,7 @@ BSLL checks are more variable, again reflecting their short test intervals.
 
 \begin{table}[htbp]
 \centering
-\caption{Sensitivity of predefined diagnostic pairs to $\pm1$\,m longitudinal
+\caption{Sensitivity of fixed diagnostic pairs to $\pm1$\,m longitudinal
 descriptor alignment offsets. Values report raw/detrended Spearman
 correlations.}
 \label{tab:alignment_sensitivity}
@@ -246,7 +241,7 @@ SJLS h=3 & -0.850 / -0.397 & -0.912 / -0.772 & -0.938 / -0.874 \\
 \subsection{Edge-level traceability}
 \label{sec:traceability}
 The graph representation also supports edge-level inspection. For the SJLS
-predefined SJLS diagnostic pair, Figure~\ref{fig:traceability_example} shows the top contributing
+diagnostic pair, Figure~\ref{fig:traceability_example} shows the top contributing
 candidate rock--machine relations at the selected chainage. Each contribution
 is traceable to a rock voxel, a TBM surface node, a distance, a normal
 compatibility value, a geometry weight, and a low-velocity anomaly score.
@@ -254,7 +249,7 @@ compatibility value, a geometry weight, and a low-velocity anomaly score.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig8_traceability_example.pdf}
-\caption{Traceability example for a predefined diagnostic pair. Candidate
+\caption{Traceability example for a fixed diagnostic pair. Candidate
 rock--machine edges are ranked by $w_{ij}^{rm}(t)q_i$, showing how the
 component--chainage descriptor can be traced back to individual rock voxels and
 TBM surface nodes.}

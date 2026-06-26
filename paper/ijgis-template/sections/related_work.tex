@@ -5,7 +5,7 @@ Existing TBM prediction and warning studies have shown that tabular models and s
 models can be effective for forecasting penetration, thrust, torque, or jamming-related
 responses \citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018prediction}.
 Sequence models are effective for learning temporal dependence in monitoring records
-\citep{hochreiter1997long}, but they usually treat excavation as an ordered signal
+\citep{hochreiter1997long,cho2014learning}, but they usually treat excavation as an ordered signal
 sequence rather than as a spatially structured interaction process. As a consequence,
 existing studies usually represent geological and machine variables as feature vectors
 or sequences, rather than explicit spatial relations between geological entities and
@@ -22,7 +22,11 @@ have been used to describe subsurface heterogeneity along tunnel alignments.
 Surface-based 3D geological models and broader 3D geospatial data models provide
 useful precedents for representing volumetric or surface-supported subsurface
 objects and linking them to other spatial entities
-\citep{caumon2009surface,kolbe2009citygml,worboys2004gis}. However, this
+\citep{goodchild1992geographical,longley2005geographic,caumon2009surface,kolbe2009citygml,worboys2004gis}.
+This broader GIScience view is useful because tunnel geology, TBM geometry,
+and monitoring records have different spatial supports, and support mismatch
+can change the meaning of any aggregated descriptor
+\citep{openshaw1984modifiable}. However, this
 representation still needs to be linked to machine geometry: a geological voxel
 field alone does not specify which rock units are candidate interaction partners
 for which TBM surface components at a given excavation step. Bridging geological
@@ -33,11 +37,13 @@ for spatially explicit rock--machine interaction modelling.
 Graph concepts are useful for this problem because they provide a formal way to
 represent irregular spatial objects, contiguity, topology, and interaction. In
 GIScience, spatial relation models and graph-based data models have long been
-used to express neighbourhoods, topological relations, and interaction
-\citep{egenhofer1991point,peuquet1994time,worboys2004gis,wu2008contiguity}.
+used to express neighbourhoods, topological relations, temporal dynamics, and
+geographical objects
+\citep{egenhofer1991point,peuquet1994time,worboys2004gis,galton2001spatial,couclelis1996geographic,wu2008contiguity}.
 Recent IJGIS and IJDE studies further show that graph-based representations can
-organise spatial units, neighbourhood structure, and urban network morphology
-\citep{desabbata2023graph,liu2025urban}. The important point for the present
+organise spatial units, neighbourhood structure, spatial multivariate
+distributions, and urban network morphology
+\citep{zhu2020spatial,desabbata2023graph,liu2025urban}. The important point for the present
 study is not that a graph must be used as a deep learning architecture, but that
 it can define an explicit spatial entity--relation data model.
 
@@ -52,9 +58,13 @@ predictive model is considered.
 
 Graph neural networks and heterogeneous graph networks remain relevant as
 possible extensions for learning on such structured data
-\citep{zhang2019heterogeneous,schlichtkrull2018modeling}, and graph-based
+\citep{schlichtkrull2018modeling,zhang2019heterogeneous,wu2020comprehensive,zhou2020graph}, and graph-based
 forecasting models have been successful in other spatiotemporal domains
 \citep{li2018diffusion,wu2019graph,zhang2020deep,geng2019spatiotemporal}.
+Graph networks have also been used to represent local interactions in physical
+systems and mesh-based simulation, which reinforces the value of explicit
+relation sets for spatially constrained processes
+\citep{sanchez2020learning,pfaff2021learning}.
 However, the present paper does not position the graph primarily as a
 black-box forecasting backbone. It uses the graph to derive auditable
 component--chainage spatial interaction descriptors from geometry-constrained

@@ -54,7 +54,7 @@ VARIANT_LABELS = {
     "global_vp_anomaly": "Global Vp",
     "distance_only_exposure": "Distance-only",
     "uniform_edge_anomaly": "Uniform edge",
-    "component_permutation": "Component perm.",
+    "component_reassignment": "Component reassign.",
 }
 
 FIG_DPI = 600
@@ -113,29 +113,72 @@ def fixed_pair_rows(assoc: pd.DataFrame) -> pd.DataFrame:
 
 def plot_method_framework(out_dir: Path) -> None:
     apply_ijgis_style()
-    fig, axes = plt.subplots(1, 4, figsize=figure_size("double", aspect=0.27))
-    panels = [
-        ("Chainage-referenced entities",
-         ["TSP rock voxels", "TBM surface components", "Monitoring responses"]),
-        ("Geometry-constrained relations",
-         ["Active zone", "Distance decay", "Normal compatibility"]),
-        ("Component-chainage descriptors",
-         [r"$A_c(t)$ supporting exposure", r"$I_c(t)$ anomaly intensity"]),
-        ("Residual consistency",
-         [r"$e_{t+h}=r_{t+h}-r_t$", "Descriptor-residual association"]),
-    ]
-    colors = ["#E8F1F6", "#F5EFE6", "#EEF3E6", "#F2ECF5"]
-    for ax, (title, items), color, label in zip(axes, panels, colors, "abcd"):
-        ax.set_axis_off()
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
-        ax.set_title(title, fontsize=8, pad=6)
-        y_positions = np.linspace(0.68, 0.22, len(items))
-        for y, item in zip(y_positions, items):
-            box(ax, (0.12, y), item, width=0.76, height=0.16, fc=color)
-        add_panel_label(ax, label, x=-0.02, y=1.02)
-    for i in range(3):
-        arrow(axes[i], (0.96, 0.5), (1.10, 0.5))
+    fig, axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.34))
+
+    ax = axes[0]
+    ax.set_title("Chainage-referenced spatial entities")
+    rng = np.random.default_rng(21)
+    rock_x = rng.uniform(0.18, 0.82, 30)
+    rock_y = rng.uniform(0.18, 0.78, 30)
+    anomaly = np.linspace(0.15, 0.95, 30)
+    ax.scatter(rock_x, rock_y, c=anomaly, cmap=IJGIS_CMAPS["sequential"], s=22,
+               edgecolor="white", linewidth=0.35, zorder=2)
+    ax.add_patch(Rectangle((0.30, 0.38), 0.34, 0.16, facecolor="#DCE8F2",
+                           edgecolor="#4A6D85", linewidth=0.8, zorder=3))
+    ax.add_patch(Circle((0.30, 0.46), 0.085, facecolor="#C8DDBA",
+                        edgecolor="#4A6D85", linewidth=0.8, zorder=4))
+    ax.text(0.47, 0.46, "TBM surface\ncomponents", ha="center", va="center", fontsize=7, zorder=5)
+    ax.arrow(0.12, 0.10, 0.74, 0.0, head_width=0.025, head_length=0.035,
+             color="#555555", linewidth=0.8)
+    ax.text(0.49, 0.04, "local chainage", ha="center", fontsize=7)
+    ax.text(0.18, 0.86, "TSP rock voxels", fontsize=7)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_axis_off()
+    add_panel_label(ax, "a", x=0.03, y=0.90)
+
+    ax = axes[1]
+    ax.set_title("Geometry-screened relations")
+    ax.add_patch(Rectangle((0.10, 0.22), 0.72, 0.48, facecolor="#F5EFE6",
+                           edgecolor="#8B6F47", linewidth=0.8, alpha=0.65))
+    ax.text(0.46, 0.75, r"active zone $\Omega_t$", ha="center", fontsize=7)
+    tbm_nodes = np.array([[0.33, 0.45], [0.42, 0.45], [0.51, 0.45], [0.60, 0.45]])
+    rock_nodes = np.array([[0.25, 0.58], [0.35, 0.64], [0.47, 0.62], [0.64, 0.57], [0.74, 0.38]])
+    for x0, y0 in rock_nodes:
+        ax.scatter(x0, y0, s=24, color="#7A9E7E", edgecolor="white", linewidth=0.4, zorder=3)
+    for x0, y0 in tbm_nodes:
+        ax.scatter(x0, y0, s=28, marker="s", color="#7C92B8", edgecolor="#444444", linewidth=0.5, zorder=4)
+    for rx, ry in rock_nodes[:4]:
+        nearest = tbm_nodes[np.argmin(np.sum((tbm_nodes - np.array([rx, ry])) ** 2, axis=1))]
+        ax.plot([nearest[0], rx], [nearest[1], ry], color="#555555", linewidth=0.75, alpha=0.75)
+    ax.text(0.46, 0.16, r"$d_{ij}\leq\tau_{edge}$, $\kappa_{ij}\geq\eta_{min}$", ha="center", fontsize=7)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_axis_off()
+    add_panel_label(ax, "b", x=0.03, y=0.90)
+
+    ax = axes[2]
+    ax.set_title("Descriptor-residual diagnosis")
+    values = np.array([
+        [0.25, 0.38, 0.62, 0.78, 0.70, 0.52],
+        [0.18, 0.30, 0.54, 0.66, 0.55, 0.40],
+        [0.14, 0.22, 0.36, 0.47, 0.42, 0.31],
+        [0.10, 0.18, 0.28, 0.34, 0.30, 0.24],
+    ])
+    im = ax.imshow(values, cmap=IJGIS_CMAPS["sequential"], vmin=0, vmax=0.8, aspect="auto")
+    ax.set_yticks(np.arange(4), COMPONENT_LABELS, fontsize=6.6)
+    ax.set_xticks([0, 2, 5], ["t", "t+2", "t+5"], fontsize=6.6)
+    ax.set_xlabel("Chainage step", fontsize=7)
+    ax.set_title("Descriptor-residual diagnosis")
+    ax2 = ax.inset_axes([0.60, 0.12, 0.34, 0.28])
+    x = np.arange(6)
+    ax2.axhline(0, color="#999999", linewidth=0.5, linestyle=":")
+    ax2.plot(x, [0.2, -0.1, -0.35, -0.55, -0.3, 0.05], color=IJGIS_COLORS["truth"], linewidth=0.9)
+    ax2.set_xticks([])
+    ax2.set_yticks([])
+    ax2.set_title(r"$e_{t+h}$", fontsize=6, pad=1)
+    set_colorbar_style(fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02), "$I_c(t)$")
+    add_panel_label(ax, "c", x=0.03, y=0.90)
     out_dir.mkdir(parents=True, exist_ok=True)
     save_pdf_and_png(fig, out_dir / "fig1_method_framework.pdf")
 
@@ -358,7 +401,7 @@ def plot_sensitivity(root: Path, out_dir: Path) -> None:
     paths = list(root.glob("*/sensitivity/descriptor_sensitivity_summary.csv"))
     if not paths:
         return
-    fig, axes = plt.subplots(1, len(paths), figsize=figure_size("double", aspect=0.32), squeeze=False)
+    fig, axes = plt.subplots(1, len(paths), figsize=figure_size("double", aspect=0.36), squeeze=False)
     for ax, path in zip(axes[0], paths):
         df = read_csv(path)
         case_id = path.parents[1].name
@@ -370,9 +413,18 @@ def plot_sensitivity(root: Path, out_dir: Path) -> None:
         ax.set_yticks(np.arange(len(pivot.index)), [f"{i:g}" for i in pivot.index])
         ax.set_xlabel(r"$\tau_{edge}$")
         ax.set_ylabel(r"$\eta_{min}$")
+        for i in range(pivot.shape[0]):
+            for j in range(pivot.shape[1]):
+                value = pivot.values[i, j]
+                color = "white" if abs(value) > 0.55 else "#222222"
+                ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=6.2, color=color)
+        if 2.0 in pivot.columns and 0.3 in pivot.index:
+            j = list(pivot.columns).index(2.0)
+            i = list(pivot.index).index(0.3)
+            ax.scatter(j, i, s=55, facecolors="none", edgecolors="#111111", linewidths=0.9)
     set_colorbar_style(
         fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02),
-        "Fixed-pair $I_c$ Spearman rho",
+        "Fixed diagnostic-pair $I_c$ Spearman rho",
     )
     for label, ax in zip("abc", axes[0]):
         add_panel_label(ax, label)

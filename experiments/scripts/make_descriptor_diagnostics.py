@@ -97,7 +97,7 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
     global_anomaly = []
     distance_only = []
     uniform_edge = []
-    component_permutation = []
+    component_reassignment = []
 
     for graph_seq, ch in zip(context["test_graph_seqs"], context["test_chainages"]):
         snapshot = graph_seq[-1]
@@ -117,7 +117,7 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         global_anomaly.append(float(np.mean(q)) if len(q) else 0.0)
         distance_only.append(row.geometric_exposure)
         uniform_edge.append(row.mean_anomaly)
-        component_permutation.append(by_component[permuted_component].interaction_intensity)
+        component_reassignment.append(by_component[permuted_component].interaction_intensity)
 
     return {
         "proposed": np.asarray(proposed, dtype=np.float64),
@@ -125,7 +125,7 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         "global_vp_anomaly": np.asarray(global_anomaly, dtype=np.float64),
         "distance_only_exposure": np.asarray(distance_only, dtype=np.float64),
         "uniform_edge_anomaly": np.asarray(uniform_edge, dtype=np.float64),
-        "component_permutation": np.asarray(component_permutation, dtype=np.float64),
+        "component_reassignment": np.asarray(component_reassignment, dtype=np.float64),
     }
 
 
