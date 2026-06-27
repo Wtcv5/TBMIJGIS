@@ -9,14 +9,17 @@ active-zone membership, distance threshold, surface-normal compatibility, and
 excavation state.
 
 Table~\ref{tab:graph_construction_stats} reports the standardized graph support
-used in all three formal runs. Because the same parameterized TBM surface,
-active-zone dimensions, surface sampling resolution, and edge thresholds are
-applied across cases, the per-step node and edge counts are identical by
-design. This table is therefore not evidence of dynamic graph-size variation
-across cases; it documents the fixed spatial support template on which the
-case-specific $q_i$, $I_c(t)$, and residual series are computed. The case
-contrast is expressed by geological attribute values, target chainages, and
-monitoring residuals, not by different graph-size templates.
+used in all three formal runs. The 3558 rock nodes are the active,
+not-yet-excavated TSP voxels retained by the common active-zone rule under the
+1.0\,m voxel grid, $\tau_{\mathrm{zone}}=5.0$\,m, and fixed TBM template.
+Because the same parameterized TBM surface, active-zone dimensions, surface
+sampling resolution, and edge thresholds are applied across cases, the per-step
+node and edge counts are identical by design. This table is therefore not
+evidence of dynamic graph-size variation across cases; it documents the fixed
+spatial support template on which the case-specific $q_i$, $I_c(t)$, and
+residual series are computed. The case contrast is expressed by geological
+attribute values, target chainages, and monitoring residuals, not by different
+graph-size templates.
 
 \begin{table}[htbp]
 \centering
@@ -42,8 +45,12 @@ The descriptor statistics in Table~\ref{tab:descriptor_attribute_stats}
 explain why SJLS provides clearer diagnostic evidence despite using the same
 graph support template. SJLS is not stronger because it has a larger graph; it
 is stronger because the standardized support is populated by a more uniformly
-high low-velocity anomaly field. This produces a clearer component--chainage
-descriptor pattern than in the compact BSLL intervals.
+high low-velocity anomaly field. This interpretation is conditional on the SJLS
+geological support being a 1D-extruded TSP velocity profile rather than a fully
+3D-inverted voxel field; the SJLS result is therefore evidence of longitudinal
+descriptor--residual consistency under a common support, not proof of fully 3D
+component differentiation. Within that boundary, the SJLS interval provides a
+clearer diagnostic pattern than the compact BSLL intervals.
 
 A notable feature of Table~\ref{tab:descriptor_attribute_stats} is that the
 candidate-edge mean anomaly and $I_c(t)$ are numerically very close in all
@@ -201,8 +208,8 @@ with the null, detrending, sensitivity, and traceability checks below.
 \label{sec:null_results}
 The null-model comparison tests whether the fixed diagnostic associations can be
 explained by simpler summaries. Figure~\ref{fig:null_model_comparison} shows
-raw and detrended correlations for the proposed descriptor, four
-descriptor-level null variants, and the component-label disruption diagnostic.
+raw and detrended correlations for the proposed descriptor and four
+descriptor-level null variants.
 The most important diagnostic is the detrended comparison, because
 chainage and global anomaly can both carry strong monotonic trends in short
 test intervals. Table~\ref{tab:null_comparison} lists the detrended
@@ -214,8 +221,8 @@ variants.
 \includegraphics[width=0.95\linewidth]{fig6_null_model_comparison.pdf}
 \caption{Descriptor-level null-model comparison for the representative
 diagnostic pairs. Bars report raw and linearly detrended
-Spearman correlations for the proposed descriptor, four descriptor-level null
-variants, and the component-label disruption diagnostic.
+Spearman correlations for the proposed descriptor and four descriptor-level
+null variants.
 The comparison evaluates descriptor diagnostic structure, not prediction
 accuracy.}
 \label{fig:null_model_comparison}
@@ -242,8 +249,11 @@ SJLS h=3 & -0.772 & -0.009 & -0.179 & 0.000 & -0.772 \\
 
 For SJLS, the raw chainage-only and global-Vp associations are high, but both
 collapse after detrending. The proposed descriptor retains a strong detrended
-association, indicating that the component-specific geometry-weighted relation
-representation contains more than a simple chainage trend.
+association, indicating that the component-specific candidate-edge aggregation
+contains more than a simple chainage trend. Because the uniform-edge and
+geometry-weighted descriptors are nearly identical in these fixed pairs, this
+comparison does not isolate an independent gain from distance--normal geometry
+weighting.
 
 A component-label permutation diagnostic ($N=1000$ permutations, with
 component labels independently shuffled at each chainage step and both the
@@ -252,9 +262,12 @@ correlation) evaluates whether the fixed component label matters after the
 common graph support and chainage trend are removed. As reported in
 Table~\ref{tab:component_permutation}, the descriptive permutation proportions
 are $0.588$ (BSLL h=1), $0.325$ (BSLL h=3), and $<0.001$ (SJLS h=3). This
-diagnostic gives its clearest support for SJLS, but the result is still
-conditional on the 1D-extruded SJLS voxel support and the small sample size.
-The BSLL values are read as limited-sample diagnostics.
+diagnostic is a label-disruption check rather than a block-wise or
+case-general permutation test. It suggests that the SJLS fixed component label
+is less easily reproduced by within-step relabelling, but the interpretation is
+conditional on the 1D-extruded SJLS voxel support, per-step relabelling
+scheme, and small sample size. The BSLL values are read as limited-sample
+diagnostics.
 
 \begin{table}[htbp]
 \centering
@@ -277,21 +290,19 @@ SJLS h=3 & cutterhead & 17 & $-0.772$ & $<0.001$ \\
 \end{tabular}
 \end{table}
 
-The null variants can be read as a three-level aggregation hierarchy. The
-global-Vp variant aggregates $q_i$ over all active-zone rock voxels without
-any geometry or component structure---it is the coarsest spatial summary. The
-uniform-edge variant aggregates $q_i$ over the screened candidate edges but
-discards the geometry weights, retaining component membership and active-zone
-screening while removing distance--normal weighting. The proposed $I_c(t)$
-adds geometry-weighted aggregation on top of the same candidate-edge set. The
-detrended comparison in Table~\ref{tab:null_comparison} shows that the
-additional structure matters: moving from global mean to candidate-edge mean
-to geometry-weighted descriptor does not change the central tendency (as
-confirmed by Table~\ref{tab:descriptor_attribute_stats}), but it progressively
-recovers detrended association with the residual. This pattern is most visible
-in SJLS, where the detrended $\rho$ moves from $-0.179$ (global Vp) to $0.000$
-(uniform edge) to $-0.772$ (proposed), and is weaker but directionally
-consistent in the BSLL cases.
+The null variants separate three questions. The global-Vp variant asks whether
+a case-level active-zone mean is sufficient. The distance-only variant asks
+whether geometric exposure alone explains the residual association. The
+uniform-edge variant keeps the fixed component and the screened candidate-edge
+set, but removes distance--normal weights by using an unweighted mean of
+$q_i$. In Table~\ref{tab:null_comparison}, the uniform-edge values are
+numerically the same as the proposed descriptor for the fixed pairs. The
+current evidence therefore supports component-specific candidate-edge
+aggregation over global active-zone averaging, but it does not show a separate
+incremental benefit of geometry weighting within these samples. The geometry
+weights remain part of the representation because they define a transparent,
+queryable edge contribution $w_{ij}^{rm}(t)q_i$, but their independent
+empirical gain requires larger or more spatially heterogeneous cases.
 
 \subsection{Sensitivity to graph thresholds and anomaly definitions}
 \label{sec:sensitivity}
@@ -305,10 +316,10 @@ pair.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig7_descriptor_sensitivity.pdf}
-\caption{Sensitivity of fixed $I_c(t)$--residual Spearman pairs to
-graph-construction thresholds. Each panel varies $\tau_{\mathrm{edge}}$ and
-$\eta_{\min}$ for one formal case while holding the descriptor--response pair
-fixed.}
+\caption{Sensitivity of fixed $I_c(t)$--residual pairs to graph-construction
+thresholds. Each panel reports raw Spearman $\rho$ while varying
+$\tau_{\mathrm{edge}}$ and $\eta_{\min}$ for one formal case; the
+descriptor--response pair is held fixed throughout.}
 \label{fig:descriptor_sensitivity}
 \end{figure}
 

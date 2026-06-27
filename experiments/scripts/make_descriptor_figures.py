@@ -395,21 +395,43 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
 
 def plot_sensitivity(root: Path, out_dir: Path) -> None:
     apply_ijgis_style()
-    paths = list(root.glob("*/sensitivity/descriptor_sensitivity_summary.csv"))
+    paths = sorted(
+        root.glob("*/sensitivity/descriptor_sensitivity_summary.csv"),
+        key=lambda p: list(CASE_LABELS).index(p.parents[1].name) if p.parents[1].name in CASE_LABELS else 99,
+    )
     if not paths:
         return
-    fig, axes = plt.subplots(1, len(paths), figsize=figure_size("double", aspect=0.36), squeeze=False)
-    for ax, path in zip(axes[0], paths):
+    fig, axes = plt.subplots(
+        1,
+        len(paths),
+        figsize=figure_size("double", aspect=0.34),
+        squeeze=False,
+        constrained_layout=True,
+    )
+    im = None
+    for idx, (ax, path) in enumerate(zip(axes[0], paths)):
         df = read_csv(path)
         case_id = path.parents[1].name
-        pivot = df.pivot(index="eta_min", columns="tau_edge", values="fixed_spearman_r")
+        pivot = (
+            df.pivot(index="eta_min", columns="tau_edge", values="fixed_spearman_r")
+            .sort_index()
+            .sort_index(axis=1)
+        )
         im = ax.imshow(pivot.values, cmap=IJGIS_CMAPS["diverging"], vmin=-1, vmax=1, aspect="auto")
         component, _, response = FIXED_RESPONSE_PAIRS.get(case_id, ("cutterhead", "", "ShieldPressure"))
-        ax.set_title(f"{CASE_LABELS.get(case_id, case_id)}\n{component.replace('_', ' ')} vs {RESPONSE_DISPLAY[response]}", fontsize=7)
+        pair_label = f"{component.replace('_', ' ')} / {RESPONSE_DISPLAY[response].replace(chr(10), ' ')}"
+        ax.set_title(f"{CASE_LABELS.get(case_id, case_id)}\n{pair_label}", fontsize=7, pad=3)
         ax.set_xticks(np.arange(len(pivot.columns)), [f"{c:g}" for c in pivot.columns])
-        ax.set_yticks(np.arange(len(pivot.index)), [f"{i:g}" for i in pivot.index])
+        if idx == 0:
+            ax.set_yticks(np.arange(len(pivot.index)), [f"{i:g}" for i in pivot.index])
+            ax.set_ylabel(r"$\eta_{\min}$")
+        else:
+            ax.set_yticks(np.arange(len(pivot.index)), [])
         ax.set_xlabel(r"$\tau_{edge}$")
-        ax.set_ylabel(r"$\eta_{min}$")
+        ax.set_xticks(np.arange(-0.5, len(pivot.columns), 1), minor=True)
+        ax.set_yticks(np.arange(-0.5, len(pivot.index), 1), minor=True)
+        ax.grid(which="minor", color="white", linewidth=0.7)
+        ax.tick_params(which="minor", bottom=False, left=False)
         for i in range(pivot.shape[0]):
             for j in range(pivot.shape[1]):
                 value = pivot.values[i, j]
@@ -418,10 +440,11 @@ def plot_sensitivity(root: Path, out_dir: Path) -> None:
         if 2.0 in pivot.columns and 0.3 in pivot.index:
             j = list(pivot.columns).index(2.0)
             i = list(pivot.index).index(0.3)
-            ax.scatter(j, i, s=55, facecolors="none", edgecolors="#111111", linewidths=0.9)
+            rect = plt.Rectangle((j - 0.48, i - 0.48), 0.96, 0.96, fill=False, edgecolor="#111111", linewidth=1.0)
+            ax.add_patch(rect)
     set_colorbar_style(
         fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02),
-        "Fixed diagnostic-pair $I_c$ Spearman rho",
+        r"Fixed-pair Spearman $\rho$",
     )
     for label, ax in zip("abc", axes[0]):
         add_panel_label(ax, label)
