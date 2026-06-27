@@ -109,6 +109,13 @@ interaction relations, and monitoring residuals in one diagnostic
 representation. This is the representational gap addressed by the proposed
 graph.
 
+Recent geospatial knowledge-graph work also shows how heterogeneous spatial
+entities can be integrated for retrieval and reasoning
+\citep{zhu2026knowwheregraph,xu2025spatiotemporal,li2025question}. The present
+paper shares this entity--relation modelling perspective, but it operates at a
+finer voxel and surface-node support and targets a moving underground
+engineering process rather than a regional knowledge base.
+
 \subsection{Graph-based spatial interaction modelling}
 Graphs are a natural formalism for representing irregular spatial objects and
 their relations. Nodes can represent spatial entities, and edges can represent
@@ -143,6 +150,16 @@ data model. Its contribution is to make component-level candidate relations,
 geometry weights, aggregation rules, and edge-level traceability explicit. Any
 future learned graph representation should build on this data model rather
 than replace the need for spatially meaningful relation construction.
+
+In the tunnelling domain, digital twin frameworks for TBM performance
+prediction, visualisation, and monitoring have been proposed
+\citep{latif2023digital,apoji2023shaping}. These works integrate real-time
+monitoring data with virtual TBM models and machine-learning predictors to
+support construction management. The present graph-based representation is
+complementary: rather than replacing the digital twin pipeline, it provides a
+spatially explicit relation layer that can sit between the geological voxel
+field and the monitoring residual diagnostic, making the rock--machine
+interaction structure queryable and traceable.
 
 \subsection{Residual-based diagnostic evaluation}
 Prediction evaluation and diagnostic evaluation answer different questions.

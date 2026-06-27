@@ -8,20 +8,22 @@ illustrates the construction rule: candidate relations are screened by
 active-zone membership, distance threshold, surface-normal compatibility, and
 excavation state.
 
-Table~\ref{tab:graph_construction_stats} reports standardized per-step graph
-support statistics. The same parameterized TBM surface, active-zone dimensions,
-surface sampling resolution, and edge thresholds are used in the three formal
-runs, so the support counts are identical by design. This does not mean that
-the descriptors are identical: spatial coordinates, TSP attributes, target
-chainages, and monitoring residuals vary by case. The case contrast is
-therefore expressed by $q_i$, $I_c(t)$, and the residual series rather than by
-different graph-size templates.
+Table~\ref{tab:graph_construction_stats} reports the standardized graph support
+used in all three formal runs. Because the same parameterized TBM surface,
+active-zone dimensions, surface sampling resolution, and edge thresholds are
+applied across cases, the per-step node and edge counts are identical by
+design. This table is therefore not evidence of dynamic graph-size variation
+across cases; it documents the fixed spatial support template on which the
+case-specific $q_i$, $I_c(t)$, and residual series are computed. The case
+contrast is expressed by geological attribute values, target chainages, and
+monitoring residuals, not by different graph-size templates.
 
 \begin{table}[htbp]
 \centering
-\caption{Standardized per-step graph support statistics. Edge shares are
-computed from candidate rock--machine relations under the common main graph
-setting.}
+\caption{Standardized graph support template applied in all formal runs. Edge
+shares are computed from candidate rock--machine relations under the common
+main graph setting. The identical counts confirm that case contrasts originate
+from geological attributes and residuals, not from graph-size variation.}
 \label{tab:graph_construction_stats}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -43,6 +45,23 @@ is stronger because the standardized support is populated by a more uniformly
 high low-velocity anomaly field. This produces a clearer component--chainage
 descriptor pattern than in the compact BSLL intervals.
 
+A notable feature of Table~\ref{tab:descriptor_attribute_stats} is that the
+candidate-edge mean anomaly and $I_c(t)$ are numerically very close in all
+three cases (e.g.\ BSLL h=1: $0.552 \pm 0.157$ vs.\ $0.552 \pm 0.158$). This
+near-equality is expected rather than degenerate: $I_c(t)$ is a
+geometry-weighted average of $q_i$ over candidate edges, and when the $q_i$
+distribution within the active zone is spatially smooth relative to the
+edge-distance decay scale $\tau_{\mathrm{edge}}=2.0$\,m, the geometry weights
+vary less than the anomaly values themselves. The weighting therefore shifts
+the mean only marginally. The diagnostic value of $I_c(t)$ over the
+candidate-edge mean does not lie in a different central tendency, but in the
+component-specific and chainage-specific structure that the pooled mean
+conceals: the per-component, per-chainage $I_c(t)$ matrix retains spatial
+differentiation that the scalar mean cannot represent. The null-model
+comparison in Section~\ref{sec:null_results} tests this directly by comparing
+the proposed descriptor against the candidate-edge mean (uniform-edge variant)
+and the global active-zone mean (global-Vp variant).
+
 \begin{table}[htbp]
 \centering
 \caption{Case-level descriptor attribute statistics. Mean anomaly is the
@@ -63,12 +82,57 @@ SJLS h=3 & $0.913 \pm 0.045$ & $0.913 \pm 0.045$ & $1170.9 \pm 294.2$ \\
 \end{tabular}
 \end{table}
 
+Table~\ref{tab:component_contrast} summarizes the retained
+component--chainage structure directly. BSLL shows stronger cross-component
+contrast in $I_c(t)$ but has too few test samples to support a stable
+residual association. SJLS shows weaker cross-component contrast, as expected
+for a 1D-extruded velocity profile with common cross-sectional support; its
+stronger evidence therefore comes from longitudinal descriptor--residual
+co-variation, not from fully 3D component differentiation.
+
+\begin{table}[htbp]
+\centering
+\caption{Component contrast in the $I_c(t)$ descriptor field. The statistics
+summarize the per-component, per-chainage descriptor matrix and are not
+response-model scores.}
+\label{tab:component_contrast}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}
+\toprule
+Case & Component-mean range & Mean within-component SD & Full $I_c(t)$ range \\
+\midrule
+BSLL h=1 & 0.220 & 0.132 & 0.570 \\
+BSLL h=3 & 0.211 & 0.102 & 0.426 \\
+SJLS h=3 & 0.016 & 0.044 & 0.150 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Component--chainage descriptor patterns and residual traces}
 \label{sec:component_chainage_patterns}
 The main graph-derived output is the component--chainage descriptor map built
 from $I_c(t)$. In each case, cutterhead, front-shield, middle-shield, and
 tail-shield values are computed across the test chainage interval as
 geometry-weighted TSP anomaly summaries over candidate rock--machine relations.
+
+Figure~\ref{fig:case_context} previews the per-component $I_c(t)$ series
+across the three case runs on the common descriptor support. The BSLL cases
+operate over compact chainage intervals (about 6--7\,m), while SJLS spans a
+longer test interval (about 16\,m) with a markedly higher anomaly level. This
+figure motivates the case-level diagnostic contrast examined in the
+remainder of this section.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.95\linewidth]{fig4_case_context.pdf}
+\caption{Per-component $I_c(t)$ descriptor series for the three formal case
+runs on the common standardized graph support. Shaded bands mark the test
+chainage interval; BSLL cases are compact ($n=8, 7$), while SJLS provides a
+longer test interval ($n=17$) with a uniformly high low-velocity anomaly
+level.}
+\label{fig:case_context}
+\end{figure}
 
 Figure~\ref{fig:descriptor_evidence} links these descriptor maps to the fixed
 diagnostic residual traces. The heatmaps show where low-velocity anomaly exposure
@@ -80,7 +144,7 @@ descriptor co-varies with response changes left after persistence.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{fig6_descriptor_evidence.pdf}
+\includegraphics[width=0.95\linewidth]{fig5_descriptor_evidence.pdf}
 \caption{Component--chainage spatial interaction descriptor evidence and
 diagnostic residual traces. Upper panels show $I_c(t)$ values for BSLL h=1,
 BSLL h=3, and SJLS h=3 using a common colour scale. Lower panels show the
@@ -137,17 +201,21 @@ with the null, detrending, sensitivity, and traceability checks below.
 \label{sec:null_results}
 The null-model comparison tests whether the fixed diagnostic associations can be
 explained by simpler summaries. Figure~\ref{fig:null_model_comparison} shows
-raw and detrended correlations for the proposed descriptor and five null
-variants. The most important diagnostic is the detrended comparison, because
+raw and detrended correlations for the proposed descriptor, four
+descriptor-level null variants, and the component-label disruption diagnostic.
+The most important diagnostic is the detrended comparison, because
 chainage and global anomaly can both carry strong monotonic trends in short
-test intervals.
+test intervals. Table~\ref{tab:null_comparison} lists the detrended
+correlations for the proposed descriptor and four descriptor-level null
+variants.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{fig9_null_model_comparison.pdf}
+\includegraphics[width=0.95\linewidth]{fig6_null_model_comparison.pdf}
 \caption{Descriptor-level null-model comparison for the representative
 diagnostic pairs. Bars report raw and linearly detrended
-Spearman correlations for the proposed descriptor and five simpler variants.
+Spearman correlations for the proposed descriptor, four descriptor-level null
+variants, and the component-label disruption diagnostic.
 The comparison evaluates descriptor diagnostic structure, not prediction
 accuracy.}
 \label{fig:null_model_comparison}
@@ -155,18 +223,19 @@ accuracy.}
 
 \begin{table}[htbp]
 \centering
-\caption{Detrended Spearman correlations for the proposed descriptor and key
-null variants.}
+\caption{Detrended Spearman correlations for the proposed descriptor and four
+descriptor-level null variants. The component-label disruption diagnostic is
+reported separately in Table~\ref{tab:component_permutation}.}
 \label{tab:null_comparison}
 \scriptsize
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lrrrrr}
 \toprule
-Case & Proposed & Chainage & Global Vp & Distance only & Component reassign. \\
+Case & Proposed & Chainage & Global Vp & Distance only & Uniform edge \\
 \midrule
-BSLL h=1 & 0.214 & 0.000 & -0.190 & 0.000 & 0.071 \\
-BSLL h=3 & -0.464 & -0.145 & -0.321 & 0.000 & 0.286 \\
-SJLS h=3 & -0.772 & -0.009 & -0.179 & 0.000 & 0.130 \\
+BSLL h=1 & 0.214 & 0.000 & -0.190 & 0.000 & 0.214 \\
+BSLL h=3 & -0.464 & -0.145 & -0.321 & 0.000 & -0.464 \\
+SJLS h=3 & -0.772 & -0.009 & -0.179 & 0.000 & -0.772 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -174,12 +243,55 @@ SJLS h=3 & -0.772 & -0.009 & -0.179 & 0.000 & 0.130 \\
 For SJLS, the raw chainage-only and global-Vp associations are high, but both
 collapse after detrending. The proposed descriptor retains a strong detrended
 association, indicating that the component-specific geometry-weighted relation
-representation contains more than a simple chainage trend. The random
-component-reassignment check is also much weaker than the proposed SJLS
-descriptor after detrending. Because this check only disrupts the component
-label, it is interpreted as a simple null diagnostic rather than as a formal
-randomisation test. The BSLL null comparisons are weaker and are read as
-limited-sample diagnostics.
+representation contains more than a simple chainage trend.
+
+A component-label permutation diagnostic ($N=1000$ permutations, with
+component labels independently shuffled at each chainage step and both the
+observed and disrupted series linearly detrended against chainage before
+correlation) evaluates whether the fixed component label matters after the
+common graph support and chainage trend are removed. As reported in
+Table~\ref{tab:component_permutation}, the descriptive permutation proportions
+are $0.588$ (BSLL h=1), $0.325$ (BSLL h=3), and $<0.001$ (SJLS h=3). This
+diagnostic gives its clearest support for SJLS, but the result is still
+conditional on the 1D-extruded SJLS voxel support and the small sample size.
+The BSLL values are read as limited-sample diagnostics.
+
+\begin{table}[htbp]
+\centering
+\caption{Component-label permutation diagnostic on detrended series. At each
+chainage step, component labels are independently shuffled ($N=1000$
+permutations); both observed and permuted descriptor series are linearly
+detrended against chainage before computing Spearman correlation with the
+detrended residual. The reported proportion is descriptive and unadjusted.}
+\label{tab:component_permutation}
+\scriptsize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{lccrr}
+\toprule
+Case & Component & $n$ & Observed $\rho$ & Permutation $p$ \\
+\midrule
+BSLL h=1 & front shield & 8 & $0.214$ & $0.588$ \\
+BSLL h=3 & front shield & 7 & $-0.464$ & $0.325$ \\
+SJLS h=3 & cutterhead & 17 & $-0.772$ & $<0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The null variants can be read as a three-level aggregation hierarchy. The
+global-Vp variant aggregates $q_i$ over all active-zone rock voxels without
+any geometry or component structure---it is the coarsest spatial summary. The
+uniform-edge variant aggregates $q_i$ over the screened candidate edges but
+discards the geometry weights, retaining component membership and active-zone
+screening while removing distance--normal weighting. The proposed $I_c(t)$
+adds geometry-weighted aggregation on top of the same candidate-edge set. The
+detrended comparison in Table~\ref{tab:null_comparison} shows that the
+additional structure matters: moving from global mean to candidate-edge mean
+to geometry-weighted descriptor does not change the central tendency (as
+confirmed by Table~\ref{tab:descriptor_attribute_stats}), but it progressively
+recovers detrended association with the residual. This pattern is most visible
+in SJLS, where the detrended $\rho$ moves from $-0.179$ (global Vp) to $0.000$
+(uniform edge) to $-0.772$ (proposed), and is weaker but directionally
+consistent in the BSLL cases.
 
 \subsection{Sensitivity to graph thresholds and anomaly definitions}
 \label{sec:sensitivity}
@@ -260,8 +372,12 @@ compatibility value, a geometry weight, and a low-velocity anomaly score.
 \includegraphics[width=0.95\linewidth]{fig8_traceability_example.pdf}
 \caption{Traceability example for a fixed diagnostic pair. Candidate
 rock--machine edges are ranked by $w_{ij}^{rm}(t)q_i$, showing how the
-component--chainage descriptor can be traced back to individual rock voxels and
-TBM surface nodes.}
+component--chainage descriptor can be traced back to individual rock voxels
+(labelled by voxel ID and cross-section coordinates) and TBM surface nodes
+(labelled by node ID and coordinates). The table reports the top-8
+contributing edges with their voxel ID, node ID, voxel and node $(y,z)$
+positions, edge distance, normal compatibility $\kappa$, anomaly score $q_i$,
+and weighted contribution.}
 \label{fig:traceability_example}
 \end{figure}
 

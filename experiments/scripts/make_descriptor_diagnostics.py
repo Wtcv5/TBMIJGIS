@@ -89,15 +89,17 @@ def low_attribute_score(rock_attrs: np.ndarray, col: int) -> np.ndarray:
 
 
 def descriptor_series_for_component(context: dict[str, Any], component: str) -> dict[str, np.ndarray]:
-    """Return proposed and null descriptor series for one component."""
-    rng = np.random.default_rng(20260625)
+    """Return proposed and null descriptor series for one component.
 
+    The per-step all-component $I_c$ matrix is returned so that the caller can
+    run the component-label disruption diagnostic against the residual.
+    """
     proposed = []
     chainage = []
     global_anomaly = []
     distance_only = []
     uniform_edge = []
-    component_reassignment = []
+    per_step_all_ic: list[list[float]] = []
 
     for graph_seq, ch in zip(context["test_graph_seqs"], context["test_chainages"]):
         snapshot = graph_seq[-1]
@@ -107,8 +109,6 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         )
         by_component = {row.component: row for row in rows}
         row = by_component[component]
-        other_components = [name for name in by_component if name != component]
-        permuted_component = other_components[int(rng.integers(0, len(other_components)))]
 
         rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
         q = vp_anomaly_from_standardized_attrs(rock_attrs, context.get("vp_anomaly_reference"))
@@ -117,7 +117,7 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         global_anomaly.append(float(np.mean(q)) if len(q) else 0.0)
         distance_only.append(row.geometric_exposure)
         uniform_edge.append(row.mean_anomaly)
-        component_reassignment.append(by_component[permuted_component].interaction_intensity)
+        per_step_all_ic.append([by_component[name].interaction_intensity for name in COMPONENT_NAMES.values()])
 
     return {
         "proposed": np.asarray(proposed, dtype=np.float64),
@@ -125,8 +125,50 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         "global_vp_anomaly": np.asarray(global_anomaly, dtype=np.float64),
         "distance_only_exposure": np.asarray(distance_only, dtype=np.float64),
         "uniform_edge_anomaly": np.asarray(uniform_edge, dtype=np.float64),
-        "component_reassignment": np.asarray(component_reassignment, dtype=np.float64),
+        "all_component_ic": np.asarray(per_step_all_ic, dtype=np.float64),
     }
+
+
+def component_label_permutation_test(
+    all_ic: np.ndarray,
+    target_component: str,
+    residual: np.ndarray,
+    chainage: np.ndarray,
+    n_perm: int = 1000,
+) -> tuple[float, float, int]:
+    """Component-label permutation diagnostic on detrended series.
+
+    At each chainage step, component labels are randomly permuted and the value
+    assigned to the target component is used to build a disrupted descriptor
+    series.
+    Both the observed and permuted series are linearly detrended against
+    chainage before computing the Spearman correlation with the detrended
+    residual, consistent with Table~``tab:null_comparison``. This is repeated
+    ``n_perm`` times. The returned proportion counts permutations whose
+    absolute correlation is at least as large as the observed absolute
+    correlation.
+    """
+    rng = np.random.default_rng(20260625)
+    n_steps, n_comp = all_ic.shape
+    target_idx = list(COMPONENT_NAMES.values()).index(target_component)
+
+    obs_series = all_ic[:, target_idx]
+    obs_detrended = linear_detrend(obs_series, chainage)
+    res_detrended = linear_detrend(residual, chainage)
+    obs_r, _ = safe_spearman(obs_detrended, res_detrended)
+
+    perm_rs = np.empty(n_perm, dtype=np.float64)
+    for p in range(n_perm):
+        permuted = np.empty(n_steps, dtype=np.float64)
+        for s in range(n_steps):
+            perm = rng.permutation(n_comp)
+            permuted[s] = all_ic[s, perm[target_idx]]
+        perm_detrended = linear_detrend(permuted, chainage)
+        r, _ = safe_spearman(perm_detrended, res_detrended)
+        perm_rs[p] = r
+
+    p_value = float(np.mean(np.abs(perm_rs) >= np.abs(obs_r)))
+    return p_value, obs_r, n_perm
 
 
 def alignment_offset_rows(case_id: str, component: str, response: str, series: dict[str, np.ndarray], residual: np.ndarray) -> list[dict[str, Any]]:
@@ -281,6 +323,8 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
 
     primary_rows = []
     null_rows = []
+    # all_component_ic is a matrix for the permutation test, not a descriptor variant
+    all_ic_matrix = descriptor_series.pop("all_component_ic")
     for variant, values in descriptor_series.items():
         r, _ = safe_spearman(values, residual)
         detrended_r, _ = safe_spearman(
@@ -303,6 +347,24 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
         null_rows.append(row)
         if variant == "proposed":
             primary_rows.append(row)
+
+    # Formal component-label permutation test (detrended, consistent with
+    # Table null_comparison)
+    perm_p_value, perm_obs_r, n_label_perm = component_label_permutation_test(
+        all_ic_matrix, component, residual, chainage, n_perm=1000
+    )
+    permutation_row = {
+        "case_id": case_id,
+        "case_label": CASE_LABELS[case_id],
+        "component": component,
+        "response": response,
+        "variant": "component_label_permutation",
+        "n": len(residual),
+        "observed_detrended_r": perm_obs_r,
+        "permutation_p": perm_p_value,
+        "n_permutations": n_label_perm,
+    }
+    null_rows.append(permutation_row)
 
     anomaly_rows = []
     for variant, values in anomaly_variant_series(context, component).items():
@@ -328,7 +390,12 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
     offset_rows = alignment_offset_rows(case_id, component, response, descriptor_series, residual)
 
     case_dir = output_dir / case_id
-    write_csv(null_rows, case_dir / "primary_null_comparison.csv")
+    # Separate permutation result from the null comparison table to keep CSV
+    # fieldnames consistent across rows.
+    permutation_rows = [permutation_row]
+    null_rows_without_perm = [r for r in null_rows if r.get("variant") != "component_label_permutation"]
+    write_csv(null_rows_without_perm, case_dir / "primary_null_comparison.csv")
+    write_csv(permutation_rows, case_dir / "component_label_permutation.csv")
     write_csv(anomaly_rows, case_dir / "anomaly_sensitivity.csv")
     write_csv(offset_rows, case_dir / "alignment_offset_sensitivity.csv")
     write_csv(trace_rows, case_dir / "top_contributing_edges.csv")
@@ -339,7 +406,8 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
             "config": str(config_path),
             "primary_pair": {"component": component, "response": response},
             "split_counts": context["split_counts"],
-            "null_comparison": null_rows,
+            "null_comparison": null_rows_without_perm,
+            "component_label_permutation": permutation_row,
             "anomaly_sensitivity": anomaly_rows,
             "alignment_offset_sensitivity": offset_rows,
             "traceability_top_edges": trace_rows,
@@ -353,6 +421,7 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
         "anomaly_rows": anomaly_rows,
         "offset_rows": offset_rows,
         "trace_rows": trace_rows,
+        "permutation_row": permutation_row,
     }
 
 
@@ -365,6 +434,7 @@ def main() -> None:
     all_anomaly = []
     all_offset = []
     all_trace = []
+    all_permutation = []
     for rel_config in CASE_CONFIGS:
         result = process_case(exp_dir / rel_config, output_dir)
         all_primary.extend(result["primary_rows"])
@@ -372,9 +442,13 @@ def main() -> None:
         all_anomaly.extend(result["anomaly_rows"])
         all_offset.extend(result["offset_rows"])
         all_trace.extend(result["trace_rows"])
+        all_permutation.append(result["permutation_row"])
 
+    # Exclude permutation rows from null comparison table (different schema)
+    all_null_without_perm = [r for r in all_null if r.get("variant") != "component_label_permutation"]
     write_csv(all_primary, output_dir / "primary_pair_diagnostics.csv")
-    write_csv(all_null, output_dir / "null_model_comparison.csv")
+    write_csv(all_null_without_perm, output_dir / "null_model_comparison.csv")
+    write_csv(all_permutation, output_dir / "component_label_permutation.csv")
     write_csv(all_anomaly, output_dir / "anomaly_definition_sensitivity.csv")
     write_csv(all_offset, output_dir / "alignment_offset_sensitivity.csv")
     write_csv(all_trace, output_dir / "top_contributing_edges_all.csv")

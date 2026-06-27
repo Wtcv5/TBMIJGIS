@@ -29,6 +29,44 @@ IJGIS_COLORS = {
     # TBM component edge colors (consistent with graph_viz.py)
     "cutterhead_edge": "#FF7A1A",
     "shield_edge": "#4169E1",
+    # Semantic palettes for manuscript figures (colorblind-safe, grayscale-distinct)
+    # Case colours (do not reuse model colours for case identity)
+    "case_bsll_h1": "#1B6CA8",
+    "case_bsll_h3": "#2A9D8F",
+    "case_sjls_h3": "#D95F02",
+    # Unified TBM component colours (consistent across all manuscript figures)
+    "comp_cutterhead": "#D73027",
+    "comp_front_shield": "#FC8D59",
+    "comp_middle_shield": "#91BFDB",
+    "comp_tail_shield": "#5AAE61",
+    # Diagnostic variant colours (raw vs detrended)
+    "diagnostic_raw": "#1B6CA8",
+    "diagnostic_detrended": "#D95F02",
+    # Unified grayscale ramp (replace ad-hoc greys)
+    "gray_dark": "#4D4D4D",
+    "gray_medium": "#888888",
+    "gray_light": "#CFCFCF",
+    "gray_lighter": "#E8E8E8",
+    "gray_lightest": "#F5F5F5",
+    # Schematic fill colours
+    "fill_rock": "#EEF3E6",
+    "fill_tbm": "#E8F1F6",
+    "fill_active": "#F5EFE6",
+    "fill_neutral": "#F7F7F7",
+}
+
+# Convenience dictionaries for semantic colour access
+CASE_PALETTE = {
+    "bsll_dyk1017_205": IJGIS_COLORS["case_bsll_h1"],
+    "bsll_dyk1017_205_h3": IJGIS_COLORS["case_bsll_h3"],
+    "sjls_dyk1252_411": IJGIS_COLORS["case_sjls_h3"],
+}
+
+COMPONENT_PALETTE = {
+    "cutterhead": IJGIS_COLORS["comp_cutterhead"],
+    "front_shield": IJGIS_COLORS["comp_front_shield"],
+    "middle_shield": IJGIS_COLORS["comp_middle_shield"],
+    "tail_shield": IJGIS_COLORS["comp_tail_shield"],
 }
 
 # Preferred colormaps (colorblind-safe)

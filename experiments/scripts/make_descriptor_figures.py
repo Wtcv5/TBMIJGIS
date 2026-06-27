@@ -15,6 +15,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.visualization.style import (
+    CASE_PALETTE,
+    COMPONENT_PALETTE,
     IJGIS_CMAPS,
     IJGIS_COLORS,
     add_panel_label,
@@ -112,129 +114,127 @@ def fixed_pair_rows(assoc: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_method_framework(out_dir: Path) -> None:
+    """Combined method figure: workflow pipeline (top) + spatial entity
+    formalisation (bottom, three panels).
+    """
     apply_ijgis_style()
-    fig, axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.34))
+    fig = plt.figure(figsize=figure_size("double", aspect=0.56))
+    gs = fig.add_gridspec(2, 1, height_ratios=[0.42, 0.58], hspace=0.18)
+    # --- Top: workflow pipeline ---
+    ax_top = fig.add_subplot(gs[0])
+    ax_top.set_xlim(0, 12)
+    ax_top.set_ylim(0, 4)
+    ax_top.set_axis_off()
 
-    ax = axes[0]
-    ax.set_title("Chainage-referenced spatial entities")
-    rng = np.random.default_rng(21)
-    rock_x = rng.uniform(0.18, 0.82, 30)
-    rock_y = rng.uniform(0.18, 0.78, 30)
-    anomaly = np.linspace(0.15, 0.95, 30)
-    ax.scatter(rock_x, rock_y, c=anomaly, cmap=IJGIS_CMAPS["sequential"], s=22,
-               edgecolor="white", linewidth=0.35, zorder=2)
-    ax.add_patch(Rectangle((0.30, 0.38), 0.34, 0.16, facecolor="#DCE8F2",
-                           edgecolor="#4A6D85", linewidth=0.8, zorder=3))
-    ax.add_patch(Circle((0.30, 0.46), 0.085, facecolor="#C8DDBA",
-                        edgecolor="#4A6D85", linewidth=0.8, zorder=4))
-    ax.text(0.47, 0.46, "TBM surface\ncomponents", ha="center", va="center", fontsize=7, zorder=5)
-    ax.arrow(0.12, 0.10, 0.74, 0.0, head_width=0.025, head_length=0.035,
-             color="#555555", linewidth=0.8)
-    ax.text(0.49, 0.04, "local chainage", ha="center", fontsize=7)
-    ax.text(0.18, 0.86, "TSP rock voxels", fontsize=7)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_axis_off()
-    add_panel_label(ax, "a", x=0.03, y=0.90)
+    stages = [
+        {"xc": 1.5, "title": "1. Spatial entities",
+         "lines": ["TSP rock voxels $D_{geo}$", "TBM surface $M_{TBM}$", "Chainage alignment"],
+         "accent": IJGIS_COLORS["rock"]},
+        {"xc": 4.5, "title": "2. Geometry-constrained graph",
+         "lines": [r"Active zone $\Omega_t$", r"$d_{ij}\leq\tau_{edge}$", r"$\kappa_{ij}\geq\eta_{min}$"],
+         "accent": IJGIS_COLORS["tbm"]},
+        {"xc": 7.5, "title": "3. Component descriptors",
+         "lines": [r"$A_c(t)=\sum w_{ij}$", r"$I_c(t)=\frac{\sum w_{ij}q_i}{\sum w_{ij}}$", "Per component $c$"],
+         "accent": IJGIS_COLORS["accent"]},
+        {"xc": 10.5, "title": "4. Residual diagnosis",
+         "lines": [r"$e_{t+h}^{(k)}=r_{t+h}^{(k)}-r_t^{(k)}$", r"Spearman $\rho(I_c, e)$", "Null-model contrast"],
+         "accent": IJGIS_COLORS["full_model"]},
+    ]
 
-    ax = axes[1]
-    ax.set_title("Geometry-screened relations")
-    ax.add_patch(Rectangle((0.10, 0.22), 0.72, 0.48, facecolor="#F5EFE6",
-                           edgecolor="#8B6F47", linewidth=0.8, alpha=0.65))
-    ax.text(0.46, 0.75, r"active zone $\Omega_t$", ha="center", fontsize=7)
-    tbm_nodes = np.array([[0.33, 0.45], [0.42, 0.45], [0.51, 0.45], [0.60, 0.45]])
-    rock_nodes = np.array([[0.25, 0.58], [0.35, 0.64], [0.47, 0.62], [0.64, 0.57], [0.74, 0.38]])
-    for x0, y0 in rock_nodes:
-        ax.scatter(x0, y0, s=24, color="#7A9E7E", edgecolor="white", linewidth=0.4, zorder=3)
-    for x0, y0 in tbm_nodes:
-        ax.scatter(x0, y0, s=28, marker="s", color="#7C92B8", edgecolor="#444444", linewidth=0.5, zorder=4)
-    for rx, ry in rock_nodes[:4]:
-        nearest = tbm_nodes[np.argmin(np.sum((tbm_nodes - np.array([rx, ry])) ** 2, axis=1))]
-        ax.plot([nearest[0], rx], [nearest[1], ry], color="#555555", linewidth=0.75, alpha=0.75)
-    ax.text(0.46, 0.16, r"$d_{ij}\leq\tau_{edge}$, $\kappa_{ij}\geq\eta_{min}$", ha="center", fontsize=7)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_axis_off()
-    add_panel_label(ax, "b", x=0.03, y=0.90)
+    box_w, box_h = 2.6, 1.8
+    y_box = 1.4
+    for st in stages:
+        ax_top.add_patch(FancyBboxPatch(
+            (st["xc"] - box_w / 2, y_box), box_w, box_h,
+            boxstyle="round,pad=0.04,rounding_size=0.12",
+            facecolor=st["accent"], alpha=0.12, edgecolor=st["accent"], linewidth=1.2))
+        ax_top.add_patch(Circle((st["xc"] - box_w / 2 + 0.30, y_box + box_h - 0.05), 0.16,
+                            facecolor=st["accent"], edgecolor="white", linewidth=0.6, zorder=5))
+        ax_top.text(st["xc"] - box_w / 2 + 0.30, y_box + box_h - 0.05,
+                st["title"][0], ha="center", va="center", fontsize=7, fontweight="bold",
+                color="white", zorder=6)
+        ax_top.text(st["xc"], y_box + box_h - 0.05, st["title"][3:],
+                ha="center", va="center", fontsize=7.5, fontweight="bold", color=st["accent"])
+        for j, line in enumerate(st["lines"]):
+            ax_top.text(st["xc"], y_box + box_h - 0.55 - j * 0.35, line,
+                    ha="center", va="center", fontsize=6.8)
 
-    ax = axes[2]
-    ax.set_title("Descriptor-residual diagnosis")
-    values = np.array([
-        [0.25, 0.38, 0.62, 0.78, 0.70, 0.52],
-        [0.18, 0.30, 0.54, 0.66, 0.55, 0.40],
-        [0.14, 0.22, 0.36, 0.47, 0.42, 0.31],
-        [0.10, 0.18, 0.28, 0.34, 0.30, 0.24],
-    ])
-    im = ax.imshow(values, cmap=IJGIS_CMAPS["sequential"], vmin=0, vmax=0.8, aspect="auto")
-    ax.set_yticks(np.arange(4), COMPONENT_LABELS, fontsize=6.6)
-    ax.set_xticks([0, 2, 5], ["t", "t+2", "t+5"], fontsize=6.6)
-    ax.set_xlabel("Chainage step", fontsize=7)
-    ax.set_title("Descriptor-residual diagnosis")
-    ax2 = ax.inset_axes([0.60, 0.12, 0.34, 0.28])
-    x = np.arange(6)
-    ax2.axhline(0, color="#999999", linewidth=0.5, linestyle=":")
-    ax2.plot(x, [0.2, -0.1, -0.35, -0.55, -0.3, 0.05], color=IJGIS_COLORS["truth"], linewidth=0.9)
-    ax2.set_xticks([])
-    ax2.set_yticks([])
-    ax2.set_title(r"$e_{t+h}$", fontsize=6, pad=1)
-    set_colorbar_style(fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02), "$I_c(t)$")
-    add_panel_label(ax, "c", x=0.03, y=0.90)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    save_pdf_and_png(fig, out_dir / "fig1_method_framework.pdf")
+    for i in range(3):
+        x_start = stages[i]["xc"] + box_w / 2
+        x_end = stages[i + 1]["xc"] - box_w / 2
+        ax_top.annotate("", xy=(x_end, y_box + box_h / 2), xytext=(x_start, y_box + box_h / 2),
+                    arrowprops=dict(arrowstyle="-|>", color=IJGIS_COLORS["gray_dark"],
+                                    lw=1.1, mutation_scale=12))
 
+    ax_top.text(stages[0]["xc"], 0.7, "Input\nGeological + monitoring",
+            ha="center", va="center", fontsize=6.5, style="italic",
+            color=IJGIS_COLORS["gray_dark"])
+    ax_top.text(stages[-1]["xc"], 0.7, "Output\nDescriptor evidence",
+            ha="center", va="center", fontsize=6.5, style="italic",
+            color=IJGIS_COLORS["gray_dark"])
 
-def plot_spatial_entity_formalisation(out_dir: Path) -> None:
-    apply_ijgis_style()
-    fig, axes = plt.subplots(1, 3, figsize=figure_size("double", aspect=0.30))
+    ax_top.text(6.0, 3.6, "Chainage-referenced rock–TBM spatial interaction graph: workflow",
+            ha="center", va="center", fontsize=8.5, fontweight="bold",
+            color=IJGIS_COLORS["truth"])
+    ax_top.plot([0.5, 11.5], [3.25, 3.25], color=IJGIS_COLORS["gray_light"], linewidth=0.5)
+    add_panel_label(ax_top, "a", x=-0.02, y=1.05)
 
-    ax = axes[0]
-    ax.set_title("Rock voxel field")
+    # --- Bottom: spatial entity formalisation (three panels) ---
+    gs_bottom = gs[1].subgridspec(1, 3, wspace=0.28)
+    ax_b0 = fig.add_subplot(gs_bottom[0, 0])
+    ax_b0.set_title("Rock voxel field", fontsize=8)
     rng = np.random.default_rng(7)
     xy = rng.uniform(0.16, 0.84, size=(42, 2))
     vp = rng.uniform(0.15, 1.0, size=42)
-    ax.scatter(xy[:, 0], xy[:, 1], c=vp, s=26, cmap=IJGIS_CMAPS["sequential"], edgecolor="white", linewidth=0.3)
-    ax.arrow(0.12, 0.10, 0.70, 0.0, head_width=0.025, head_length=0.035, color="#555555", linewidth=0.8)
-    ax.text(0.47, 0.04, "chainage", ha="center", va="center", fontsize=7)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_axis_off()
-    add_panel_label(ax, "a")
+    ax_b0.scatter(xy[:, 0], xy[:, 1], c=vp, s=26, cmap=IJGIS_CMAPS["sequential"], edgecolor="white", linewidth=0.3)
+    ax_b0.arrow(0.12, 0.10, 0.70, 0.0, head_width=0.025, head_length=0.035, color="#555555", linewidth=0.8)
+    ax_b0.text(0.47, 0.04, "chainage", ha="center", va="center", fontsize=7)
+    ax_b0.set_xlim(0, 1)
+    ax_b0.set_ylim(0, 1)
+    ax_b0.set_axis_off()
+    add_panel_label(ax_b0, "b", x=-0.04, y=1.02)
 
-    ax = axes[1]
-    ax.set_title("TBM surface components")
-    component_colors = ["#7A9E7E", "#D9A441", "#7C92B8", "#B96F6F"]
+    ax_b1 = fig.add_subplot(gs_bottom[0, 1])
+    ax_b1.set_title("TBM surface components", fontsize=8)
+    component_colors = [COMPONENT_PALETTE[c] for c in COMPONENT_ORDER]
     xs = [0.16, 0.34, 0.52, 0.70]
     widths = [0.16, 0.18, 0.18, 0.18]
     for x0, w, color, label in zip(xs, widths, component_colors, COMPONENT_LABELS):
-        ax.add_patch(Rectangle((x0, 0.42), w, 0.20, facecolor=color, edgecolor="#444444", linewidth=0.7))
-        ax.text(x0 + w / 2, 0.32, label.replace(" ", "\n"), ha="center", va="top", fontsize=6.7)
-    ax.add_patch(Circle((0.16, 0.52), 0.11, facecolor="#7A9E7E", edgecolor="#444444", linewidth=0.7))
-    ax.arrow(0.12, 0.78, 0.70, 0.0, head_width=0.025, head_length=0.035, color="#555555", linewidth=0.8)
-    ax.text(0.47, 0.85, "advance", ha="center", va="center", fontsize=7)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_axis_off()
-    add_panel_label(ax, "b")
+        ax_b1.add_patch(Rectangle((x0, 0.42), w, 0.20, facecolor=color, edgecolor="#444444", linewidth=0.7))
+        ax_b1.text(x0 + w / 2, 0.32, label.replace(" ", "\n"), ha="center", va="top", fontsize=6.7)
+    ax_b1.add_patch(Circle((0.16, 0.52), 0.11, facecolor="#7A9E7E", edgecolor="#444444", linewidth=0.7))
+    ax_b1.arrow(0.12, 0.78, 0.70, 0.0, head_width=0.025, head_length=0.035, color="#555555", linewidth=0.8)
+    ax_b1.text(0.47, 0.85, "advance", ha="center", va="center", fontsize=7)
+    ax_b1.set_xlim(0, 1)
+    ax_b1.set_ylim(0, 1)
+    ax_b1.set_axis_off()
+    add_panel_label(ax_b1, "c", x=-0.04, y=1.02)
 
-    ax = axes[2]
-    ax.set_title("Component-chainage descriptors")
-    chainage = np.arange(8)
+    ax_b2 = fig.add_subplot(gs_bottom[0, 2])
+    ax_b2.set_title("Component-chainage descriptors", fontsize=8)
     values = np.array([
         [0.20, 0.25, 0.40, 0.55, 0.78, 0.70, 0.48, 0.35],
         [0.14, 0.18, 0.28, 0.44, 0.62, 0.58, 0.40, 0.30],
         [0.10, 0.16, 0.20, 0.32, 0.46, 0.52, 0.38, 0.25],
         [0.06, 0.10, 0.15, 0.25, 0.36, 0.42, 0.31, 0.20],
     ])
-    im = ax.imshow(values, aspect="auto", cmap=IJGIS_CMAPS["sequential"], vmin=0, vmax=0.8)
-    ax.set_yticks(np.arange(4), COMPONENT_LABELS, fontsize=7)
-    ax.set_xticks([0, 3, 7], [f"t+{i}" for i in [0, 3, 7]], fontsize=7)
-    ax.set_xlabel("Target chainage step")
-    ax.set_ylabel("Component")
-    set_colorbar_style(fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02), "$I_c(t)$")
-    add_panel_label(ax, "c")
+    im = ax_b2.imshow(values, aspect="auto", cmap=IJGIS_CMAPS["sequential"], vmin=0, vmax=0.8)
+    ax_b2.set_yticks(np.arange(4), COMPONENT_LABELS, fontsize=7)
+    ax_b2.set_xticks([0, 3, 7], [f"t+{i}" for i in [0, 3, 7]], fontsize=7)
+    ax_b2.set_xlabel("Target chainage step", fontsize=7)
+    ax_b2.set_ylabel("Component", fontsize=7)
+    set_colorbar_style(fig.colorbar(im, ax=ax_b2, fraction=0.046, pad=0.02), "$I_c(t)$")
+    add_panel_label(ax_b2, "d", x=-0.12, y=1.02)
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    save_pdf_and_png(fig, out_dir / "fig2_spatial_entity_formalisation.pdf")
+    save_pdf_and_png(fig, out_dir / "fig1_method_framework.pdf")
+
+
+def plot_spatial_entity_formalisation(out_dir: Path) -> None:
+    """Deprecated: merged into plot_method_framework. Kept as no-op to avoid
+    breaking call sites; the combined figure is written by plot_method_framework.
+    """
+    return
 
 
 def plot_geometry_constrained_edges(out_dir: Path) -> None:
@@ -260,7 +260,7 @@ def plot_geometry_constrained_edges(out_dir: Path) -> None:
     ax.add_patch(Circle((0.50, 0.50), 0.18, facecolor="#F7F7F7", edgecolor="#555555", linewidth=0.8))
     ax.scatter([0.28, 0.40, 0.63, 0.75], [0.58, 0.30, 0.64, 0.42], s=24, color="#7A9E7E", edgecolor="white", linewidth=0.4)
     for x, y in [(0.40, 0.30), (0.63, 0.64)]:
-        ax.plot([0.50, x], [0.50, y], color="#666666", linewidth=0.7)
+        ax.plot([0.50, x], [0.50, y], color=IJGIS_COLORS["gray_medium"], linewidth=0.7)
     ax.arrow(0.50, 0.50, 0.18, 0.02, head_width=0.025, head_length=0.035, color="#B96F6F", linewidth=0.9)
     ax.text(0.62, 0.36, r"$d_{ij}\leq\tau$", fontsize=8)
     ax.text(0.56, 0.66, r"$\kappa_{ij}\geq\eta$", fontsize=8)
@@ -286,62 +286,59 @@ def plot_geometry_constrained_edges(out_dir: Path) -> None:
     save_pdf_and_png(fig, out_dir / "fig3_geometry_constrained_edges.pdf")
 
 
-def plot_case_context(out_dir: Path) -> None:
+def plot_case_context(root: Path, out_dir: Path) -> None:
     apply_ijgis_style()
-    rows = [
-        {
-            "case": "BSLL h=1",
-            "tunnel": "BSLL DyK1017+205",
-            "horizon": "h=1",
-            "samples": "30 / 6 / 8",
-            "interval": "41-48 m",
-            "role": "compact diagnostic case",
-        },
-        {
-            "case": "BSLL h=3",
-            "tunnel": "BSLL DyK1017+205",
-            "horizon": "h=3",
-            "samples": "29 / 6 / 7",
-            "interval": "42-48 m",
-            "role": "compact multi-step case",
-        },
-        {
-            "case": "SJLS h=3",
-            "tunnel": "SJLS Dyk1252+411",
-            "horizon": "h=3",
-            "samples": "76 / 16 / 17",
-            "interval": "99-115 m",
-            "role": "external TSP contrast case",
-        },
-    ]
-    fig, axes = plt.subplots(3, 1, figsize=figure_size("double", aspect=0.48), sharex=True)
-    x_min, x_max = 0, 120
-    colors = [IJGIS_COLORS["full_model"], IJGIS_COLORS["xgboost"], IJGIS_COLORS["lstm"]]
-    for idx, (ax, row, color) in enumerate(zip(axes, rows, colors)):
-        ax.set_xlim(x_min, x_max)
-        ax.set_ylim(0, 1)
-        ax.axhline(0.50, color="#D0D0D0", linewidth=1.0)
-        start, end = [float(v) for v in row["interval"].replace(" m", "").split("-")]
-        ax.add_patch(Rectangle((start, 0.36), end - start, 0.28, facecolor=color, alpha=0.28, edgecolor=color, linewidth=0.8))
-        ax.text(1, 0.73, row["case"], ha="left", va="center", fontsize=8, fontweight="bold")
-        ax.text(1, 0.48, row["tunnel"], ha="left", va="center", fontsize=7)
-        ax.text(36, 0.73, f"{row['horizon']} | train/val/test {row['samples']}", ha="left", va="center", fontsize=7)
-        ax.text(36, 0.48, f"test interval {row['interval']}", ha="left", va="center", fontsize=7)
-        ax.text(76, 0.60, row["role"], ha="left", va="center", fontsize=7)
-        ax.set_yticks([])
-        ax.spines["left"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        ax.spines["top"].set_visible(False)
-        add_panel_label(ax, "abc"[idx], x=-0.03, y=0.82)
-    axes[-1].set_xlabel("Local target chainage (m)")
+    case_meta = {
+        "bsll_dyk1017_205": {"label": "BSLL h=1", "tunnel": "DyK1017+205",
+                              "interval": (41.0, 48.0), "samples": "30 / 6 / 8"},
+        "bsll_dyk1017_205_h3": {"label": "BSLL h=3", "tunnel": "DyK1017+205",
+                                 "interval": (42.0, 48.0), "samples": "29 / 6 / 7"},
+        "sjls_dyk1252_411": {"label": "SJLS h=3", "tunnel": "Dyk1252+411",
+                              "interval": (99.0, 115.0), "samples": "76 / 16 / 17"},
+    }
+    fig, axes = plt.subplots(3, 1, figsize=figure_size("double", aspect=0.52), sharex=False)
+    comp_colors = [COMPONENT_PALETTE[c] for c in COMPONENT_ORDER]
+    for idx, (ax, (case_id, meta)) in enumerate(zip(axes, case_meta.items())):
+        csv_path = root / case_id / "component_spatial_descriptors.csv"
+        if not csv_path.exists():
+            ax.set_axis_off()
+            continue
+        df = read_csv(csv_path)
+        # Test interval shading
+        t_start, t_end = meta["interval"]
+        ax.axvspan(t_start, t_end, color=CASE_PALETTE[case_id], alpha=0.10, zorder=0)
+        ax.axvline(t_start, color=CASE_PALETTE[case_id], linewidth=0.6, linestyle=":", zorder=1)
+        ax.axvline(t_end, color=CASE_PALETTE[case_id], linewidth=0.6, linestyle=":", zorder=1)
+        # Plot I_c(t) per component vs chainage
+        for comp, color, comp_label in zip(COMPONENT_ORDER, comp_colors, COMPONENT_LABELS):
+            cdf = df[df["component"] == comp].sort_values("chainage")
+            ax.plot(cdf["chainage"], cdf["I_interaction_intensity"],
+                    color=color, linewidth=1.0, marker="o", markersize=2.2,
+                    label=comp_label, zorder=3)
+        # Case label (annotated on plot)
+        ax.text(0.02, 0.95, f"{meta['label']}  ({meta['tunnel']})",
+                transform=ax.transAxes, fontsize=7.5, fontweight="bold",
+                color=CASE_PALETTE[case_id], va="top")
+        ax.text(0.98, 0.95, f"train/val/test: {meta['samples']}",
+                transform=ax.transAxes, fontsize=6.5, ha="right", va="top",
+                color=IJGIS_COLORS["gray_dark"])
+        ax.set_ylabel(r"$I_c(t)$", fontsize=7)
+        ax.tick_params(axis="both", labelsize=6.5)
+        ax.grid(axis="y", alpha=0.25)
+        if idx == 0:
+            ax.legend(loc="lower right", fontsize=6, ncol=2, frameon=False)
+        if idx == len(case_meta) - 1:
+            ax.set_xlabel("Chainage (m)")
+        add_panel_label(ax, "abc"[idx], x=-0.04, y=0.98)
+    fig.subplots_adjust(hspace=0.38)
     out_dir.mkdir(parents=True, exist_ok=True)
-    save_pdf_and_png(fig, out_dir / "fig5_case_context.pdf")
+    save_pdf_and_png(fig, out_dir / "fig4_case_context.pdf")
 
 
 def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
     apply_ijgis_style()
-    fig = plt.figure(figsize=figure_size("double", aspect=0.58))
-    gs = fig.add_gridspec(2, 3, height_ratios=[1.25, 0.85], hspace=0.22, wspace=0.18)
+    fig = plt.figure(figsize=figure_size("double", aspect=0.62))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.25, 0.85], hspace=0.35, wspace=0.28)
     heat_axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
     residual_axes = [fig.add_subplot(gs[1, i], sharex=heat_axes[i]) for i in range(3)]
 
@@ -379,7 +376,7 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
         comp_df = case_df[case_df["component"] == component].sort_values("chainage")
         res = comp_df[f"residual_{response}"].to_numpy(dtype=float)
         chainage = comp_df["chainage"].to_numpy(dtype=float)
-        ax_res.axhline(0, color="#999999", linewidth=0.6, linestyle=":")
+        ax_res.axhline(0, color=IJGIS_COLORS["gray_medium"], linewidth=0.6, linestyle=":")
         ax_res.plot(chainage, res, color=IJGIS_COLORS["truth"], marker="o", markersize=2.6, linewidth=1.0)
         ax_res.set_xlim(float(cols.min()), float(cols.max()))
         ax_res.set_xlabel("Chainage (m)")
@@ -388,12 +385,12 @@ def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
         ax_res.set_title(f"{component.replace('_', ' ')} vs {RESPONSE_DISPLAY[response]}", fontsize=7, pad=3)
     if im is not None:
         set_colorbar_style(
-            fig.colorbar(im, ax=heat_axes, fraction=0.025, pad=0.02),
-            "$I_c(t)$",
+            fig.colorbar(im, ax=heat_axes, fraction=0.046, pad=0.04),
+            r"Interaction intensity $I_c(t)$",
         )
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    save_pdf_and_png(fig, out_dir / "fig6_descriptor_evidence.pdf")
+    save_pdf_and_png(fig, out_dir / "fig5_descriptor_evidence.pdf")
 
 
 def plot_sensitivity(root: Path, out_dir: Path) -> None:
@@ -439,26 +436,32 @@ def plot_null_model_comparison(root: Path, out_dir: Path) -> None:
         return
     df = read_csv(path)
     cases = list(CASE_LABELS)
-    fig, axes = plt.subplots(1, len(cases), figsize=figure_size("double", aspect=0.38), squeeze=False)
+    fig, axes = plt.subplots(1, len(cases), figsize=figure_size("double", aspect=0.42), squeeze=False)
+    bars_handles = []
     for ax, case_id in zip(axes[0], cases):
         case = df[df["case_id"] == case_id].copy()
         case["variant_label"] = case["variant"].map(VARIANT_LABELS)
         x = np.arange(len(case))
-        ax.axhline(0, color="#999999", linewidth=0.6)
-        width = 0.36
-        ax.bar(x - width / 2, case["spearman_r"], width=width, color=IJGIS_COLORS["full_model"], alpha=0.82, label="Raw")
-        ax.bar(x + width / 2, case["detrended_spearman_r"], width=width, color=IJGIS_COLORS["xgboost"], alpha=0.82, label="Detrended")
-        ax.set_xticks(x, case["variant_label"], rotation=35, ha="right")
+        ax.axhline(0, color=IJGIS_COLORS["gray_medium"], linewidth=0.6)
+        width = 0.38
+        b1 = ax.bar(x - width / 2, case["spearman_r"], width=width, color=IJGIS_COLORS["diagnostic_raw"], alpha=0.85, label="Raw")
+        b2 = ax.bar(x + width / 2, case["detrended_spearman_r"], width=width, color=IJGIS_COLORS["diagnostic_detrended"], alpha=0.85, label="Detrended")
+        if not bars_handles:
+            bars_handles = [b1, b2]
+        ax.set_xticks(x, case["variant_label"], rotation=40, ha="right", fontsize=6.2)
         ax.set_ylim(-1.05, 1.05)
         ax.set_title(CASE_LABELS[case_id])
-        if ax is axes[0][0]:
-            ax.set_ylabel("Spearman rho")
+        ax.set_ylabel("Spearman rho")
         ax.grid(axis="y", alpha=0.25)
-    axes[0][-1].legend(loc="lower right")
+    # Legend outside data area (above subplots, centred)
+    fig.legend(bars_handles, ["Raw", "Detrended"], loc="upper center",
+               ncol=2, fontsize=7, frameon=False,
+               bbox_to_anchor=(0.5, 1.0))
     for label, ax in zip("abc", axes[0]):
-        add_panel_label(ax, label)
+        add_panel_label(ax, label, x=-0.16, y=1.08)
+    fig.subplots_adjust(top=0.88, bottom=0.22, wspace=0.32)
     out_dir.mkdir(parents=True, exist_ok=True)
-    save_pdf_and_png(fig, out_dir / "fig9_null_model_comparison.pdf")
+    save_pdf_and_png(fig, out_dir / "fig6_null_model_comparison.pdf")
 
 
 def plot_traceability_example(root: Path, out_dir: Path) -> None:
@@ -481,8 +484,13 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
         color = cmap(norm(row["weighted_contribution"]))
         ax.plot([row["tbm_y"], row["rock_y"]], [row["tbm_z"], row["rock_z"]],
                 color=color, linewidth=1.1, alpha=0.85)
-        ax.text(row["rock_y"], row["rock_z"], f"#{int(row['rank'])}",
-                fontsize=6.5, ha="left", va="bottom")
+        # Annotate voxel ID and node ID near each endpoint
+        ax.text(row["rock_y"], row["rock_z"],
+                f"v{int(row['rock_node_id'])}",
+                fontsize=5.8, ha="left", va="bottom", color=IJGIS_COLORS["gray_dark"])
+        ax.text(row["tbm_y"], row["tbm_z"],
+                f"n{int(row['tbm_node_id'])}",
+                fontsize=5.8, ha="right", va="top", color=IJGIS_COLORS["tbm"])
     sc = ax.scatter(top3["rock_y"], top3["rock_z"], c=top3["weighted_contribution"],
                     cmap=IJGIS_CMAPS["sequential"], s=42, edgecolor="white",
                     linewidth=0.4, label="Rock voxel")
@@ -492,26 +500,25 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
     y_max = max(top3["rock_z"].max(), top3["tbm_z"].max())
     x_min = min(top3["rock_y"].min(), top3["tbm_y"].min())
     x_max = max(top3["rock_y"].max(), top3["tbm_y"].max())
-    ax.set_xlim(x_min - 0.35, x_max + 0.35)
-    ax.set_ylim(y_min - 0.35, y_max + 0.45)
+    ax.set_xlim(x_min - 0.55, x_max + 0.55)
+    ax.set_ylim(y_min - 0.55, y_max + 0.55)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_xlabel("")
-    ax.set_ylabel("")
+    ax.set_xlabel("Cross-section $y$ (m)", fontsize=7)
+    ax.set_ylabel("Cross-section $z$ (m)", fontsize=7)
+    ax.tick_params(axis="both", labelsize=6.2)
     ax.set_title("Top-3 spatial edge trace", fontsize=8, pad=4)
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-    ax.text(0.02, 0.05, "local cross-section", transform=ax.transAxes, fontsize=6.5)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.legend(loc="upper left", fontsize=6, frameon=True, framealpha=0.9, edgecolor="none")
     add_panel_label(ax, "a", x=-0.08, y=1.08)
 
     ax = fig.add_subplot(gs[0, 1])
+    title_row = case.iloc[0]
     y = np.arange(len(case))[::-1]
     labels = [f"#{int(r)}" for r in case["rank"]]
-    ax.barh(y, case["weighted_contribution"], color=IJGIS_COLORS["full_model"], alpha=0.85)
+    ax.barh(y, case["weighted_contribution"], color=COMPONENT_PALETTE.get(title_row["component"], IJGIS_COLORS["gray_medium"]), alpha=0.85)
     ax.set_yticks(y, labels)
     ax.set_xlabel(r"$w_{ij}q_i$")
-    title_row = case.iloc[0]
     ax.set_title(f"Top-8 edge contributions: {title_row['component'].replace('_', ' ')} at {title_row['chainage']:.0f} m", fontsize=8)
     ax.grid(axis="x", alpha=0.25)
     add_panel_label(ax, "b", x=-0.08, y=1.08)
@@ -522,27 +529,36 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
     for _, row in case.iterrows():
         table_rows.append([
             f"#{int(row['rank'])}",
+            f"v{int(row['rock_node_id'])}",
+            f"n{int(row['tbm_node_id'])}",
+            f"({row['rock_y']:.1f},{row['rock_z']:.1f})",
+            f"({row['tbm_y']:.1f},{row['tbm_z']:.1f})",
             f"{row['distance']:.2f}",
             f"{row['kappa']:.2f}",
             f"{row['anomaly_score']:.2f}",
             f"{row['weighted_contribution']:.3f}",
         ])
-    ax.text(0.0, 0.98, "Traceable edge attributes for the top-8 contributions",
+    ax.text(0.0, 0.96, "Traceable edge attributes for the top-8 contributions",
             transform=ax.transAxes, fontsize=8, ha="left", va="top")
     table = ax.table(
         cellText=table_rows,
-        colLabels=["Edge", "Distance", r"$\kappa$", r"$q_i$", r"$w_{ij}q_i$"],
-        bbox=[0.02, 0.02, 0.96, 0.82],
+        colLabels=["Edge", "Voxel ID", "Node ID", "Voxel (y,z)", "Node (y,z)",
+                   "Distance (m)", r"$\kappa$", r"$q_i$", r"$w_{ij}q_i$"],
+        bbox=[0.01, 0.04, 0.98, 0.80],
         cellLoc="center",
     )
     table.auto_set_font_size(False)
-    table.set_fontsize(6.3)
+    table.set_fontsize(6.1)
     for (row, col), cell in table.get_celld().items():
         cell.set_linewidth(0.4)
+        cell.set_edgecolor(IJGIS_COLORS["gray_light"])
         if row == 0:
-            cell.set_facecolor("#F2F2F2")
+            cell.set_facecolor(IJGIS_COLORS["gray_lightest"])
             cell.set_text_props(weight="bold")
-    add_panel_label(ax, "c")
+        else:
+            if row % 2 == 0:
+                cell.set_facecolor("#FAFAFA")
+    add_panel_label(ax, "c", x=-0.02, y=0.96)
     out_dir.mkdir(parents=True, exist_ok=True)
     save_pdf_and_png(fig, out_dir / "fig8_traceability_example.pdf")
 
@@ -554,7 +570,7 @@ def main() -> None:
     plot_method_framework(out_dir)
     plot_spatial_entity_formalisation(out_dir)
     plot_geometry_constrained_edges(out_dir)
-    plot_case_context(out_dir)
+    plot_case_context(root, out_dir)
     plot_descriptor_evidence(root, out_dir)
     plot_sensitivity(root, out_dir)
     plot_null_model_comparison(exp_dir / "outputs", out_dir)

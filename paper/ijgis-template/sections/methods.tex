@@ -4,14 +4,18 @@ entity-relation graph. The method has four steps: defining rock and machine
 spatial entities, constructing geometry-constrained candidate relations,
 aggregating component--chainage spatial interaction descriptors, and evaluating
 descriptor consistency with persistence residuals of monitoring responses.
+Figure~\ref{fig:pipeline} summarises the overall workflow.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig1_method_framework.pdf}
-\caption{Workflow of the chainage-referenced rock--TBM spatial interaction
-graph. The figure summarises how spatial entities are aligned, how
-geometry-screened candidate relations are constructed, and how
-component--chainage descriptors are evaluated against persistence residuals.}
+\caption{Combined method overview for the chainage-referenced rock--TBM
+spatial interaction graph. (a) Workflow pipeline linking spatial entities,
+geometry-constrained candidate relations, component--chainage descriptors, and
+residual diagnosis. (b) TSP-derived rock voxel field with geological attribute
+support. (c) Parameterized TBM surface components advanced along the
+excavation direction. (d) Component-wise chainage-indexed descriptor matrix
+that aggregates geological evidence over geometry-weighted relations.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -51,7 +55,9 @@ p_j(t+1)=p_j(t)+\Delta x\,d .
 Table~\ref{tab:spatial_entities_relations} summarises the spatial data model.
 The table is included to make clear that the graph is a queryable
 entity-relation representation, not only a plotting device or a neural-network
-input tensor.
+input tensor. Figure~\ref{fig:pipeline}(b--d) illustrates how the rock voxel
+field, TBM surface components, and component--chainage descriptors are
+formalised under the common chainage reference.
 
 \begin{table}[htbp]
 \centering
@@ -143,6 +149,8 @@ R_s \leq r_i \leq R_s+\tau_{\mathrm{zone}}\right\}.
 \]
 This definition separates face-contact plausibility from shield-side proximity
 while keeping both parts within one active rock volume for graph construction.
+Table~\ref{tab:active_zone_parameters} lists the parameter values used in all
+formal case runs.
 
 \begin{table}[htbp]
 \centering
@@ -279,18 +287,24 @@ re-selected during null comparison or sensitivity analysis; the full
 exploratory component--response matrix is reported separately in
 Appendix~\ref{app:descriptor_matrix}.
 
-Five descriptor-level null variants are used to test whether the proposed
+Four descriptor-level null variants are used to test whether the proposed
 descriptor is reducible to simpler summaries. The chainage-only variant uses
 target chainage as the descriptor. The global-Vp variant uses the mean
 low-velocity anomaly score over active rock voxels, without component-specific
 geometry. The distance-only variant uses $A_c(t)$ and therefore contains
 geometry exposure but no geological anomaly weighting. The uniform-edge variant
-replaces geometry-weighted averaging with an unweighted mean anomaly over
-candidate edges. The component-reassignment null uses the same graph
-construction but randomly assigns the comparison to non-target TBM components
-with a fixed random seed, breaking the intended component label. This null is
-used only as a simple component-label disruption check, not as a full
-randomisation test.
+uses the unweighted mean of $q_i$ over candidate rock--machine edges incident to
+the fixed component; it preserves the active-zone screening and component
+membership but removes distance-normal geometry weights.
+
+A component-label permutation diagnostic is reported separately from these
+descriptor-level null variants. At each chainage step, the all-component
+$I_c(t)$ vector is randomly relabelled $N=1000$ times, and the relabelled value
+assigned to the fixed diagnostic component is used as the disrupted descriptor
+series. Both observed and disrupted descriptor series are linearly detrended
+against chainage before Spearman correlation with the detrended residual. This
+check is used as a component-label disruption diagnostic, not as confirmatory
+inference or proof that physically different TBM components are exchangeable.
 
 Two small-sample robustness checks are then applied to each fixed
 diagnostic pair. First, both descriptor and residual series are linearly
@@ -299,7 +313,7 @@ detrended series. Second, a
 circular-shift check rolls the residual sequence by all non-zero shifts and
 reports the proportion of shifted correlations whose absolute value is at least
 as large as the observed value. These values are descriptive diagnostics rather
-than confirmatory $p$-values.
+than confirmatory probabilities.
 
 To account for TSP--TBM chainage alignment uncertainty, the fixed
 diagnostic descriptor series is also shifted by $\delta_x\in\{-1,0,+1\}$\,m
