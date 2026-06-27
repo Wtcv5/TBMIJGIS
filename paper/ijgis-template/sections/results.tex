@@ -12,6 +12,9 @@ Table~\ref{tab:graph_construction_stats} reports the standardized graph support
 used in all three formal runs. The 3558 rock nodes are the active,
 not-yet-excavated TSP voxels retained by the common active-zone rule under the
 1.0\,m voxel grid, $\tau_{\mathrm{zone}}=5.0$\,m, and fixed TBM template.
+The count is constant because the active-zone window is translated with the TBM
+and evaluated on a standardized local support, not because the same absolute
+voxels remain active at all chainages.
 Because the same parameterized TBM surface, active-zone dimensions, surface
 sampling resolution, and edge thresholds are applied across cases, the per-step
 node and edge counts are identical by design. This table is therefore not
@@ -55,26 +58,22 @@ clearer diagnostic pattern than the compact BSLL intervals.
 A notable feature of Table~\ref{tab:descriptor_attribute_stats} is that the
 candidate-edge mean anomaly and $I_c(t)$ are numerically very close in all
 three cases (e.g.\ BSLL h=1: $0.552 \pm 0.157$ vs.\ $0.552 \pm 0.158$). This
-near-equality is expected rather than degenerate: $I_c(t)$ is a
-geometry-weighted average of $q_i$ over candidate edges, and when the $q_i$
-distribution within the active zone is spatially smooth relative to the
-edge-distance decay scale $\tau_{\mathrm{edge}}=2.0$\,m, the geometry weights
-vary less than the anomaly values themselves. The weighting therefore shifts
-the mean only marginally. The diagnostic value of $I_c(t)$ over the
-candidate-edge mean does not lie in a different central tendency, but in the
-component-specific and chainage-specific structure that the pooled mean
-conceals: the per-component, per-chainage $I_c(t)$ matrix retains spatial
-differentiation that the scalar mean cannot represent. The null-model
-comparison in Section~\ref{sec:null_results} tests this directly by comparing
-the proposed descriptor against the candidate-edge mean (uniform-edge variant)
-and the global active-zone mean (global-Vp variant).
+near-equality is expected rather than degenerate: $I_c(t)$ aggregates $q_i$
+over screened candidate edges, and the geometry weights mainly provide
+edge-level contribution traceability in these fixed pairs. The diagnostic value
+shown here does not lie in a different central tendency from the unweighted
+candidate-edge mean. It lies in retaining the component-specific,
+chainage-specific candidate-edge aggregation that the pooled active-zone mean
+conceals. The null-model comparison in Section~\ref{sec:null_results} tests
+this directly by comparing the proposed descriptor against the candidate-edge
+mean (uniform-edge variant) and the global active-zone mean (global-Vp
+variant).
 
 \begin{table}[htbp]
 \centering
 \caption{Case-level descriptor attribute statistics. Mean anomaly is the
 candidate-edge mean of the bounded low-velocity score $q_i$; $I_c(t)$ is the
-geometry-weighted anomaly descriptor pooled over components and test
-chainages.}
+candidate-edge anomaly descriptor pooled over components and test chainages.}
 \label{tab:descriptor_attribute_stats}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -121,7 +120,7 @@ SJLS h=3 & 0.016 & 0.044 & 0.150 \\
 The main graph-derived output is the component--chainage descriptor map built
 from $I_c(t)$. In each case, cutterhead, front-shield, middle-shield, and
 tail-shield values are computed across the test chainage interval as
-geometry-weighted TSP anomaly summaries over candidate rock--machine relations.
+TSP anomaly summaries over screened candidate rock--machine relations.
 
 Figure~\ref{fig:case_context} previews the per-component $I_c(t)$ series
 across the three case runs on the common descriptor support. The BSLL cases
@@ -142,21 +141,20 @@ level.}
 \end{figure}
 
 Figure~\ref{fig:descriptor_evidence} links these descriptor maps to the fixed
-diagnostic residual traces. The heatmaps show where low-velocity anomaly exposure
-is concentrated by component and chainage, while the lower panels show the
-corresponding response residual selected for diagnostic checking. This layout
-makes the evidence chain explicit: the graph first produces a spatial
-component--chainage descriptor, and the residual trace then tests whether that
-descriptor co-varies with response changes left after persistence.
+diagnostic residual traces. Each case panel holds the diagnostic component and
+response fixed, showing the selected $I_c(t)$ series above the corresponding
+persistence residual. This layout makes the evidence chain explicit: the graph
+first produces a component--chainage descriptor, and the residual trace then
+tests whether that descriptor co-varies with response changes left after
+persistence.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig5_descriptor_evidence.pdf}
-\caption{Component--chainage spatial interaction descriptor evidence and
-diagnostic residual traces. Upper panels show $I_c(t)$ values for BSLL h=1,
-BSLL h=3, and SJLS h=3 using a common colour scale. Lower panels show the
-persistence residual series used for the fixed diagnostic pair in each case,
-in the standardized monitoring scale used for residual computation.}
+\caption{Fixed diagnostic descriptor--residual traces. Upper panels show the
+selected component $I_c(t)$ series for each formal case; lower panels show the
+matching persistence residual series in the standardized monitoring scale used
+for residual computation.}
 \label{fig:descriptor_evidence}
 \end{figure}
 
@@ -255,7 +253,7 @@ geometry-weighted descriptors are nearly identical in these fixed pairs, this
 comparison does not isolate an independent gain from distance--normal geometry
 weighting.
 
-A component-label permutation diagnostic ($N=1000$ permutations, with
+A step-wise component-label disruption diagnostic ($N=1000$ permutations, with
 component labels independently shuffled at each chainage step and both the
 observed and disrupted series linearly detrended against chainage before
 correlation) evaluates whether the fixed component label matters after the
@@ -263,16 +261,15 @@ common graph support and chainage trend are removed. As reported in
 Table~\ref{tab:component_permutation}, the descriptive permutation proportions
 are $0.588$ (BSLL h=1), $0.325$ (BSLL h=3), and $<0.001$ (SJLS h=3). This
 diagnostic is a label-disruption check rather than a block-wise or
-case-general permutation test. It suggests that the SJLS fixed component label
-is less easily reproduced by within-step relabelling, but the interpretation is
-conditional on the 1D-extruded SJLS voxel support, per-step relabelling
-scheme, and small sample size. The BSLL values are read as limited-sample
-diagnostics.
+case-general permutation test. It can overstate component specificity because
+the relabelling is performed independently at each chainage step and therefore
+does not preserve complete component series. The values are therefore read only
+as descriptive disruption diagnostics.
 
 \begin{table}[htbp]
 \centering
-\caption{Component-label permutation diagnostic on detrended series. At each
-chainage step, component labels are independently shuffled ($N=1000$
+\caption{Step-wise component-label disruption diagnostic on detrended series.
+At each chainage step, component labels are independently shuffled ($N=1000$
 permutations); both observed and permuted descriptor series are linearly
 detrended against chainage before computing Spearman correlation with the
 detrended residual. The reported proportion is descriptive and unadjusted.}
@@ -286,6 +283,39 @@ Case & Component & $n$ & Observed $\rho$ & Permutation $p$ \\
 BSLL h=1 & front shield & 8 & $0.214$ & $0.588$ \\
 BSLL h=3 & front shield & 7 & $-0.464$ & $0.325$ \\
 SJLS h=3 & cutterhead & 17 & $-0.772$ & $<0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:component_series_reassignment} reports a stricter whole-series
+component reassignment diagnostic. Instead of shuffling labels at each
+chainage, it compares the target component's complete detrended $I_c(t)$ series
+with the complete series from the other components for the same residual. This
+check shows why the component-specific interpretation must remain cautious:
+the fixed target is not always the strongest component series, especially for
+SJLS where tail-shield has a larger absolute detrended association. The result
+supports descriptor--residual consistency more strongly than unique
+component-label specificity.
+Therefore, SJLS is treated as the strongest longitudinal residual-consistency
+case, whereas BSLL remains the only case with fully 3D TSP voxel support for
+component differentiation, although its short test interval limits residual
+evidence.
+
+\begin{table}[htbp]
+\centering
+\caption{Whole-series component reassignment diagnostic. Values are detrended
+Spearman correlations between each complete component $I_c(t)$ series and the
+fixed residual; no per-step label shuffling is used.}
+\label{tab:component_series_reassignment}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcrrrl}
+\toprule
+Case & Target component & Target $\rho$ & Other $\rho$ range & Strongest other $\rho$ & Interpretation \\
+\midrule
+BSLL h=1 & front shield & 0.214 & $-0.214$ to 0.167 & $-0.214$ & tied absolute strength \\
+BSLL h=3 & front shield & $-0.464$ & $-0.500$ to 0.464 & $-0.500$ & target not strongest \\
+SJLS h=3 & cutterhead & $-0.772$ & $-0.135$ to 0.877 & 0.877 & target not strongest \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -376,19 +406,17 @@ The graph representation also supports edge-level inspection. For the SJLS
 diagnostic pair, Figure~\ref{fig:traceability_example} shows the top contributing
 candidate rock--machine relations at the selected chainage. Each contribution
 is traceable to a rock voxel, a TBM surface node, a distance, a normal
-compatibility value, a geometry weight, and a low-velocity anomaly score.
+compatibility value, a geometry weight, and a low-velocity anomaly score; the
+figure displays the leading spatial edges and their ranked contributions, while
+the full edge-attribute rows remain available in the diagnostic outputs.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig8_traceability_example.pdf}
 \caption{Traceability example for a fixed diagnostic pair. Candidate
-rock--machine edges are ranked by $w_{ij}^{rm}(t)q_i$, showing how the
-component--chainage descriptor can be traced back to individual rock voxels
-(labelled by voxel ID and cross-section coordinates) and TBM surface nodes
-(labelled by node ID and coordinates). The table reports the top-8
-contributing edges with their voxel ID, node ID, voxel and node $(y,z)$
-positions, edge distance, normal compatibility $\kappa$, anomaly score $q_i$,
-and weighted contribution.}
+rock--machine edges are ranked by $w_{ij}^{rm}(t)q_i$; the left panel maps the
+top three spatial edges in cross-section, and the right panel reports the top
+five weighted contributions.}
 \label{fig:traceability_example}
 \end{figure}
 

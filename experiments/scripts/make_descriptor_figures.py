@@ -337,57 +337,39 @@ def plot_case_context(root: Path, out_dir: Path) -> None:
 
 def plot_descriptor_evidence(root: Path, out_dir: Path) -> None:
     apply_ijgis_style()
-    fig = plt.figure(figsize=figure_size("double", aspect=0.62))
-    gs = fig.add_gridspec(2, 3, height_ratios=[1.25, 0.85], hspace=0.35, wspace=0.28)
-    heat_axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
-    residual_axes = [fig.add_subplot(gs[1, i], sharex=heat_axes[i]) for i in range(3)]
+    fig = plt.figure(figsize=figure_size("double", aspect=0.54))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.0, 1.0], hspace=0.28, wspace=0.30)
+    desc_axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
+    residual_axes = [fig.add_subplot(gs[1, i], sharex=desc_axes[i]) for i in range(3)]
 
-    heatmaps = {}
-    global_min = np.inf
-    global_max = -np.inf
-    for case_id in CASE_LABELS:
-        case_df = read_csv(root / case_id / "component_spatial_descriptors.csv")
-        heat = case_df.pivot(index="component", columns="chainage", values="I_interaction_intensity")
-        heat = heat.loc[COMPONENT_ORDER]
-        heatmaps[case_id] = heat
-        global_min = min(global_min, float(np.nanmin(heat.values)))
-        global_max = max(global_max, float(np.nanmax(heat.values)))
-
-    im = None
-    for idx, (ax_heat, ax_res, case_id) in enumerate(zip(heat_axes, residual_axes, CASE_LABELS)):
-        heat = heatmaps[case_id]
-        im = ax_heat.imshow(
-            heat.values,
-            aspect="auto",
-            cmap=IJGIS_CMAPS["sequential"],
-            vmin=global_min,
-            vmax=global_max,
-        )
-        ax_heat.set_yticks(np.arange(len(COMPONENT_LABELS)), COMPONENT_LABELS if idx == 0 else [])
-        cols = heat.columns.to_numpy(dtype=float)
-        tick_idx = np.linspace(0, len(cols) - 1, min(4, len(cols)), dtype=int)
-        ax_heat.set_xticks(tick_idx, [f"{cols[i]:.0f}" for i in tick_idx])
-        ax_heat.tick_params(axis="x", labelbottom=False)
-        ax_heat.set_title(CASE_LABELS.get(case_id, case_id))
-        add_panel_label(ax_heat, "abc"[idx])
-
+    for idx, (ax_desc, ax_res, case_id) in enumerate(zip(desc_axes, residual_axes, CASE_LABELS)):
         component, _, response = FIXED_RESPONSE_PAIRS[case_id]
         case_df = read_csv(root / case_id / "component_spatial_descriptors.csv")
         comp_df = case_df[case_df["component"] == component].sort_values("chainage")
-        res = comp_df[f"residual_{response}"].to_numpy(dtype=float)
         chainage = comp_df["chainage"].to_numpy(dtype=float)
+        descriptor = comp_df["I_interaction_intensity"].to_numpy(dtype=float)
+        res = comp_df[f"residual_{response}"].to_numpy(dtype=float)
+
+        comp_color = COMPONENT_PALETTE.get(component, IJGIS_COLORS["full_model"])
+        ax_desc.plot(chainage, descriptor, color=comp_color, marker="o", markersize=2.8, linewidth=1.1)
+        ax_desc.set_title(f"{CASE_LABELS.get(case_id, case_id)}\n{component.replace('_', ' ')} / {RESPONSE_DISPLAY[response].replace(chr(10), ' ')}", fontsize=7, pad=3)
+        if idx == 0:
+            ax_desc.set_ylabel(r"$I_c(t)$")
+        ax_desc.grid(axis="y", alpha=0.25)
+        ax_desc.tick_params(axis="x", labelbottom=False)
+        ax_desc.spines["top"].set_visible(False)
+        ax_desc.spines["right"].set_visible(False)
+        add_panel_label(ax_desc, "abc"[idx])
+
         ax_res.axhline(0, color=IJGIS_COLORS["gray_medium"], linewidth=0.6, linestyle=":")
         ax_res.plot(chainage, res, color=IJGIS_COLORS["truth"], marker="o", markersize=2.6, linewidth=1.0)
-        ax_res.set_xlim(float(cols.min()), float(cols.max()))
+        ax_res.set_xlim(float(chainage.min()), float(chainage.max()))
         ax_res.set_xlabel("Chainage (m)")
         if idx == 0:
             ax_res.set_ylabel("Residual")
-        ax_res.set_title(f"{component.replace('_', ' ')} vs {RESPONSE_DISPLAY[response]}", fontsize=7, pad=3)
-    if im is not None:
-        set_colorbar_style(
-            fig.colorbar(im, ax=heat_axes, fraction=0.046, pad=0.04),
-            r"Interaction intensity $I_c(t)$",
-        )
+        ax_res.grid(axis="y", alpha=0.25)
+        ax_res.spines["top"].set_visible(False)
+        ax_res.spines["right"].set_visible(False)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     save_pdf_and_png(fig, out_dir / "fig5_descriptor_evidence.pdf")
@@ -496,24 +478,22 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
     case = df[df["component"] == "cutterhead"].copy()
     if case.empty:
         case = df.copy()
-    case = case.head(8).copy()
+    case = case.head(5).copy()
     top3 = case.head(3).copy()
-    fig = plt.figure(figsize=figure_size("double", aspect=0.50))
-    gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 0.58], width_ratios=[1.0, 1.05], hspace=0.34, wspace=0.28)
+    fig = plt.figure(figsize=figure_size("double", aspect=0.42))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.18, 1.0], wspace=0.30)
     ax = fig.add_subplot(gs[0, 0])
     norm = plt.Normalize(case["weighted_contribution"].min(), case["weighted_contribution"].max())
     cmap = plt.get_cmap(IJGIS_CMAPS["sequential"])
     for _, row in top3.iterrows():
         color = cmap(norm(row["weighted_contribution"]))
         ax.plot([row["tbm_y"], row["rock_y"]], [row["tbm_z"], row["rock_z"]],
-                color=color, linewidth=1.1, alpha=0.85)
-        # Annotate voxel ID and node ID near each endpoint
-        ax.text(row["rock_y"], row["rock_z"],
-                f"v{int(row['rock_node_id'])}",
-                fontsize=5.8, ha="left", va="bottom", color=IJGIS_COLORS["gray_dark"])
-        ax.text(row["tbm_y"], row["tbm_z"],
-                f"n{int(row['tbm_node_id'])}",
-                fontsize=5.8, ha="right", va="top", color=IJGIS_COLORS["tbm"])
+                color=color, linewidth=1.5, alpha=0.90)
+        mid_y = 0.52 * row["rock_y"] + 0.48 * row["tbm_y"]
+        mid_z = 0.52 * row["rock_z"] + 0.48 * row["tbm_z"]
+        ax.text(mid_y, mid_z, f"#{int(row['rank'])}", fontsize=6.5, ha="center",
+                va="center", color="white",
+                bbox=dict(boxstyle="round,pad=0.15", facecolor=color, edgecolor="none", alpha=0.95))
     sc = ax.scatter(top3["rock_y"], top3["rock_z"], c=top3["weighted_contribution"],
                     cmap=IJGIS_CMAPS["sequential"], s=42, edgecolor="white",
                     linewidth=0.4, label="Rock voxel")
@@ -538,50 +518,15 @@ def plot_traceability_example(root: Path, out_dir: Path) -> None:
     ax = fig.add_subplot(gs[0, 1])
     title_row = case.iloc[0]
     y = np.arange(len(case))[::-1]
-    labels = [f"#{int(r)}" for r in case["rank"]]
+    labels = [f"#{int(r)}  v{int(v)} -> n{int(n)}" for r, v, n in zip(case["rank"], case["rock_node_id"], case["tbm_node_id"])]
     ax.barh(y, case["weighted_contribution"], color=COMPONENT_PALETTE.get(title_row["component"], IJGIS_COLORS["gray_medium"]), alpha=0.85)
     ax.set_yticks(y, labels)
     ax.set_xlabel(r"$w_{ij}q_i$")
-    ax.set_title(f"Top-8 edge contributions: {title_row['component'].replace('_', ' ')} at {title_row['chainage']:.0f} m", fontsize=8)
+    ax.set_title(f"Top-5 edge contributions: {title_row['component'].replace('_', ' ')} at {title_row['chainage']:.0f} m", fontsize=8)
     ax.grid(axis="x", alpha=0.25)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     add_panel_label(ax, "b", x=-0.08, y=1.08)
-
-    ax = fig.add_subplot(gs[1, :])
-    ax.axis("off")
-    table_rows = []
-    for _, row in case.iterrows():
-        table_rows.append([
-            f"#{int(row['rank'])}",
-            f"v{int(row['rock_node_id'])}",
-            f"n{int(row['tbm_node_id'])}",
-            f"({row['rock_y']:.1f},{row['rock_z']:.1f})",
-            f"({row['tbm_y']:.1f},{row['tbm_z']:.1f})",
-            f"{row['distance']:.2f}",
-            f"{row['kappa']:.2f}",
-            f"{row['anomaly_score']:.2f}",
-            f"{row['weighted_contribution']:.3f}",
-        ])
-    ax.text(0.0, 0.96, "Traceable edge attributes for the top-8 contributions",
-            transform=ax.transAxes, fontsize=8, ha="left", va="top")
-    table = ax.table(
-        cellText=table_rows,
-        colLabels=["Edge", "Voxel ID", "Node ID", "Voxel (y,z)", "Node (y,z)",
-                   "Distance (m)", r"$\kappa$", r"$q_i$", r"$w_{ij}q_i$"],
-        bbox=[0.01, 0.04, 0.98, 0.80],
-        cellLoc="center",
-    )
-    table.auto_set_font_size(False)
-    table.set_fontsize(6.1)
-    for (row, col), cell in table.get_celld().items():
-        cell.set_linewidth(0.4)
-        cell.set_edgecolor(IJGIS_COLORS["gray_light"])
-        if row == 0:
-            cell.set_facecolor(IJGIS_COLORS["gray_lightest"])
-            cell.set_text_props(weight="bold")
-        else:
-            if row % 2 == 0:
-                cell.set_facecolor("#FAFAFA")
-    add_panel_label(ax, "c", x=-0.02, y=0.96)
     out_dir.mkdir(parents=True, exist_ok=True)
     save_pdf_and_png(fig, out_dir / "fig8_traceability_example.pdf")
 

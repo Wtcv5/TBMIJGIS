@@ -15,7 +15,7 @@ geometry-constrained candidate relations, component--chainage descriptors, and
 residual diagnosis. (b) TSP-derived rock voxel field with geological attribute
 support. (c) Parameterized TBM surface components advanced along the
 excavation direction. (d) Component-wise chainage-indexed descriptor matrix
-that aggregates geological evidence over geometry-weighted relations.}
+that aggregates geological evidence over screened candidate relations.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -297,13 +297,12 @@ uses the unweighted mean of $q_i$ over candidate rock--machine edges incident to
 the fixed component; it preserves the active-zone screening and component
 membership but removes distance-normal geometry weights.
 
-A component-label permutation diagnostic is reported separately from these
-descriptor-level null variants. At each chainage step, the all-component
-$I_c(t)$ vector is randomly relabelled $N=1000$ times, and the relabelled value
-assigned to the fixed diagnostic component is used as the disrupted descriptor
-series. Both observed and disrupted descriptor series are linearly detrended
-against chainage before Spearman correlation with the detrended residual. This
-check is used as a component-label disruption diagnostic, not as confirmatory
+A separate label-disruption diagnostic is also reported. At each chainage step,
+the all-component $I_c(t)$ vector is randomly relabelled $N=1000$ times, and
+the relabelled value assigned to the fixed diagnostic component is used as the
+disrupted descriptor series. Both observed and disrupted descriptor series are
+linearly detrended against chainage before Spearman correlation with the
+detrended residual. This check is descriptive; it is not confirmatory
 inference, a block-wise permutation test, or proof that physically different
 TBM components are exchangeable.
 

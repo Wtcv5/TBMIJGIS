@@ -3,7 +3,7 @@
 This script implements the revised main experiment evidence:
 
 - A_c(t): component-level geometric exposure;
-- I_c(t): geometry-weighted TSP anomaly intensity;
+- I_c(t): screened candidate-edge TSP anomaly intensity;
 - e_{t+h}: persistence residuals of TBM monitoring responses;
 - descriptor-residual association statistics.
 
@@ -224,7 +224,7 @@ def main() -> None:
             "split_counts": context["split_counts"],
             "descriptor_definition": {
                 "A_c(t)": "sum of geometry weights w_ij over candidate relations incident to component c",
-                "I_c(t)": "geometry-weighted mean q_i over candidate relations incident to component c",
+                "I_c(t)": "candidate-edge mean q_i over screened relations incident to component c, with edge weights retained for traceability",
                 "w_ij": "exp(-distance/tau_edge) * kappa",
                 "q_i": "[0, 1] low-velocity anomaly score using training active-zone Q5/Q95 Vp reference",
                 "residual": "r_{t+h}^{(k)} - r_t^{(k)} using the last observed monitoring response",
