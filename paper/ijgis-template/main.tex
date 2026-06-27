@@ -51,7 +51,7 @@
 \usepackage{placeins}
 \graphicspath{{../../experiments/outputs/figures/}}
 
-\title{Chainage-Referenced Rock--TBM Spatial Interaction Graphs for Component-Level Diagnosis of Excavation Responses}
+\title{Chainage-Referenced Rock--TBM Spatial Interaction Graphs for Component-Indexed Excavation Response Diagnostics}
 
 \author{
 \name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
@@ -76,13 +76,14 @@ Second Author\textsuperscript{b}} \\
 \maketitle
 
 \begin{abstract}
-TBM excavation is a moving rock--machine interaction process in which
-geological anomalies, machine geometry, and operating state jointly shape
-excavation responses. Monitoring curves can capture temporal response
-persistence, but they do not explicitly encode which geological units are
-spatially adjacent to which TBM components or how these relations evolve with
-chainage. This study proposes a chainage-referenced rock--TBM spatial
-interaction graph that formalises TSP-derived rock voxels and parameterized TBM
+Tunnel boring machine (TBM) excavation is a moving rock--machine interaction
+process in which geological anomalies, machine geometry, and operating state
+jointly shape excavation responses. Monitoring curves can capture temporal
+response persistence, but they do not explicitly encode which geological units
+are spatially adjacent to which TBM components or how these relations evolve
+with chainage. This study proposes a chainage-referenced rock--TBM spatial
+interaction graph that formalises tunnel seismic prediction (TSP)-derived rock
+voxels and parameterized TBM
 surface samples as heterogeneous spatial entities. Candidate rock--machine
 relations are screened using active-zone membership, distance decay,
 surface-normal compatibility, and excavation-state constraints. Based on the
@@ -91,7 +92,7 @@ derived by aggregating fixed-reference geological anomaly scores over screened
 rock--machine candidate relations, with geometry weights retained for
 edge-level traceability. The descriptors are evaluated through
 residual-consistency analysis with trend-based and descriptor-level null
-checks. Two tunnel cases indicate that the descriptors provide the clearest
+checks. Two small-sample tunnel cases indicate that the descriptors provide the clearest
 residual-consistent evidence when the TSP velocity contrast is pronounced and
 the evaluation interval is sufficiently long, while compact intervals support
 only limited diagnostic checks. The proposed descriptors are interpreted as
@@ -149,7 +150,11 @@ that can be shared are the experiment configurations, analysis scripts, figure
 scripts, and derived result summaries used to reproduce the reported tables and
 figures. These materials are available from the corresponding author upon
 reasonable request, subject to project data-use permissions; the raw site data
-are not redistributed.
+are not redistributed. To support reproducibility of the spatial graph
+construction without disclosing site data, the authors can also provide a
+synthetic demonstration package containing a small voxel field, TBM surface
+nodes, candidate edge lists, descriptor calculation scripts, and residual
+diagnostic scripts.
 
 \bibliographystyle{plainnat}
 \bibliography{references}

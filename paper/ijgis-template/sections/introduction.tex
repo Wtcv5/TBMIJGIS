@@ -12,7 +12,7 @@ response histories \citep{yagiz2008utilizing,hassanpour2010tbm,armaghani2018pred
 However, a monitoring curve does not state which geological unit is adjacent to
 the cutterhead or shield, whether the adjacency is geometrically plausible, or
 how the candidate rock--machine relation set changes as excavation proceeds.
-This limits the spatial interpretability of monitoring-only diagnosis.
+This limits the spatial interpretability of monitoring-only analysis.
 
 Advance geological prediction and TSP surveys provide the complementary view:
 they describe spatial variation in the ground ahead of or around excavation
@@ -20,11 +20,11 @@ they describe spatial variation in the ground ahead of or around excavation
 geological voxels or attribute fields, preserving where low-velocity or other
 geological anomalies occur. Yet a geological voxel field by itself answers
 where an anomaly is located, not which TBM component is a plausible interaction
-partner at a particular excavation step. A component-level diagnostic
+partner at a particular excavation step. A component-indexed diagnostic
 representation must therefore link geological spatial support to machine
 surface geometry and excavation state.
 
-This study addresses that gap by treating rock--TBM diagnosis as a spatial
+This study addresses that gap by treating rock--TBM interpretation as a spatial
 entity--relation modelling problem. Rock voxels, TBM surface samples,
 rock--rock neighbourhoods, machine-surface adjacencies, and candidate
 rock--machine relations are heterogeneous spatial entities and relations. In
@@ -34,11 +34,16 @@ aggregates them to component--chainage descriptors, and keeps them traceable
 back to individual rock--machine edges. It is not introduced primarily as a
 predictive graph-learning architecture.
 
-The contribution is threefold. First, the paper proposes a
-chainage-referenced rock--TBM spatial entity model that places TSP-derived rock
-voxels, TBM surface components, and monitoring responses in a common excavation
-coordinate system. Second, it constructs candidate rock--machine relation
-graphs constrained by active-zone membership, distance decay, surface-normal
-compatibility, and excavation state. Third, it derives component--chainage
-diagnostic descriptors and evaluates whether they provide residual-consistency
-information beyond monitoring persistence and global geological summaries.
+The novelty is the integration of these elements into one chainage-referenced
+spatial data model, rather than a claim of a new high-accuracy predictor. The
+paper contributes: (i) a rock--TBM spatial entity model that places TSP-derived
+rock voxels, TBM surface components, and monitoring responses in a common
+excavation coordinate system; (ii) an active-zone and geometry-constrained
+candidate-edge construction that makes plausible rock--machine relations
+explicit; (iii) component-indexed chainage descriptors that aggregate geological
+anomaly scores over screened candidate relations; and (iv) a residual-consistency
+diagnostic framework used to inspect whether these descriptors contain
+information beyond monitoring persistence and global geological summaries. The
+empirical evidence is therefore used to support representation, traceability,
+and selected-interval residual consistency, not operational fault attribution
+or forecasting superiority.

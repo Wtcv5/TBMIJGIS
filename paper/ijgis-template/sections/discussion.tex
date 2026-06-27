@@ -18,6 +18,14 @@ The descriptor results are therefore interpreted as evidence that the
 representation can organise rock--machine relations into component--chainage
 diagnostic summaries.
 
+From a digital-earth perspective, the contribution is an underground spatial
+data modelling layer for a moving construction process. It turns TSP-derived
+geological support, TBM surface geometry, and chainage-indexed monitoring into
+dynamic spatial entities and relations that can be inspected and queried. This
+layer is compatible with digital twin workflows, but it addresses a narrower
+representational problem: how to make the rock--machine relation support
+explicit before any prediction, control, or risk-calibration module is built.
+
 \subsection{Diagnostic meaning beyond monitoring curves}
 \label{sec:descriptor_value}
 Comparing $I_c(t)$ with persistence residuals reframes the evaluation question
@@ -49,7 +57,7 @@ construction variability.
 
 The circular-shift checks are also read conservatively. They are useful
 as small-sample diagnostics for monotonic sequence structure, but they are not
-formal multiplicity-adjusted tests. The strongest evidence is the
+formal multiplicity-adjusted tests. The most coherent support comes from the
 combined pattern: fixed diagnostic pairs, detrended comparison, descriptor-level
 null models, threshold sensitivity, anomaly-definition sensitivity, and
 edge-level traceability.
@@ -79,12 +87,12 @@ estimates.
 A second boundary concerns the standardized graph support. All three formal
 runs use an identical parameterized TBM surface, active-zone geometry, surface
 sampling resolution, and edge thresholds, so the per-step node and edge counts
-are the same across cases by construction. This standardisation keeps the
+are the same across cases by construction. This standardization keeps the
 descriptor comparable across cases and prevents graph-size variation from being
 confounded with geological contrast, but it also means that the current
 framework cannot test whether a different TBM geometry, a coarser surface
 sampling, or a different active-zone extent would change the diagnostic
-pattern. The standardised support is therefore both a comparability device and
+pattern. The standardized support is therefore both a comparability device and
 a scope limitation: the reported evidence is conditional on one graph template,
 and sensitivity to machine geometry and active-zone dimensions remains for
 future work.

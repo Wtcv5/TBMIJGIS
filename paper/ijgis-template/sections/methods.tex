@@ -175,6 +175,21 @@ Surface sampling & 0.5\,m & TBM surface-node sampling resolution \\
 \end{tabular}
 \end{table}
 
+The radii $R_c$ and $R_s$ and the shield length are taken from the
+parameterized TBM geometry used to build the surface nodes. The 0.5\,m surface
+sampling is a discretisation choice that keeps the cutterhead and shield
+surfaces sufficiently dense while avoiding a prohibitively large edge set. The
+face look-ahead length $L_f=5.0$\,m and radial buffer
+$\tau_{\mathrm{zone}}=5.0$\,m are engineering heuristic support parameters:
+they define the near-face and near-shield geological volume considered
+potentially relevant at one excavation step, and are intentionally larger than
+the candidate-edge distance threshold $\tau_{\mathrm{edge}}=2.0$\,m. The
+reported sensitivity analysis varies $\tau_{\mathrm{edge}}$ and
+$\eta_{\min}$, which directly affect candidate-edge inclusion. Sensitivity to
+$L_f$ and $\tau_{\mathrm{zone}}$ remains a design-boundary issue because those
+parameters change the active geological support itself rather than only the
+near-surface edge screening.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig3_geometry_constrained_edges.pdf}
@@ -309,11 +324,18 @@ TBM components are exchangeable.
 Two small-sample robustness checks are then applied to each fixed
 diagnostic pair. First, both descriptor and residual series are linearly
 detrended against chainage, and Spearman correlation is recomputed on the
-detrended series. Second, a
+detrended series. Linear detrending is used as a minimal trend-removal device
+because the evaluated intervals are short; it is not intended to model
+nonlinear geological or operational trends. Second, a
 circular-shift check rolls the residual sequence by all non-zero shifts and
 reports the proportion of shifted correlations whose absolute value is at least
 as large as the observed value. These values are descriptive diagnostics rather
-than confirmatory probabilities.
+than confirmatory probabilities, especially for the BSLL intervals where only
+seven or eight non-zero shifts are possible. The full component--response
+matrix in the appendix is exploratory and unadjusted for multiple comparisons;
+it is used to show the descriptor--response landscape rather than to select
+case-general laws. For the fixed pairs, descriptive percentile bootstrap
+intervals are reported for detrended Spearman correlations.
 
 To account for TSP--TBM chainage alignment uncertainty, the fixed
 diagnostic descriptor series is also shifted by $\delta_x\in\{-1,0,+1\}$\,m

@@ -164,32 +164,38 @@ The formal diagnostic statistic is Spearman correlation between $I_c(t)$ and
 the persistence residual $e_{t+h}^{(k)}$. Table~\ref{tab:primary_diagnostic}
 reports the representative diagnostic pairs together with raw
 Spearman correlation, linearly detrended Spearman correlation, and the
-circular-shift diagnostic. One pair is fixed for each case to prevent
-parameter-wise re-selection during null and sensitivity checks. The pairs cover
-the compact BSLL h=1 interval, the BSLL h=3 shield-pressure interval, and the
-external SJLS shield-pressure case. The values are descriptive and are not
-treated as confirmatory hypothesis tests.
+circular-shift diagnostic. The pairs are representative diagnostic slices
+selected from the main descriptor--response matrix before the secondary null,
+alignment, and sensitivity checks. They cover the compact BSLL h=1 interval,
+the BSLL h=3 shield-pressure interval, and the external SJLS shield-pressure
+case, while retaining component--response combinations with direct engineering
+plausibility. They are not claimed to be unique physically responsible
+components or globally strongest pairs; Appendix~\ref{app:descriptor_matrix}
+reports the full exploratory matrix without multiplicity adjustment. The values
+are descriptive and are not treated as confirmatory hypothesis tests.
 
 \begin{table}[htbp]
 \centering
 \caption{Representative diagnostic descriptor--residual diagnostics for fixed
-component--response pairs. Circular-shift values are descriptive small-sample
-checks.}
+component--response pairs. Bootstrap intervals are descriptive percentile
+intervals for detrended Spearman correlations ($10{,}000$ resamples).}
 \label{tab:primary_diagnostic}
 \scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{llrrrr}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrrrr}
 \toprule
-Case & Diagnostic pair & $n$ & Raw $\rho$ & Detrended $\rho$ & Shift check \\
+Case & Diagnostic pair & $n$ & Raw $\rho$ & Detrended $\rho$ & 95\% CI & Shift check \\
 \midrule
-BSLL h=1 & Front shield--advance rate & 8 & 0.381 & 0.214 & 0.375 \\
-BSLL h=3 & Front shield--shield pressure & 7 & -0.750 & -0.464 & 0.429 \\
-SJLS h=3 & Cutterhead--shield pressure & 17 & -0.912 & -0.772 & 0.059 \\
+BSLL h=1 & Front shield--advance rate & 8 & 0.381 & 0.214 & $[-0.671, 1.000]$ & 0.375 \\
+BSLL h=3 & Front shield--shield pressure & 7 & -0.750 & -0.464 & $[-0.957, 0.769]$ & 0.429 \\
+SJLS h=3 & Cutterhead--shield pressure & 17 & -0.912 & -0.772 & $[-0.968, -0.375]$ & 0.059 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The SJLS case shows the most evident descriptor--residual co-variation. Its
+The bootstrap intervals are wide for the two BSLL cases, reflecting the small
+test intervals ($n=8$ and $n=7$). SJLS shows the most evident
+descriptor--residual co-variation. Its
 cutterhead $I_c(t)$--shield-pressure residual association remains strong after
 linear detrending ($\rho=-0.772$), whereas the BSLL evidence weakens under
 detrending. This difference is consistent with the longer SJLS test interval
@@ -220,7 +226,9 @@ variants.
 \caption{Descriptor-level null-model comparison for the representative
 diagnostic pairs. Bars report raw and linearly detrended
 Spearman correlations for the proposed descriptor and four descriptor-level
-null variants.
+null variants. For the fixed pairs, the uniform-edge descriptor is essentially
+the same as the proposed descriptor, so this figure does not demonstrate an
+independent performance benefit of distance--normal geometry weighting.
 The comparison evaluates descriptor diagnostic structure, not prediction
 accuracy.}
 \label{fig:null_model_comparison}
