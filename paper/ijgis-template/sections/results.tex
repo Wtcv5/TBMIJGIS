@@ -1,34 +1,41 @@
-\subsection{Constructed rock--machine interaction graph sequences}
+\label{sec:results}
+The results are organised around the three functions of the method rather than
+around prediction accuracy alone. Section~\ref{sec:constructed_graphs} first
+shows how the construction produces an explicit and queryable graph support
+under controlled spatial parameters.
+Section~\ref{sec:component_chainage_patterns} then examines whether edge
+aggregation produces component-indexed anomalous interaction fields.
+Sections~\ref{sec:residual_results}--\ref{sec:null_results} evaluate whether
+selected field readouts co-vary with monitoring residuals beyond simple trend
+or pooled-exposure alternatives. The final sensitivity and traceability
+results state the boundary of the evidence by testing parameter dependence,
+attribute definition, component indexing, and edge-contribution concentration.
+
+\subsection{Geometry-constrained interaction graph construction}
 \label{sec:constructed_graphs}
-The first result is the constructed spatial relation object itself. For each
-case, TSP-derived rock voxels and parameterized TBM surface nodes are mapped to
-the same chainage-referenced coordinate system, and the candidate relation set
+The constructed spatial relation object is the first result. For each case,
+TSP-derived rock voxels and parameterized TBM surface nodes are mapped to the
+same chainage-referenced coordinate system, and the candidate relation set
 $E_t^{rm}$ is rebuilt at each excavation step. Figure~\ref{fig:geometry_edges}
 illustrates the construction rule: candidate relations are screened by
 active-zone membership, distance threshold, surface-normal compatibility, and
 excavation state.
 
 Table~\ref{tab:graph_construction_stats} reports the standardized graph support
-used in all three formal runs. The 3558 rock nodes are the active,
-not-yet-excavated TSP voxels retained by the common active-zone rule under the
-1.0\,m voxel grid, $\tau_{\mathrm{zone}}=5.0$\,m, and fixed TBM template.
-The count is constant because the active-zone window is translated with the TBM
-and evaluated on a standardized local support, not because the same absolute
-voxels remain active at all chainages.
-Because the same parameterized TBM surface, active-zone dimensions, surface
-sampling resolution, and edge thresholds are applied across cases, the per-step
-node and edge counts are identical by design. This table is therefore not
-evidence of dynamic graph-size variation across cases; it documents the fixed
-spatial support template on which the case-specific $q_i$, $I_c(t)$, and
-residual series are computed. The case contrast is expressed by geological
-attribute values, target chainages, and monitoring residuals, not by different
-graph-size templates.
+used in all three formal runs. The same TBM template, active-zone geometry,
+surface sampling, and edge thresholds are used throughout, so the table
+documents a common graph support rather than case-specific graph-size
+variation. Case differences enter through geological anomaly scores, target
+excavation steps, and monitoring residuals.
+The screened graph is sparse in a literal bipartite-graph sense: the 14,620
+candidate rock--machine edges represent about 0.30\% of the
+$3558\times1352$ possible rock--surface node pairs before geometric screening.
 
 \begin{table}[htbp]
 \centering
 \caption{Standardized graph support template applied in all formal runs. Edge
 shares are computed from candidate rock--machine relations under the common
-main graph setting. The identical counts confirm that case contrasts originate
+main graph setting. The identical counts document that case contrasts originate
 from geological attributes and residuals, not from graph-size variation.}
 \label{tab:graph_construction_stats}
 \scriptsize
@@ -44,36 +51,36 @@ SJLS h=3 & 3558 & 1352 & 14620 & 0.145 & 0.855 \\
 \end{tabular}
 \end{table}
 
-The descriptor statistics in Table~\ref{tab:descriptor_attribute_stats}
-explain why SJLS provides clearer diagnostic evidence despite using the same
-graph support template. SJLS is not stronger because it has a larger graph; it
-is stronger because the standardized support is populated by a more uniformly
-high low-velocity anomaly field. This interpretation is conditional on the SJLS
+The field statistics in Table~\ref{tab:descriptor_attribute_stats}
+explain why SJLS provides clearer field--residual evidence under the same
+graph support template. The distinction does not come from graph size. It comes
+from the more uniformly high low-velocity anomaly field assigned to the
+standardized support. This interpretation is conditional on the SJLS
 geological support being a 1D-extruded TSP velocity profile rather than a fully
 3D-inverted voxel field; the SJLS result is therefore evidence of longitudinal
-descriptor--residual consistency under a common support, not proof of fully 3D
+field--residual consistency under a common support, not proof of fully 3D
 component differentiation. Within that boundary, the SJLS interval provides a
-clearer diagnostic pattern than the compact BSLL intervals.
+clearer field--residual pattern than the compact BSLL intervals.
 
 A notable feature of Table~\ref{tab:descriptor_attribute_stats} is that the
 candidate-edge mean anomaly and $I_c(t)$ are numerically very close in all
 three cases (e.g.\ BSLL h=1: $0.552 \pm 0.157$ vs.\ $0.552 \pm 0.158$). This
 near-equality is expected rather than degenerate: $I_c(t)$ aggregates $q_i$
-over screened candidate edges, and the geometry weights mainly provide
-edge-level contribution traceability in these fixed pairs. The diagnostic value
-shown here does not lie in a different central tendency from the unweighted
-candidate-edge mean. It lies in retaining the component-specific,
-chainage-specific candidate-edge aggregation that the pooled active-zone mean
-conceals. The null-model comparison in Section~\ref{sec:null_results} tests
-this directly by comparing the proposed descriptor against the candidate-edge
-mean (uniform-edge variant) and the global active-zone mean (global-Vp
-variant).
+over screened candidate edges. Within the present field-readout pairs, the
+empirical distinction is mainly between component-indexed candidate-edge
+aggregation and pooled or global summaries; the additional numerical effect of
+distance-normal weighting is secondary. The value of the proposed field readout lies
+in retaining the component-specific, excavation-step-specific candidate-edge
+aggregation that the pooled active-zone mean conceals. The null-model
+comparison in Section~\ref{sec:null_results} tests this directly by comparing
+the proposed field readout against the candidate-edge mean (uniform-edge
+variant) and the global active-zone mean (global-Vp variant).
 
 \begin{table}[htbp]
 \centering
-\caption{Case-level descriptor attribute statistics. Mean anomaly is the
-candidate-edge mean of the bounded low-velocity score $q_i$; $I_c(t)$ is the
-candidate-edge anomaly descriptor pooled over components and test chainages.}
+\caption{Attribute statistics of the anomalous interaction field. Mean anomaly is the
+candidate-edge mean of the bounded low-velocity score $q_i$; $I_c(t)$ is
+summarised over component-level field values and test chainages.}
 \label{tab:descriptor_attribute_stats}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -88,18 +95,18 @@ SJLS h=3 & $0.913 \pm 0.045$ & $0.913 \pm 0.045$ & $1170.9 \pm 294.2$ \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:component_contrast} summarizes the retained
-component--chainage structure directly. BSLL shows stronger cross-component
-contrast in $I_c(t)$ but has too few test samples to support a stable
-residual association. SJLS shows weaker cross-component contrast, as expected
-for a 1D-extruded velocity profile with common cross-sectional support; its
-stronger evidence therefore comes from longitudinal descriptor--residual
-co-variation, not from fully 3D component differentiation.
+Table~\ref{tab:component_contrast} summarises the retained
+component-indexed field structure directly. BSLL shows stronger cross-component
+contrast in $I_c(t)$, while SJLS shows weaker cross-component contrast, as
+expected for a 1D-extruded velocity profile with common cross-sectional
+support. The two cases therefore emphasise different aspects of the field:
+BSLL illustrates component differentiation under 3D voxel support, whereas
+SJLS illustrates longitudinal field--residual co-variation.
 
 \begin{table}[htbp]
 \centering
-\caption{Component contrast in the $I_c(t)$ descriptor field. The statistics
-summarize the per-component, per-chainage descriptor matrix and are not
+\caption{Component contrast in the $I_c(t)$ field. The statistics
+summarize the per-component, per-chainage field matrix and are not
 response-model scores.}
 \label{tab:component_contrast}
 \scriptsize
@@ -115,15 +122,15 @@ SJLS h=3 & 0.016 & 0.044 & 0.150 \\
 \end{tabular}
 \end{table}
 
-\subsection{Component--chainage descriptor patterns and residual traces}
+\subsection{Anomalous interaction field patterns}
 \label{sec:component_chainage_patterns}
-The main graph-derived output is the component--chainage descriptor map built
+The main graph-derived output is the component $\times$ excavation-step field built
 from $I_c(t)$. In each case, cutterhead, front-shield, middle-shield, and
 tail-shield values are computed across the test chainage interval as
 TSP anomaly summaries over screened candidate rock--machine relations.
 
 Figure~\ref{fig:case_context} previews the per-component $I_c(t)$ series
-across the three case runs on the common descriptor support. The BSLL cases
+across the three case runs on the common graph support. The BSLL cases
 operate over compact chainage intervals (about 6--7\,m), while SJLS spans a
 longer test interval (about 16\,m) with a markedly higher anomaly level. This
 figure motivates the case-level diagnostic contrast examined in the
@@ -132,40 +139,39 @@ remainder of this section.
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=0.95\linewidth]{fig4_case_context.pdf}
-\caption{Per-component $I_c(t)$ descriptor series for the three formal case
+\caption{Per-component $I_c(t)$ field series for the three formal case
 runs on the common standardized graph support. Shaded bands mark the test
-chainage interval; BSLL cases are compact ($n=8, 7$), while SJLS provides a
-longer test interval ($n=17$) with a uniformly high low-velocity anomaly
-level.}
+chainage interval; BSLL cases are compact, while SJLS provides a longer test
+interval with a uniformly high low-velocity anomaly level.}
 \label{fig:case_context}
 \end{figure}
 
-Figure~\ref{fig:descriptor_evidence} links these descriptor maps to the fixed
+Figure~\ref{fig:descriptor_evidence} links these field readouts to the fixed
 diagnostic residual traces. Each case panel holds the diagnostic component and
 response fixed, showing the selected $I_c(t)$ series above the corresponding
 persistence residual. This layout makes the evidence chain explicit: the graph
-first produces a component--chainage descriptor, and the residual trace then
-tests whether that descriptor co-varies with response changes left after
+first produces a component-indexed field readout, and the residual trace then
+tests whether that readout co-varies with response changes left after
 persistence.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig5_descriptor_evidence.pdf}
-\caption{Fixed diagnostic descriptor--residual traces. Upper panels show the
+\caption{Fixed diagnostic field--residual traces. Upper panels show the
 selected component $I_c(t)$ series for each formal case; lower panels show the
 matching persistence residual series in the standardized monitoring scale used
 for residual computation.}
 \label{fig:descriptor_evidence}
 \end{figure}
 
-\subsection{Representative diagnostic descriptor--residual associations}
+\subsection{Field--response residual associations}
 \label{sec:residual_results}
-The formal diagnostic statistic is Spearman correlation between $I_c(t)$ and
+The reported association is the Spearman correlation between $I_c(t)$ and
 the persistence residual $e_{t+h}^{(k)}$. Table~\ref{tab:primary_diagnostic}
 reports the representative diagnostic pairs together with raw
 Spearman correlation, linearly detrended Spearman correlation, and the
 circular-shift diagnostic. The pairs are representative diagnostic slices
-selected from the main descriptor--response matrix before the secondary null,
+selected from the main field--response matrix before the secondary null,
 alignment, and sensitivity checks. They cover the compact BSLL h=1 interval,
 the BSLL h=3 shield-pressure interval, and the external SJLS shield-pressure
 case, while retaining component--response combinations with direct engineering
@@ -176,7 +182,7 @@ are descriptive and are not treated as confirmatory hypothesis tests.
 
 \begin{table}[htbp]
 \centering
-\caption{Representative diagnostic descriptor--residual diagnostics for fixed
+\caption{Representative diagnostic field--residual diagnostics for fixed
 component--response pairs. Bootstrap intervals are descriptive percentile
 intervals for detrended Spearman correlations ($10{,}000$ resamples).}
 \label{tab:primary_diagnostic}
@@ -193,51 +199,85 @@ SJLS h=3 & Cutterhead--shield pressure & 17 & -0.912 & -0.772 & $[-0.968, -0.375
 \end{tabular}
 \end{table}
 
-The bootstrap intervals are wide for the two BSLL cases, reflecting the small
-test intervals ($n=8$ and $n=7$). SJLS shows the most evident
-descriptor--residual co-variation. Its
+The bootstrap intervals are wide for the two BSLL cases, reflecting the compact
+test intervals. SJLS shows the clearest field--residual co-variation: its
 cutterhead $I_c(t)$--shield-pressure residual association remains strong after
 linear detrending ($\rho=-0.772$), whereas the BSLL evidence weakens under
 detrending. This difference is consistent with the longer SJLS test interval
 and clearer external TSP velocity contrast. The BSLL results are retained as
-compact diagnostic checks, but they do not support a strong case-general rule.
+compact diagnostic checks within their evaluated intervals.
 
-For completeness, Appendix~\ref{app:descriptor_matrix} reports the full
-component--response Spearman matrix for $I_c(t)$. The matrix is exploratory and
+Table~\ref{tab:delta_field_association} adds the step-change readout of the
+component $\times$ excavation-step field. The clearest additional pattern is
+observed in SJLS: although $\Delta I_c(t)$ is weakly associated with the
+residual level, it has a large negative association with the step-level residual change
+($\rho=-0.724$ raw and $-0.732$ after detrending). This supports reading the
+field as an excavation-step anomaly trajectory, not only as a static
+low-velocity summary. The BSLL step-change values are reported as descriptive
+checks over six or seven differenced samples.
+
+\begin{table}[htbp]
+\centering
+\caption{Step-change association for the component-level anomalous interaction
+field. Values are Spearman correlations for the same fixed diagnostic pairs as
+Table~\ref{tab:primary_diagnostic}.}
+\label{tab:delta_field_association}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrr}
+\toprule
+Case & Comparison & $n$ & Raw $\rho$ & Detrended $\rho$ \\
+\midrule
+BSLL h=1 & $I_c(t)$ vs. residual & 8 & 0.381 & 0.214 \\
+BSLL h=1 & $\Delta I_c(t)$ vs. residual & 7 & 0.429 & -0.143 \\
+BSLL h=1 & $\Delta I_c(t)$ vs. $\Delta$ residual & 7 & 0.214 & -0.214 \\
+BSLL h=3 & $I_c(t)$ vs. residual & 7 & -0.750 & -0.464 \\
+BSLL h=3 & $\Delta I_c(t)$ vs. residual & 6 & -0.600 & -0.600 \\
+BSLL h=3 & $\Delta I_c(t)$ vs. $\Delta$ residual & 6 & 0.029 & -0.543 \\
+SJLS h=3 & $I_c(t)$ vs. residual & 17 & -0.912 & -0.772 \\
+SJLS h=3 & $\Delta I_c(t)$ vs. residual & 16 & -0.071 & -0.474 \\
+SJLS h=3 & $\Delta I_c(t)$ vs. $\Delta$ residual & 16 & -0.724 & -0.732 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Appendix~\ref{app:descriptor_matrix} reports the full component--response
+Spearman matrix for the field readout $I_c(t)$. The matrix is exploratory and
 unadjusted for multiple testing. The fixed pairs in
 Table~\ref{tab:primary_diagnostic} are diagnostic slices interpreted together
 with the null, detrending, sensitivity, and traceability checks below.
 
-\subsection{Descriptor-level null comparisons}
+\subsection{Null and relation-support comparisons}
 \label{sec:null_results}
-The null-model comparison tests whether the fixed diagnostic associations can be
-explained by simpler summaries. Figure~\ref{fig:null_model_comparison} shows
-raw and detrended correlations for the proposed descriptor and four
-descriptor-level null variants.
-The most important diagnostic is the detrended comparison, because
+The null-model comparison asks whether simpler summaries account for the fixed
+diagnostic associations. Figure~\ref{fig:null_model_comparison} shows
+raw and detrended correlations for the proposed field readout and four
+field-readout null variants.
+The detrended comparison is the main diagnostic because
 chainage and global anomaly can both carry strong monotonic trends in short
 test intervals. Table~\ref{tab:null_comparison} lists the detrended
-correlations for the proposed descriptor and four descriptor-level null
+correlations for the proposed field readout and four field-readout null
 variants.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig6_null_model_comparison.pdf}
-\caption{Descriptor-level null-model comparison for the representative
+\caption{Field-readout null-model comparison for the representative
 diagnostic pairs. Bars report raw and linearly detrended
-Spearman correlations for the proposed descriptor and four descriptor-level
-null variants. For the fixed pairs, the uniform-edge descriptor is essentially
-the same as the proposed descriptor, so this figure does not demonstrate an
-independent performance benefit of distance--normal geometry weighting.
-The comparison evaluates descriptor diagnostic structure, not prediction
+Spearman correlations for the proposed field readout and four readout
+variants. For the fixed pairs, the uniform-edge readout is essentially
+the same as the proposed readout; the figure therefore separates the
+component-indexed anomaly aggregation from any additional performance effect
+of distance--normal geometry weighting.
+The comparison evaluates field-readout diagnostic structure, not prediction
 accuracy.}
 \label{fig:null_model_comparison}
 \end{figure}
 
 \begin{table}[htbp]
 \centering
-\caption{Detrended Spearman correlations for the proposed descriptor and four
-descriptor-level null variants. The component-label disruption diagnostic is
+\caption{Detrended Spearman correlations for the proposed field readout and
+four field-readout null variants. The component-label disruption diagnostic is
 reported separately in Table~\ref{tab:component_permutation}.}
 \label{tab:null_comparison}
 \scriptsize
@@ -254,12 +294,55 @@ SJLS h=3 & -0.772 & -0.009 & -0.179 & 0.000 & -0.772 \\
 \end{table}
 
 For SJLS, the raw chainage-only and global-Vp associations are high, but both
-collapse after detrending. The proposed descriptor retains a strong detrended
-association, indicating that the component-specific candidate-edge aggregation
-contains more than a simple chainage trend. Because the uniform-edge and
-geometry-weighted descriptors are nearly identical in these fixed pairs, this
-comparison does not isolate an independent gain from distance--normal geometry
-weighting.
+drop markedly after detrending. The proposed field readout retains a strong
+detrended association, indicating that the component-specific candidate-edge
+aggregation retains residual-consistent structure beyond a simple chainage
+trend. Because the uniform-edge and geometry-weighted readouts are nearly
+identical in these fixed pairs, the comparison supports component-indexed
+candidate-edge aggregation more directly than a separate gain from
+distance--normal geometry weighting.
+
+Table~\ref{tab:relation_support_ablation} further separates relation-support
+effects. Removing the normal-compatibility threshold has little effect on the
+fixed-pair correlations in these samples, and the distance-weighted anomaly variant
+weakens but retains the SJLS association. The most important contrast is the pooled TBM
+surface variant: after removing component indexing, the detrended SJLS
+association changes from $-0.772$ to $0.265$, and the BSLL h=3 association is
+also weakened. These comparisons support component-indexed candidate-edge
+aggregation more strongly than an independent empirical gain from the
+distance--normal weight itself.
+Here, ``distance-weighted anomaly'' denotes a geology-weighted field built
+with distance weights but without normal compatibility; it differs from the
+distance-only exposure null in Table~\ref{tab:null_comparison}, which contains
+geometry exposure but no anomaly score.
+
+\begin{table}[htbp]
+\centering
+\caption{Relation-support ablation for fixed diagnostic pairs. Values are
+Spearman correlations between each ablated field readout and the fixed
+monitoring residual.}
+\label{tab:relation_support_ablation}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrr}
+\toprule
+Case & Variant & Raw $\rho$ & Detrended $\rho$ \\
+\midrule
+BSLL h=1 & Proposed & 0.381 & 0.214 \\
+BSLL h=1 & No normal screen & 0.381 & 0.214 \\
+BSLL h=1 & Distance-weighted anomaly & 0.381 & 0.214 \\
+BSLL h=1 & Pooled TBM surface & 0.452 & 0.167 \\
+BSLL h=3 & Proposed & -0.750 & -0.464 \\
+BSLL h=3 & No normal screen & -0.750 & -0.464 \\
+BSLL h=3 & Distance-weighted anomaly & -0.750 & -0.464 \\
+BSLL h=3 & Pooled TBM surface & 0.536 & -0.179 \\
+SJLS h=3 & Proposed & -0.912 & -0.772 \\
+SJLS h=3 & No normal screen & -0.912 & -0.772 \\
+SJLS h=3 & Distance-weighted anomaly & -0.860 & -0.586 \\
+SJLS h=3 & Pooled TBM surface & -0.488 & 0.265 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 A step-wise component-label disruption diagnostic ($N=1000$ permutations, with
 component labels independently shuffled at each chainage step and both the
@@ -269,16 +352,16 @@ common graph support and chainage trend are removed. As reported in
 Table~\ref{tab:component_permutation}, the descriptive permutation proportions
 are $0.588$ (BSLL h=1), $0.325$ (BSLL h=3), and $<0.001$ (SJLS h=3). This
 diagnostic is a label-disruption check rather than a block-wise or
-case-general permutation test. It can overstate component specificity because
-the relabelling is performed independently at each chainage step and therefore
-does not preserve complete component series. The values are therefore read only
-as descriptive disruption diagnostics.
+case-general permutation test. Because relabelling is performed independently
+at each chainage step, the test can overstate component specificity and does
+not preserve complete component series. The values are read only as
+descriptive disruption diagnostics.
 
 \begin{table}[htbp]
 \centering
 \caption{Step-wise component-label disruption diagnostic on detrended series.
 At each chainage step, component labels are independently shuffled ($N=1000$
-permutations); both observed and permuted descriptor series are linearly
+permutations); both observed and permuted field-readout series are linearly
 detrended against chainage before computing Spearman correlation with the
 detrended residual. The reported proportion is descriptive and unadjusted.}
 \label{tab:component_permutation}
@@ -299,12 +382,12 @@ Table~\ref{tab:component_series_reassignment} reports a stricter whole-series
 component reassignment diagnostic. Instead of shuffling labels at each
 chainage, it compares the target component's complete detrended $I_c(t)$ series
 with the complete series from the other components for the same residual. This
-check shows why the component-specific interpretation must remain cautious:
+check motivates a cautious component-specific interpretation:
 the fixed target is not always the strongest component series, especially for
 SJLS where tail-shield has a larger absolute detrended association. The result
-supports descriptor--residual consistency more strongly than unique
+supports field--residual consistency more strongly than unique
 component-label specificity.
-Therefore, SJLS is treated as the strongest longitudinal residual-consistency
+SJLS is therefore treated as the strongest longitudinal residual-consistency
 case, whereas BSLL remains the only case with fully 3D TSP voxel support for
 component differentiation, although its short test interval limits residual
 evidence.
@@ -330,24 +413,24 @@ SJLS h=3 & cutterhead & $-0.772$ & $-0.135$ to 0.877 & 0.877 & target not strong
 
 The null variants separate three questions. The global-Vp variant asks whether
 a case-level active-zone mean is sufficient. The distance-only variant asks
-whether geometric exposure alone explains the residual association. The
+whether geometric exposure alone accounts for the residual association. The
 uniform-edge variant keeps the fixed component and the screened candidate-edge
 set, but removes distance--normal weights by using an unweighted mean of
 $q_i$. In Table~\ref{tab:null_comparison}, the uniform-edge values are
-numerically the same as the proposed descriptor for the fixed pairs. The
-current evidence therefore supports component-specific candidate-edge
-aggregation over global active-zone averaging, but it does not show a separate
-incremental benefit of geometry weighting within these samples. The geometry
+numerically the same as the proposed field readout for the fixed pairs. The
+comparisons therefore support component-specific candidate-edge aggregation
+over global active-zone averaging. Within these samples, the
+incremental empirical benefit of geometry weighting remains secondary. The geometry
 weights remain part of the representation because they define a transparent,
 queryable edge contribution $w_{ij}^{rm}(t)q_i$, but their independent
 empirical gain requires larger or more spatially heterogeneous cases.
 
-\subsection{Sensitivity to graph thresholds and anomaly definitions}
+\subsection{Sensitivity to graph and anomaly settings}
 \label{sec:sensitivity}
 Figure~\ref{fig:descriptor_sensitivity} tests whether the fixed
 $I_c(t)$--residual pairs are preserved when the edge-distance threshold
 $\tau_{\mathrm{edge}}$ and normal-compatibility threshold $\eta_{\min}$ are
-varied. The same descriptor--response pair is held fixed in each case, so the
+varied. The same field--response pair is held fixed in each case, so the
 figure evaluates threshold stability rather than searching for a new strongest
 pair.
 
@@ -357,7 +440,7 @@ pair.
 \caption{Sensitivity of fixed $I_c(t)$--residual pairs to graph-construction
 thresholds. Each panel reports raw Spearman $\rho$ while varying
 $\tau_{\mathrm{edge}}$ and $\eta_{\min}$ for one formal case; the
-descriptor--response pair is held fixed throughout.}
+field--response pair is held fixed throughout.}
 \label{fig:descriptor_sensitivity}
 \end{figure}
 
@@ -392,7 +475,7 @@ BSLL checks are more variable, again reflecting their short test intervals.
 \begin{table}[htbp]
 \centering
 \caption{Sensitivity of fixed diagnostic pairs to $\pm1$\,m longitudinal
-descriptor alignment offsets. Values report raw/detrended Spearman
+field-readout alignment offsets. Values report raw/detrended Spearman
 correlations.}
 \label{tab:alignment_sensitivity}
 \scriptsize
@@ -408,7 +491,7 @@ SJLS h=3 & -0.850 / -0.397 & -0.912 / -0.772 & -0.938 / -0.874 \\
 \end{tabular}
 \end{table}
 
-\subsection{Edge-level traceability}
+\subsection{Edge-contribution traceability}
 \label{sec:traceability}
 The graph representation also supports edge-level inspection. For the SJLS
 diagnostic pair, Figure~\ref{fig:traceability_example} shows the top contributing
@@ -428,8 +511,36 @@ five weighted contributions.}
 \label{fig:traceability_example}
 \end{figure}
 
+Table~\ref{tab:edge_concentration} summarises the concentration of weighted
+edge contributions across the fixed diagnostic component in each case. The
+top five edges account for only about 0.5\% of the total contribution and the
+normalised entropy is close to one, indicating that the field readout is
+distributed across a broad screened relation set rather than dominated by a
+few extreme edges. Edge-level query should therefore be read as a way to
+inspect contributing relations and their ranks, not as evidence that one or
+two edges physically caused the monitoring response.
+
+\begin{table}[htbp]
+\centering
+\caption{Mean edge-contribution concentration across the fixed diagnostic
+component in the test interval. Effective edge number is computed from the
+normalised edge-contribution weights.}
+\label{tab:edge_concentration}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+Case & Top-5 share & Top-10 share & Effective edges & Entropy \\
+\midrule
+BSLL h=1 & 0.005 & 0.010 & 3033.2 & 0.985 \\
+BSLL h=3 & 0.005 & 0.010 & 3024.7 & 0.985 \\
+SJLS h=3 & 0.005 & 0.009 & 1890.9 & 0.992 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 This traceability is the main practical difference between the proposed graph
-descriptor and a monitoring-only residual curve. The descriptor can be queried
-back to the spatial relation set that produced it, while the residual curve
-alone cannot identify which geological voxels and machine components were
-involved in the diagnostic summary.
+field readout and a monitoring-only residual curve. The field readout can be
+traced back to the spatial relation set that produced it, whereas the residual
+curve alone cannot identify which geological voxels and machine components
+were involved.

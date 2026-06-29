@@ -1,4 +1,4 @@
-\subsection{Case roles and data sources}
+\subsection{Tunnel cases and data alignment}
 \label{sec:case_roles}
 
 The experiments use two real tunnel cases with complementary evidential roles.
@@ -8,18 +8,19 @@ is excavated in a mixed hard-rock environment dominated by moderately to
 strongly weathered granite and granitic gneiss, with local fault-fracture
 zones and intermittent low-velocity intervals that produce spatially variable
 $V_p$ along the alignment. It provides a compact case for testing whether
-component--chainage descriptors can be constructed and related to response
+component-indexed field readouts are consistently constructed and related to response
 residuals over short target intervals. The SJLS (Shijiang--Luoshan) tunnel
 case starts from Dyk1252+411 and is evaluated under h=3. The SJLS section
 crosses a more clearly delineated low-velocity weak zone associated with
 fractured and water-bearing strata, producing a sustained external TSP
-velocity contrast over a longer test interval for descriptor--residual
+velocity contrast over a longer test interval for field--residual
 association.
 
 For each excavation step, the monitoring vector contains advance rate,
-cutterhead revolutions per minute (RPM), torque, thrust, penetration, and shield pressure. The diagnostic
-responses are advance rate, torque, thrust, penetration, and shield pressure.
-The raw monitoring records are recorded at irregular per-ring intervals and are
+cutterhead revolutions per minute (RPM), torque, thrust, penetration, and
+shield pressure. The diagnostic responses are advance rate, torque, thrust,
+penetration, and shield pressure. Raw monitoring records are collected at
+irregular per-ring intervals and are
 mileage-sorted and aggregated to a uniform 1.0\,m chainage grid by averaging
 records falling in the same rounded chainage bin. This aligns all response
 variables to the same chainage-indexed step $t$ used by the graph sequence and
@@ -44,25 +45,25 @@ voxel schema by extruding each 1D velocity profile radially over the
 $\pm 20$\,m cross-sectional extent at $1.0\,\mathrm{m}\times
 1.0\,\mathrm{m}\times 1.0\,\mathrm{m}$ voxel resolution; the extruded voxels
 inherit the profile $V_p$ and $V_s$ values. Other schema fields such as
-velocity ratio, elastic moduli, Poisson's ratio, or density can be stored when
-available, but they are not used by the main descriptor. This profile-to-voxel
+velocity ratio, elastic moduli, Poisson's ratio, or density are stored when
+available but are not used by the main graph-field computation. This profile-to-voxel
 conversion keeps the SJLS and BSLL inputs in a common voxel format while
 acknowledging that SJLS geological support is effectively 1D-extruded rather
 than fully 3D-inverted.
-The converted SJLS voxels are paired with mileage-aligned monitoring records.
+The converted SJLS voxels are paired with excavation-step-aligned monitoring records.
 
-\subsection{Samples and graph-construction settings}
-\label{sec:samples_settings}
+\subsection{Graph construction and field-readout settings}
+\label{sec:graph_construction_settings}
 
-All cases use mileage-ordered partitioning. Descriptor values are computed from
-the last observed graph snapshot of each target sample, and the last observed
-response at step $t$ is used to define the persistence residual for a target
-response at $t+h$. The formal case runs are summarised in
+All cases use mileage-ordered partitioning. Component-level field readouts are
+computed from the last observed graph snapshot of each target sample, and the
+last observed response at step $t$ is used to define the persistence residual
+for a target response at $t+h$. The formal case runs are summarised in
 Table~\ref{tab:data_summary}.
 
 \begin{table}[htbp]
 \centering
-\caption{Formal case runs used in the descriptor experiments. Effective samples
+\caption{Formal case runs used in the field-readout experiments. Effective samples
 are chainage-indexed residual samples after applying the diagnostic horizon.}
 \label{tab:data_summary}
 \begin{tabular}{lccccc}
@@ -85,7 +86,7 @@ discretised into cutterhead, front-shield, middle-shield, and tail-shield
 surface nodes at a resolution of 0.5\,m, with the per-case geometry
 summarised in Table~\ref{tab:tbm_geometry_sampling}.
 Rock nodes are the active, not-yet-excavated TSP voxels selected at each graph
-step by the active-zone formula in Section~\ref{sec:graph_sequence}; under
+step by the active-zone formula in Section~\ref{sec:construction}; under
 the common 1.0\,m voxel grid, $\tau_{\mathrm{zone}}=5.0$\,m, and the fixed TBM
 template, this yields 3558 active rock nodes in the standardized support used
 for the reported graph statistics.
@@ -108,9 +109,9 @@ SJLS h=3 & 4.0 & 3.95 & 3.0 & 3.5 & 3.5 & 1352 \\
 \end{tabular}
 \end{table}
 
-All formal runs use a 0.5\,m surface sampling resolution, so the strongest
-SJLS diagnostic evidence is not produced under a coarser TBM surface
-discretisation than the BSLL cases.
+All formal runs use a 0.5\,m surface sampling resolution. The stronger SJLS
+field--residual association is therefore not a by-product of coarser TBM
+surface discretisation.
 
 TSP preprocessing follows a common voxel schema. Coordinates are converted to a
 local excavation coordinate by subtracting the minimum longitudinal coordinate,
@@ -118,29 +119,102 @@ so the local $X$ axis is aligned with advance direction. Each voxel can store
 $[V_p,V_s,E,V_p/V_s,\nu,\rho]$ when these attributes are available, and
 available attributes are standardized using statistics fitted on the training
 active-zone margin. This multi-attribute schema keeps the BSLL and SJLS inputs
-in a common voxel format. However, the main spatial interaction descriptor uses
+in a common voxel format. The main spatial interaction field computation uses
 only the cross-case consistent P-wave velocity attribute. The geological
 anomaly score is therefore a $[0,1]$ low-velocity anomaly score derived from
 the training active-zone reference distribution of $V_p$; derived or
 case-specific attributes such as $V_s$, modulus, velocity ratio, Poisson's
-ratio, and density are not used in the main descriptor calculation.
+ratio, and density are not used in the main field computation.
 
-\subsection{Diagnostic evaluation metrics}
-\label{sec:evaluation_principle}
+\subsection{Residual readouts and null variants}
+\label{sec:diagnostic_readout_variants}
 
-The diagnostic outputs are component--chainage descriptors. For each component
-$c$, $A_c(t)$ is a supporting exposure descriptor that reports the sum of
-geometry weights over candidate relations, and $I_c(t)$ is the main
-geology-weighted descriptor. The response consistency target is the persistence
-residual
-$e_{t+h}^{(k)}=r_{t+h}^{(k)}-r_t^{(k)}$ for each response variable $k$.
+The diagnostic field--residual pairs are specified before the null-model
+and sensitivity checks: BSLL h=1 uses front-shield $I_c(t)$ against
+advance-rate residuals, BSLL h=3 uses front-shield $I_c(t)$ against
+shield-pressure residuals, and SJLS h=3 uses cutterhead $I_c(t)$ against
+shield-pressure residuals. These pairs serve as representative diagnostic
+slices covering a compact one-step BSLL interval, a multi-step BSLL
+shield-pressure interval, and the external SJLS tunnel case. They are not
+re-selected during null comparison or sensitivity analysis; the full
+exploratory component--response matrix is reported separately in
+Appendix~\ref{app:descriptor_matrix}.
 
-Descriptor--residual association is formally reported with Spearman
-correlation between $I_c(t)$ and the persistence residual. A threshold
-sensitivity analysis varies $\tau_{\mathrm{edge}}$ and $\eta_{\min}$ to check
-whether the descriptor--residual pattern is tied to one specific
-graph-construction setting. Null-model comparisons, detrending, circular-shift
-checks, anomaly-definition sensitivity, and edge-level traceability are applied
-to the fixed diagnostic pairs. The results are interpreted as
-chainage-local diagnostic co-variation, not as causal evidence or calibrated
+Four field-readout null variants test whether the proposed
+field readout can be reduced to simpler summaries. The chainage-only variant uses
+target chainage as the readout. The global-Vp variant uses the mean
+low-velocity anomaly score over active rock voxels, without component-specific
+geometry. The distance-only variant uses $A_c(t)$ and therefore contains
+geometry exposure but no geological anomaly weighting. The uniform-edge variant
+uses the unweighted mean of $q_i$ over candidate rock--machine edges incident to
+the fixed component; it preserves the active-zone screening and component
+membership but removes distance-normal geometry weights.
+
+A separate component-label permutation diagnostic is reported. At each
+chainage step, component labels are independently shuffled $N=1000$ times, and
+the value assigned to the fixed diagnostic component is used as the
+permuted field-readout series. Both the observed and permuted field-readout series
+are linearly detrended against chainage before Spearman correlation with the
+detrended residual. The test assumes that component labels are exchangeable at
+each chainage step under the null; the resulting $p$-value is the proportion
+of permutations whose absolute correlation is at least as large as the
+observed. This randomisation diagnostic does not correct for the three cases
+tested and is not a block-wise permutation test.
+
+Two interval-level robustness checks are applied to each fixed diagnostic pair.
+First, both field-readout and residual series are linearly detrended against
+chainage, and Spearman correlation is recomputed on the detrended series.
+Linear detrending is used as a minimal trend-removal device because the
+evaluated intervals are short; it is not intended to model nonlinear geological
+or operational trends. Second, a circular-shift check rolls the residual
+sequence by all non-zero shifts and reports the proportion of shifted
+correlations whose absolute value is at least as large as the observed value.
+These values are descriptive diagnostics rather than confirmatory
+probabilities, especially for the compact BSLL intervals. The full
+component--response matrix in the appendix is exploratory and unadjusted for
+multiple comparisons; it is used to
+show the field--response landscape, not to select case-general
+laws. For the fixed pairs, descriptive percentile bootstrap intervals are
+reported for detrended Spearman correlations.
+
+Because the proposed output is a component $\times$ excavation-step field
+rather than a single static summary, an additional step-change readout is
+reported. The associations of $I_c(t)$, $\Delta I_c(t)$, and
+$\Delta e_{t+h}^{(k)}$ are compared for the same fixed diagnostic pairs. This
+check evaluates whether the field contains excavation-step change information;
+it is not used to reselect diagnostic components or responses.
+
+\subsection{Sensitivity, ablation, and traceability settings}
+\label{sec:sensitivity_settings}
+
+To account for TSP--TBM chainage alignment uncertainty, the fixed
+diagnostic field-readout series is also shifted by $\delta_x\in\{-1,0,+1\}$\,m
+using linear interpolation along target chainage, and raw and detrended
+Spearman correlations are recomputed. This test does not replace a full
+geophysical registration analysis, but it checks whether the reported
+diagnostic pattern depends on exact metre-level alignment.
+
+A threshold sensitivity analysis varies $\tau_{\mathrm{edge}}$ and
+$\eta_{\min}$ to check whether the field--residual pattern is tied to one
+specific graph-construction setting. Anomaly-definition sensitivity is
+evaluated by replacing the main Vp-based score with Vs-low, Vp/Vs-low, and
+mean(Vp, Vs) low-anomaly variants.
+
+To separate relation-support effects from global geological trends, a
+relation-support ablation is also reported for the fixed pairs. It compares
+the proposed screened candidate-edge field with variants that remove the
+normal-compatibility threshold, use distance-only edge weights, or pool the
+entire TBM surface without component indexing. These ablations are interpreted
+as representation diagnostics, not as calibrated prediction benchmarks.
+
+For traceability, candidate edges for a fixed diagnostic sample are ranked by
+their contribution $w_{ij}^{rm}(t)q_i$, retaining the rock voxel identity, the
+TBM surface node identity, the component label, the distance, the normal
+compatibility, the geometry weight, the anomaly score, and the weighted
+contribution. Edge-contribution concentration metrics are reported to indicate
+whether the query is dominated by a small number of candidate edges or
+distributed across the screened relation set. The results of all diagnostic
+readout variants, robustness checks, and sensitivity settings are reported in
+Section~\ref{sec:results}, and are interpreted as excavation-step-local
+field--response co-variation rather than causal evidence or calibrated
 operational risk.

@@ -51,7 +51,7 @@
 \usepackage{placeins}
 \graphicspath{{../../experiments/outputs/figures/}}
 
-\title{Chainage-Referenced Rock--TBM Spatial Interaction Graphs for Component-Indexed Excavation Response Diagnostics}
+\title{A geometry-constrained rock--TBM spatial interaction graph for component-indexed anomalous interaction fields in TBM excavation}
 
 \author{
 \name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
@@ -76,35 +76,34 @@ Second Author\textsuperscript{b}} \\
 \maketitle
 
 \begin{abstract}
-Tunnel boring machine (TBM) excavation is a moving rock--machine interaction
-process in which geological anomalies, machine geometry, and operating state
-jointly shape excavation responses. Monitoring curves can capture temporal
-response persistence, but they do not explicitly encode which geological units
-are spatially adjacent to which TBM components or how these relations evolve
-with chainage. This study proposes a chainage-referenced rock--TBM spatial
-interaction graph that formalises tunnel seismic prediction (TSP)-derived rock
-voxels and parameterized TBM
-surface samples as heterogeneous spatial entities. Candidate rock--machine
-relations are screened using active-zone membership, distance decay,
-surface-normal compatibility, and excavation-state constraints. Based on the
-resulting graph sequence, component--chainage diagnostic descriptors are
-derived by aggregating fixed-reference geological anomaly scores over screened
-rock--machine candidate relations, with geometry weights retained for
-edge-level traceability. The descriptors are evaluated through
-residual-consistency analysis with trend-based and descriptor-level null
-checks. Two small-sample tunnel cases indicate that the descriptors provide the clearest
-residual-consistent evidence when the TSP velocity contrast is pronounced and
-the evaluation interval is sufficiently long, while compact intervals support
-only limited diagnostic checks. The proposed descriptors are interpreted as
-diagnostic summaries of screened candidate relations rather than measured
-contact forces, calibrated jamming probabilities, or universal operational risk
-rules.
+TBM excavation responses are shaped by changing spatial relations between the
+advancing machine and surrounding rock. Monitoring curves and geological voxel
+fields, however, do not specify which geological units are plausible
+interaction partners for individual TBM components. This study proposes a
+geometry-constrained rock--TBM interaction graph computation method for
+representing component-indexed anomalous interaction fields. At each excavation
+step, TSP-derived geological voxels and component-labelled TBM surface nodes
+are organised in a common excavation coordinate, and candidate rock--machine
+edges are screened by active-zone, distance, normal-compatibility, and
+excavation-state constraints. The resulting sparse candidate-edge set is
+aggregated by TBM component to compute a component $\times$ excavation-step
+field, including interaction intensity $I_c(t)$ and step-level change
+$\Delta I_c(t)$. The field is aligned with monitoring responses and queried
+back to contributing rock--machine edges, providing a computable spatial basis
+for excavation anomaly readout. Two tunnel cases show that the graph
+computation generates component-level anomaly fields that can be compared with
+monitoring responses; the clearer SJLS interval exhibits stronger
+residual-consistent co-variation than the BSLL intervals. The proposed
+computation is therefore treated as a queryable summary of screened candidate
+relations, not as measured contact force, calibrated jamming probability, or a
+universal operational risk rule.
 \end{abstract}
 
 \begin{keywords}
-spatial representation; heterogeneous graph; rock--machine interaction;
-geometry-constrained relation graph; component--chainage descriptor; persistence
-residual; TBM excavation; diagnostic analysis
+spatial representation; rock--machine interaction graph; component $\times$
+excavation-step anomalous interaction field; geometry-constrained candidate
+relation; persistence residual; excavation anomaly discovery;
+jamming-risk-oriented interpretation; TBM excavation
 \end{keywords}
 
 \ifijgisclass\else
@@ -120,7 +119,7 @@ residual; TBM excavation; diagnostic analysis
 \section{Methodology}
 \input{sections/methods}
 
-\section{Case studies and experimental design}
+\section{Case data and evaluation design}
 \input{sections/study_area}
 
 \section{Results}
@@ -153,7 +152,7 @@ reasonable request, subject to project data-use permissions; the raw site data
 are not redistributed. To support reproducibility of the spatial graph
 construction without disclosing site data, the authors can also provide a
 synthetic demonstration package containing a small voxel field, TBM surface
-nodes, candidate edge lists, descriptor calculation scripts, and residual
+nodes, candidate edge lists, field-calculation scripts, and residual
 diagnostic scripts.
 
 \bibliographystyle{plainnat}
@@ -161,7 +160,7 @@ diagnostic scripts.
 
 \clearpage
 \appendix
-\section{Exploratory descriptor--response matrix}
+\section{Exploratory field--response matrix}
 \label{app:descriptor_matrix}
 \input{sections/appendix}
 

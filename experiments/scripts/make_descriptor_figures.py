@@ -114,70 +114,92 @@ def fixed_pair_rows(assoc: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_method_framework(out_dir: Path) -> None:
-    """Combined method figure: workflow pipeline (top) + spatial entity
+    """Combined method figure: method modules (top) + spatial entity
     formalisation (bottom, three panels).
+
+    The pipeline reflects the paper's main line:
+    TSP voxel field + moving TBM surface + excavation monitoring
+    -> sparse per-step rock-TBM interaction graph
+    -> component-level anomalous interaction field
+    -> downstream residual alignment and edge query.
     """
     apply_ijgis_style()
-    fig = plt.figure(figsize=figure_size("double", aspect=0.56))
-    gs = fig.add_gridspec(2, 1, height_ratios=[0.42, 0.58], hspace=0.18)
-    # --- Top: workflow pipeline ---
+    fig = plt.figure(figsize=figure_size("double", aspect=0.62))
+    gs = fig.add_gridspec(2, 1, height_ratios=[0.46, 0.54], hspace=0.16)
+    # --- Top: method modules ---
     ax_top = fig.add_subplot(gs[0])
-    ax_top.set_xlim(0, 12)
-    ax_top.set_ylim(0, 4)
+    ax_top.set_xlim(0, 14)
+    ax_top.set_ylim(0, 4.2)
     ax_top.set_axis_off()
 
-    stages = [
-        {"xc": 1.5, "title": "1. Spatial entities",
-         "lines": ["TSP rock voxels $D_{geo}$", "TBM surface $M_{TBM}$", "Chainage alignment"],
+    # Four modules arranged in a compact method line.
+    steps = [
+        {"xc": 1.7, "yc": 2.45, "title": "Input representation",
+         "lines": ["Rock voxels", "TBM surface nodes", "Aligned records"],
          "accent": IJGIS_COLORS["rock"]},
-        {"xc": 4.5, "title": "2. Geometry-constrained graph",
-         "lines": [r"Active zone $\Omega_t$", r"$d_{ij}\leq\tau_{edge}$", r"$\kappa_{ij}\geq\eta_{min}$"],
+        {"xc": 5.0, "yc": 2.45, "title": "Algorithm 1",
+         "lines": ["Geometry-constrained", "interaction graph", r"$G_t=(V_t,E_t)$"],
          "accent": IJGIS_COLORS["tbm"]},
-        {"xc": 7.5, "title": "3. Component descriptors",
-         "lines": [r"$A_c(t)=\sum w_{ij}$", r"$I_c(t)=\frac{\sum w_{ij}q_i}{\sum w_{ij}}$", "Per component $c$"],
+        {"xc": 8.3, "yc": 2.45, "title": "Algorithm 2",
+         "lines": ["Component-level", "anomalous field", r"$I_c(t),\,\Delta I_c(t)$"],
          "accent": IJGIS_COLORS["accent"]},
-        {"xc": 10.5, "title": "4. Residual diagnosis",
-         "lines": [r"$e_{t+h}^{(k)}=r_{t+h}^{(k)}-r_t^{(k)}$", r"Spearman $\rho(I_c, e)$", "Null-model contrast"],
+        {"xc": 11.6, "yc": 2.45, "title": "Readouts",
+         "lines": ["Residual alignment", "Component-indexed", "edge query"],
          "accent": IJGIS_COLORS["full_model"]},
     ]
 
-    box_w, box_h = 2.6, 1.8
-    y_box = 1.4
-    for st in stages:
+    box_w, box_h = 2.7, 1.25
+    for st in steps:
         ax_top.add_patch(FancyBboxPatch(
-            (st["xc"] - box_w / 2, y_box), box_w, box_h,
-            boxstyle="round,pad=0.04,rounding_size=0.12",
-            facecolor=st["accent"], alpha=0.12, edgecolor=st["accent"], linewidth=1.2))
-        ax_top.add_patch(Circle((st["xc"] - box_w / 2 + 0.30, y_box + box_h - 0.05), 0.16,
-                            facecolor=st["accent"], edgecolor="white", linewidth=0.6, zorder=5))
-        ax_top.text(st["xc"] - box_w / 2 + 0.30, y_box + box_h - 0.05,
-                st["title"][0], ha="center", va="center", fontsize=7, fontweight="bold",
+            (st["xc"] - box_w / 2, st["yc"] - box_h / 2), box_w, box_h,
+            boxstyle="round,pad=0.03,rounding_size=0.10",
+            facecolor=st["accent"], alpha=0.12, edgecolor=st["accent"], linewidth=1.1))
+        ax_top.add_patch(Circle((st["xc"] - box_w / 2 + 0.28, st["yc"] + box_h / 2 - 0.18), 0.15,
+                            facecolor=st["accent"], edgecolor="white", linewidth=0.5, zorder=5))
+        ax_top.text(st["xc"] - box_w / 2 + 0.28, st["yc"] + box_h / 2 - 0.18,
+                str(steps.index(st) + 1), ha="center", va="center", fontsize=6.8, fontweight="bold",
                 color="white", zorder=6)
-        ax_top.text(st["xc"], y_box + box_h - 0.05, st["title"][3:],
-                ha="center", va="center", fontsize=7.5, fontweight="bold", color=st["accent"])
+        ax_top.text(st["xc"] + 0.12, st["yc"] + box_h / 2 - 0.18, st["title"],
+                ha="center", va="center", fontsize=7.2, fontweight="bold", color=st["accent"])
         for j, line in enumerate(st["lines"]):
-            ax_top.text(st["xc"], y_box + box_h - 0.55 - j * 0.35, line,
-                    ha="center", va="center", fontsize=6.8)
+            if line:
+                ax_top.text(st["xc"], st["yc"] - 0.05 - j * 0.27, line,
+                        ha="center", va="center", fontsize=6.3)
 
-    for i in range(3):
-        x_start = stages[i]["xc"] + box_w / 2
-        x_end = stages[i + 1]["xc"] - box_w / 2
-        ax_top.annotate("", xy=(x_end, y_box + box_h / 2), xytext=(x_start, y_box + box_h / 2),
-                    arrowprops=dict(arrowstyle="-|>", color=IJGIS_COLORS["gray_dark"],
-                                    lw=1.1, mutation_scale=12))
+    # Arrows: representation -> graph construction -> field computation -> readouts.
+    arrow_pairs = [(0, 1), (1, 2), (2, 3)]
+    for a, b in arrow_pairs:
+        sa, sb = steps[a], steps[b]
+        if abs(sa["yc"] - sb["yc"]) < 0.01:
+            # horizontal
+            x_start = sa["xc"] + box_w / 2
+            x_end = sb["xc"] - box_w / 2
+            ax_top.annotate("", xy=(x_end, sa["yc"]), xytext=(x_start, sa["yc"]),
+                        arrowprops=dict(arrowstyle="-|>", color=IJGIS_COLORS["gray_dark"],
+                                        lw=1.0, mutation_scale=11))
+        else:
+            # vertical (down)
+            ax_top.annotate("", xy=(sb["xc"], sb["yc"] + box_h / 2),
+                        xytext=(sa["xc"], sa["yc"] - box_h / 2),
+                        arrowprops=dict(arrowstyle="-|>", color=IJGIS_COLORS["gray_dark"],
+                                        lw=1.0, mutation_scale=11))
 
-    ax_top.text(stages[0]["xc"], 0.7, "Input\nGeological + monitoring",
-            ha="center", va="center", fontsize=6.5, style="italic",
+    # Input / Output labels
+    ax_top.text(steps[0]["xc"], 0.65,
+            "Input: TSP voxel field, TBM surface model, aligned monitoring records",
+            ha="center", va="center", fontsize=6.2, style="italic",
             color=IJGIS_COLORS["gray_dark"])
-    ax_top.text(stages[-1]["xc"], 0.7, "Output\nDescriptor evidence",
-            ha="center", va="center", fontsize=6.5, style="italic",
+    ax_top.text(steps[-1]["xc"], 0.25,
+            "Output: queryable component x step\nanomalous interaction field",
+            ha="center", va="center", fontsize=6.2, style="italic",
             color=IJGIS_COLORS["gray_dark"])
 
-    ax_top.text(6.0, 3.6, "Chainage-referenced rock–TBM spatial interaction graph: workflow",
+    ax_top.text(7.0, 3.95,
+            "Geometry-constrained rock-TBM interaction graph computation",
             ha="center", va="center", fontsize=8.5, fontweight="bold",
             color=IJGIS_COLORS["truth"])
-    ax_top.plot([0.5, 11.5], [3.25, 3.25], color=IJGIS_COLORS["gray_light"], linewidth=0.5)
-    add_panel_label(ax_top, "a", x=-0.02, y=1.05)
+    ax_top.plot([0.5, 13.5], [3.65, 3.65], color=IJGIS_COLORS["gray_light"], linewidth=0.5)
+    add_panel_label(ax_top, "a", x=-0.015, y=1.04)
 
     # --- Bottom: spatial entity formalisation (three panels) ---
     gs_bottom = gs[1].subgridspec(1, 3, wspace=0.28)
@@ -211,7 +233,7 @@ def plot_method_framework(out_dir: Path) -> None:
     add_panel_label(ax_b1, "c", x=-0.04, y=1.02)
 
     ax_b2 = fig.add_subplot(gs_bottom[0, 2])
-    ax_b2.set_title("Component-chainage descriptors", fontsize=8)
+    ax_b2.set_title(r"Component $\times$ excavation-step field", fontsize=8)
     values = np.array([
         [0.20, 0.25, 0.40, 0.55, 0.78, 0.70, 0.48, 0.35],
         [0.14, 0.18, 0.28, 0.44, 0.62, 0.58, 0.40, 0.30],
@@ -221,7 +243,7 @@ def plot_method_framework(out_dir: Path) -> None:
     im = ax_b2.imshow(values, aspect="auto", cmap=IJGIS_CMAPS["sequential"], vmin=0, vmax=0.8)
     ax_b2.set_yticks(np.arange(4), COMPONENT_LABELS, fontsize=7)
     ax_b2.set_xticks([0, 3, 7], [f"t+{i}" for i in [0, 3, 7]], fontsize=7)
-    ax_b2.set_xlabel("Target chainage step", fontsize=7)
+    ax_b2.set_xlabel("Excavation step", fontsize=7)
     ax_b2.set_ylabel("Component", fontsize=7)
     set_colorbar_style(fig.colorbar(im, ax=ax_b2, fraction=0.046, pad=0.02), "$I_c(t)$")
     add_panel_label(ax_b2, "d", x=-0.12, y=1.02)

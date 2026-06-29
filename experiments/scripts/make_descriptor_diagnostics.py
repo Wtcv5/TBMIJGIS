@@ -17,6 +17,7 @@ from typing import Any
 
 import numpy as np
 import yaml
+from scipy.spatial import KDTree
 
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
@@ -127,6 +128,207 @@ def descriptor_series_for_component(context: dict[str, Any], component: str) -> 
         "uniform_edge_anomaly": np.asarray(uniform_edge, dtype=np.float64),
         "all_component_ic": np.asarray(per_step_all_ic, dtype=np.float64),
     }
+
+
+def component_intensity_from_edges(
+    src: np.ndarray,
+    dst: np.ndarray,
+    weights: np.ndarray,
+    anomaly_scores: np.ndarray,
+    tbm_components: np.ndarray,
+    component: str | None,
+) -> float:
+    """Compute a weighted anomaly intensity for a component or pooled surface."""
+    if len(src) == 0:
+        return 0.0
+    if component is None:
+        mask = np.ones(len(src), dtype=bool)
+    else:
+        component_ids = {name: cid for cid, name in COMPONENT_NAMES.items()}
+        mask = tbm_components[dst] == component_ids[component]
+    if not np.any(mask):
+        return 0.0
+    w = np.asarray(weights[mask], dtype=np.float64)
+    q = np.asarray(anomaly_scores[src[mask]], dtype=np.float64)
+    denom = float(np.sum(w))
+    if denom <= 1e-12:
+        return 0.0
+    return float(np.sum(w * q) / denom)
+
+
+def distance_only_candidate_edges(rock_coords: np.ndarray, tbm_positions: np.ndarray, tau_edge: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Return all active-rock to TBM pairs within tau_edge with distance-only weights."""
+    tree = KDTree(tbm_positions)
+    pairs = tree.query_ball_point(rock_coords, r=tau_edge, workers=-1)
+    src, dst, distances = [], [], []
+    for i, neighbours in enumerate(pairs):
+        for j in neighbours:
+            delta = rock_coords[i] - tbm_positions[j]
+            d = float(np.linalg.norm(delta))
+            if d <= 1e-8:
+                continue
+            src.append(i)
+            dst.append(j)
+            distances.append(d)
+    if not src:
+        return np.zeros(0, dtype=int), np.zeros(0, dtype=int), np.zeros(0, dtype=np.float64)
+    distances_arr = np.asarray(distances, dtype=np.float64)
+    return (
+        np.asarray(src, dtype=int),
+        np.asarray(dst, dtype=int),
+        np.exp(-distances_arr / tau_edge),
+    )
+
+
+def relation_support_variant_series(context: dict[str, Any], component: str) -> dict[str, np.ndarray]:
+    """Ablate relation-support choices while keeping the fixed component/readout."""
+    variants: dict[str, list[float]] = {
+        "proposed": [],
+        "no_normal_screen": [],
+        "distance_only_edges": [],
+        "pooled_tbm_surface": [],
+    }
+    tau_edge = float(context["tau_edge"])
+    for graph_seq in context["test_graph_seqs"]:
+        snapshot = graph_seq[-1]
+        rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
+        q = vp_anomaly_from_standardized_attrs(rock_attrs, context.get("vp_anomaly_reference"))
+        tbm_components = snapshot.tbm_components.argmax(dim=1).detach().cpu().numpy()
+        rock_coords = snapshot.hetero_data["rock"].x.detach().cpu().numpy()[:, :3]
+        tbm_x = snapshot.hetero_data["tbm"].x.detach().cpu().numpy()
+        tbm_positions = tbm_x[:, :3]
+        tbm_normals = tbm_x[:, 3:6]
+
+        edge_store = snapshot.hetero_data["rock", "interact", "tbm"]
+        edge_index = edge_store.edge_index.detach().cpu().numpy()
+        src_existing = edge_index[0]
+        dst_existing = edge_index[1]
+        weights_existing = np.asarray(edge_store["edge_attrs"]["geometry_prior"], dtype=np.float64).reshape(-1)
+        variants["proposed"].append(
+            component_intensity_from_edges(src_existing, dst_existing, weights_existing, q, tbm_components, component)
+        )
+        variants["pooled_tbm_surface"].append(
+            component_intensity_from_edges(src_existing, dst_existing, weights_existing, q, tbm_components, None)
+        )
+
+        src_no_norm, dst_no_norm, dist_weights = distance_only_candidate_edges(rock_coords, tbm_positions, tau_edge)
+        if len(src_no_norm):
+            delta = rock_coords[src_no_norm] - tbm_positions[dst_no_norm]
+            distances = np.linalg.norm(delta, axis=1) + 1e-8
+            kappa = np.maximum(0.0, np.sum(tbm_normals[dst_no_norm] * delta, axis=1) / distances)
+            normal_weight = dist_weights * kappa
+        else:
+            normal_weight = dist_weights
+        variants["no_normal_screen"].append(
+            component_intensity_from_edges(src_no_norm, dst_no_norm, normal_weight, q, tbm_components, component)
+        )
+        variants["distance_only_edges"].append(
+            component_intensity_from_edges(src_no_norm, dst_no_norm, dist_weights, q, tbm_components, component)
+        )
+    return {key: np.asarray(value, dtype=np.float64) for key, value in variants.items()}
+
+
+def delta_field_rows(case_id: str, component: str, response: str, series: dict[str, np.ndarray], residual: np.ndarray) -> list[dict[str, Any]]:
+    """Compare static and step-change field readouts against residual changes."""
+    chainage = series["chainage_only"]
+    ic = series["proposed"]
+    rows = []
+    comparisons = [
+        ("Ic_vs_residual", ic, residual, chainage),
+        ("DeltaIc_vs_residual", np.diff(ic), residual[1:], chainage[1:]),
+        ("DeltaIc_vs_DeltaResidual", np.diff(ic), np.diff(residual), chainage[1:]),
+    ]
+    for comparison, x, y, ch in comparisons:
+        rho, _ = safe_spearman(x, y)
+        detrended_rho, _ = safe_spearman(linear_detrend(x, ch), linear_detrend(y, ch))
+        rows.append(
+            {
+                "case_id": case_id,
+                "case_label": CASE_LABELS[case_id],
+                "component": component,
+                "response": response,
+                "comparison": comparison,
+                "n": len(x),
+                "spearman_r": rho,
+                "detrended_spearman_r": detrended_rho,
+            }
+        )
+    return rows
+
+
+def relation_support_ablation_rows(case_id: str, component: str, response: str, context: dict[str, Any], residual: np.ndarray, chainage: np.ndarray) -> list[dict[str, Any]]:
+    rows = []
+    for variant, values in relation_support_variant_series(context, component).items():
+        rho, _ = safe_spearman(values, residual)
+        detrended_rho, _ = safe_spearman(linear_detrend(values, chainage), linear_detrend(residual, chainage))
+        rows.append(
+            {
+                "case_id": case_id,
+                "case_label": CASE_LABELS[case_id],
+                "component": component,
+                "response": response,
+                "variant": variant,
+                "n": len(values),
+                "spearman_r": rho,
+                "detrended_spearman_r": detrended_rho,
+            }
+        )
+    return rows
+
+
+def edge_concentration_rows(case_id: str, component: str, response: str, context: dict[str, Any]) -> list[dict[str, Any]]:
+    """Quantify how strongly weighted edge contributions concentrate."""
+    rows = []
+    component_ids = {name: cid for cid, name in COMPONENT_NAMES.items()}
+    for sample_idx, (chainage, graph_seq) in enumerate(zip(context["test_chainages"], context["test_graph_seqs"])):
+        snapshot = graph_seq[-1]
+        rock_attrs = snapshot.rock_attrs.detach().cpu().numpy()
+        q = vp_anomaly_from_standardized_attrs(rock_attrs, context.get("vp_anomaly_reference"))
+        edge_store = snapshot.hetero_data["rock", "interact", "tbm"]
+        edge_index = edge_store.edge_index.detach().cpu().numpy()
+        src = edge_index[0]
+        dst = edge_index[1]
+        weights = np.asarray(edge_store["edge_attrs"]["geometry_prior"], dtype=np.float64).reshape(-1)
+        tbm_components = snapshot.tbm_components.argmax(dim=1).detach().cpu().numpy()
+        mask = tbm_components[dst] == component_ids[component]
+        contrib = weights[mask] * q[src[mask]]
+        uniform = q[src[mask]]
+        total = float(np.sum(contrib))
+        if len(contrib) == 0 or total <= 1e-12:
+            top5_share = 0.0
+            top10_share = 0.0
+            effective_edges = 0.0
+            entropy = 0.0
+            rank_overlap_top10 = 0.0
+        else:
+            order = np.argsort(contrib)[::-1]
+            p = contrib / total
+            top5_share = float(np.sum(contrib[order[:5]]) / total)
+            top10_share = float(np.sum(contrib[order[:10]]) / total)
+            effective_edges = float(1.0 / np.sum(p * p))
+            entropy = float(-np.sum(p * np.log(p + 1e-12)) / np.log(len(p))) if len(p) > 1 else 0.0
+            weighted_top = set(order[: min(10, len(order))].tolist())
+            uniform_order = np.argsort(uniform)[::-1]
+            uniform_top = set(uniform_order[: min(10, len(uniform_order))].tolist())
+            denom = max(1, len(weighted_top | uniform_top))
+            rank_overlap_top10 = float(len(weighted_top & uniform_top) / denom)
+        rows.append(
+            {
+                "case_id": case_id,
+                "case_label": CASE_LABELS[case_id],
+                "component": component,
+                "response": response,
+                "sample_idx": sample_idx,
+                "chainage": float(chainage),
+                "edge_count": int(len(contrib)),
+                "top5_contribution_share": top5_share,
+                "top10_contribution_share": top10_share,
+                "effective_edge_number": effective_edges,
+                "contribution_entropy": entropy,
+                "weighted_unweighted_top10_jaccard": rank_overlap_top10,
+            }
+        )
+    return rows
 
 
 def component_label_permutation_test(
@@ -420,6 +622,9 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
 
     trace_rows = top_contributing_edges(context, component, response)
     offset_rows = alignment_offset_rows(case_id, component, response, descriptor_series, residual)
+    delta_rows = delta_field_rows(case_id, component, response, descriptor_series, residual)
+    relation_rows = relation_support_ablation_rows(case_id, component, response, context, residual, chainage)
+    edge_concentration = edge_concentration_rows(case_id, component, response, context)
 
     case_dir = output_dir / case_id
     # Separate permutation result from the null comparison table to keep CSV
@@ -432,6 +637,9 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
     write_csv(anomaly_rows, case_dir / "anomaly_sensitivity.csv")
     write_csv(offset_rows, case_dir / "alignment_offset_sensitivity.csv")
     write_csv(trace_rows, case_dir / "top_contributing_edges.csv")
+    write_csv(delta_rows, case_dir / "delta_field_association.csv")
+    write_csv(relation_rows, case_dir / "relation_support_ablation.csv")
+    write_csv(edge_concentration, case_dir / "edge_contribution_concentration.csv")
     save_json(
         {
             "case_id": case_id,
@@ -444,6 +652,9 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
             "component_series_reassignment": component_series_rows,
             "anomaly_sensitivity": anomaly_rows,
             "alignment_offset_sensitivity": offset_rows,
+            "delta_field_association": delta_rows,
+            "relation_support_ablation": relation_rows,
+            "edge_contribution_concentration": edge_concentration,
             "traceability_top_edges": trace_rows,
         },
         case_dir / "descriptor_diagnostics_summary.json",
@@ -455,6 +666,9 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
         "anomaly_rows": anomaly_rows,
         "offset_rows": offset_rows,
         "trace_rows": trace_rows,
+        "delta_rows": delta_rows,
+        "relation_rows": relation_rows,
+        "edge_concentration_rows": edge_concentration,
         "permutation_row": permutation_row,
         "component_series_rows": component_series_rows,
     }
@@ -469,6 +683,9 @@ def main() -> None:
     all_anomaly = []
     all_offset = []
     all_trace = []
+    all_delta = []
+    all_relation = []
+    all_edge_concentration = []
     all_permutation = []
     all_component_series = []
     for rel_config in CASE_CONFIGS:
@@ -478,6 +695,9 @@ def main() -> None:
         all_anomaly.extend(result["anomaly_rows"])
         all_offset.extend(result["offset_rows"])
         all_trace.extend(result["trace_rows"])
+        all_delta.extend(result["delta_rows"])
+        all_relation.extend(result["relation_rows"])
+        all_edge_concentration.extend(result["edge_concentration_rows"])
         all_permutation.append(result["permutation_row"])
         all_component_series.extend(result["component_series_rows"])
 
@@ -490,6 +710,9 @@ def main() -> None:
     write_csv(all_anomaly, output_dir / "anomaly_definition_sensitivity.csv")
     write_csv(all_offset, output_dir / "alignment_offset_sensitivity.csv")
     write_csv(all_trace, output_dir / "top_contributing_edges_all.csv")
+    write_csv(all_delta, output_dir / "delta_field_association.csv")
+    write_csv(all_relation, output_dir / "relation_support_ablation.csv")
+    write_csv(all_edge_concentration, output_dir / "edge_contribution_concentration.csv")
     print(f"Saved descriptor diagnostics to {output_dir}")
 
 

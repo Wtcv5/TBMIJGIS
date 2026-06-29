@@ -1,25 +1,32 @@
-This study develops a chainage-referenced spatial entity-relation framework
-for rock--TBM interaction representation. The framework places TSP-derived rock
-voxels, parameterized TBM surface components, and monitoring responses in a
-common excavation coordinate system, so that geological units, machine
-components, and response residuals can be analysed through explicit spatial
-relations.
+This study builds a geometry-constrained rock--TBM spatial interaction graph
+from three inputs: a TSP-derived rock voxel field, an advancing parameterized
+TBM surface, and excavation-step-aligned monitoring records. The core method
+constructs this graph at each excavation step and aggregates weighted candidate
+edges by TBM component into a component
+$\times$ excavation-step anomalous interaction field. The resulting field
+contains $I_c(t)$ and $\Delta I_c(t)$, can be aligned with monitoring
+responses, and retains traceable edge contributions for excavation anomaly
+indication, component-indexed readout, and jamming-risk-oriented
+interpretation.
 
-The framework constructs geometry-constrained candidate rock--machine
-relations using active-zone membership, distance decay, surface-normal
-compatibility, and excavation-state constraints. It then derives
-component--chainage diagnostic descriptors by aggregating TSP anomaly scores
-over screened candidate relations, retaining geometry weights for edge-level
-traceability. Descriptor-level null comparisons, detrending, circular-shift
-checks, threshold sensitivity, anomaly-definition sensitivity, component-series
-reassignment, and edge-level traceability are used to evaluate whether these
-descriptors contain residual-consistent diagnostic information.
+The two case studies indicate that the anomalous interaction field organises
+rock--machine relations into interpretable component-indexed excavation-step
+patterns and, most clearly in the SJLS case, retains residual-consistent
+co-variation after simple trend-based null explanations are considered. The
+component-level field also provides a step-change readout. In the SJLS case,
+$\Delta I_c(t)$ has a large negative association with the step-level
+shield-pressure residual change. Relation-support ablations indicate that,
+within the present field-readout pairs, the empirical distinction is mainly
+between component-indexed candidate-edge aggregation and pooled or global
+summaries; the additional numerical effect of distance-normal weighting is
+secondary. The evidence supports a spatial field-representation claim rather
+than contact-force recovery, calibrated jamming
+risk, unique component attribution, or broad predictive dominance.
 
-The two case studies indicate that the descriptors can organise rock--machine
-relations into interpretable component--chainage patterns and, most clearly in
-the SJLS case, retain residual-consistent co-variation after simple trend-based
-null explanations are considered. The evidence supports a diagnostic spatial
-representation claim rather than contact-force recovery, calibrated jamming
-risk, or broad predictive dominance. The proposed framework provides a spatial
-representation basis for future rock--machine interaction analysis and
-digital-twin-oriented TBM excavation analysis.
+The proposed field provides a spatial representation basis for future
+rock--machine interaction analysis and digital-twin-oriented TBM excavation
+analysis. In particular, the component $\times$ excavation-step anomalous
+interaction field can be queried alongside monitoring responses to identify
+which TBM component is exposed to anomalous rock conditions at which chainage.
+It therefore offers a structured input for excavation anomaly indication and
+jamming-risk-oriented interpretation in future excavation-analysis workflows.
