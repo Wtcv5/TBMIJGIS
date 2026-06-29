@@ -51,7 +51,7 @@
 \usepackage{placeins}
 \graphicspath{{../../experiments/outputs/figures/}}
 
-\title{A geometry-constrained rock--TBM spatial interaction graph for component-indexed anomalous interaction fields in TBM excavation}
+\title{A dynamic rock--TBM spatial relation graph for component-indexed geological anomaly readouts during TBM excavation}
 
 \author{
 \name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
@@ -76,34 +76,13 @@ Second Author\textsuperscript{b}} \\
 \maketitle
 
 \begin{abstract}
-TBM excavation responses are shaped by changing spatial relations between the
-advancing machine and surrounding rock. Monitoring curves and geological voxel
-fields, however, do not specify which geological units are plausible
-interaction partners for individual TBM components. This study proposes a
-geometry-constrained rock--TBM interaction graph computation method for
-representing component-indexed anomalous interaction fields. At each excavation
-step, TSP-derived geological voxels and component-labelled TBM surface nodes
-are organised in a common excavation coordinate, and candidate rock--machine
-edges are screened by active-zone, distance, normal-compatibility, and
-excavation-state constraints. The resulting sparse candidate-edge set is
-aggregated by TBM component to compute a component $\times$ excavation-step
-field, including interaction intensity $I_c(t)$ and step-level change
-$\Delta I_c(t)$. The field is aligned with monitoring responses and queried
-back to contributing rock--machine edges, providing a computable spatial basis
-for excavation anomaly readout. Two tunnel cases show that the graph
-computation generates component-level anomaly fields that can be compared with
-monitoring responses; the clearer SJLS interval exhibits stronger
-residual-consistent co-variation than the BSLL intervals. The proposed
-computation is therefore treated as a queryable summary of screened candidate
-relations, not as measured contact force, calibrated jamming probability, or a
-universal operational risk rule.
+The coupling between underground geological space and mobile engineering equipment is a typical spatiotemporal process in mechanized tunnelling. In TBM excavation, construction anomalies are difficult to interpret from monitoring responses alone because hazardous or weak ground affects the machine through specific spatial relations with the cutterhead, shields, and other components. Modern TBMs record dense streams of thrust, torque, penetration, pressure, and other responses, while tunnel seismic prediction (TSP) describes where anomalous ground may occur. However, these data do not directly answer the key spatial question: which geological units are geometrically related to which TBM components as excavation advances. This study proposes a dynamic rock–TBM spatial relation graph to provide this missing relation layer. The graph represents TSP-derived rock voxels and component-labelled TBM surface samples as two types of spatial entities, and connects them only when active-zone, distance, facing-direction, and excavation-state constraints indicate a plausible rock–machine relation. Rebuilding the graph at each excavation step converts static geological anomalies into component-specific geological anomaly trajectories along the tunnel alignment. These trajectories provide a spatial context for interpreting monitoring residuals and can be traced back to the rock voxels, surface samples, and relation attributes that produce them. Two tunnel cases demonstrate how the graph supports excavation anomaly interpretation beyond monitoring-only or geological-field-only summaries. In the SJLS case, the cutterhead-indexed trajectory remains strongly associated with shield-pressure residuals after detrending, whereas pooling all TBM surface components removes this relation pattern. Its stepwise trajectory is also consistent with shield-pressure residual changes, indicating that the graph captures not only where anomalous ground exists, but how its component-specific relation to the machine evolves during excavation. The BSLL case further verifies that the same graph construction supports component-level querying and edge-level traceability under 3D voxel support, although its compact intervals provide weaker residual evidence. The proposed graph is therefore a queryable spatial-relation layer for TBM excavation analysis and future safe-construction workflows, rather than a contact-force measurement, calibrated risk model, or universal response predictor.
+
 \end{abstract}
 
 \begin{keywords}
-spatial representation; rock--machine interaction graph; component $\times$
-excavation-step anomalous interaction field; geometry-constrained candidate
-relation; persistence residual; excavation anomaly discovery;
-jamming-risk-oriented interpretation; TBM excavation
+spatial representation; rock--machine relation graph; anomaly readout field;
+candidate relation; persistence residual; TBM excavation
 \end{keywords}
 
 \ifijgisclass\else

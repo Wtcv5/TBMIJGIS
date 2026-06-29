@@ -1,0 +1,766 @@
+      International Journal of Digital Earth
+
+
+
+
+      ISSN: 1753-8947 (Print) 1753-8955 (Online) Journal homepage: www.tandfonline.com/journals/tjde20
+
+
+
+
+Data-knowledge hybrid driven intelligent
+prediction method of tunnel excavation proﬁles
+geometric deformation
+
+Ya Hu, Jingyi Lu, Jun Zhu, Huixin Zhang, Ying Ren, Jianlin Wu, Jianbo Lai, Heng
+Zhang, Hongyue Zhao & Xiang Zeng
+
+To cite this article: Ya Hu, Jingyi Lu, Jun Zhu, Huixin Zhang, Ying Ren, Jianlin Wu, Jianbo Lai,
+Heng Zhang, Hongyue Zhao & Xiang Zeng (2025) Data-knowledge hybrid driven intelligent
+prediction method of tunnel excavation proﬁles geometric deformation, International Journal
+of Digital Earth, 18:1, 2459317, DOI: 10.1080/17538947.2025.2459317
+
+To link to this article: https://doi.org/10.1080/17538947.2025.2459317
+
+
+
+
+       © 2025 The Author(s). Published by Informa
+       UK Limited, trading as Taylor & Francis
+       Group
+
+       Published online: 05 Feb 2025.
+
+
+
+       Submit your article to this journal
+
+
+
+       Article views: 1473
+
+
+
+       View related articles
+
+
+
+       View Crossmark data
+
+
+
+       Citing articles: 5 View citing articles
+
+
+
+
+                      Full Terms & Conditions of access and use can be found at
+             https://www.tandfonline.com/action/journalInformation?journalCode=tjde20
+INTERNATIONAL JOURNAL OF DIGITAL EARTH
+2025, VOL. 18, NO. 1, 2459317
+https://doi.org/10.1080/17538947.2025.2459317
+
+
+
+
+Data-knowledge hybrid driven intelligent prediction method of
+tunnel excavation profiles geometric deformation
+Ya Hua, Jingyi Lua, Jun Zhua, Huixin Zhangb, Ying Rena, Jianlin Wua, Jianbo Laic,
+Heng Zhangd,e, Hongyue Zhaof and Xiang Zenga
+a
+ Faculty of Geosciences and Engineering, Southwest Jiaotong University, Chengdu, People’s Republic of China;
+b
+ College of Physics and Engineering, Chengdu Normal University, Chengdu, People’s Republic of China; cSchool of
+Emergency Management, Chengdu University, Chengdu, People’s Republic of China; dChina Railway Design
+Corporation, Tianjin, People’s Republic of China; eNational Engineering Research Center for Digital Construction
+and Evaluation Technology of Urban Rail Transit, Tianjin, People’s Republic of China; fBeijing Tianjin Intercity
+Railway Investment Co., Ltd, Beijing, People’s Republic of China
+
+
+    ABSTRACT                                                                                                       ARTICLE HISTORY
+    Applying digital twin technology to the tunnel excavation process enables                                      Received 26 September 2024
+    intelligent tunnel construction, which is critical for ensuring construction                                   Accepted 23 January 2025
+    safety and advancing intelligent building methods. However, the complex
+                                                                                                                   KEYWORDS
+    construction environment, involving numerous environmental factors                                             Tunnel excavation profile;
+    and dynamic changes, poses challenges for traditional deformation                                              geometry deformation;
+    prediction and analysis methods. These methods fail to systematically                                          intelligent prediction;
+    integrate the elements of the excavation scene to achieve accurate                                             data-knowledge hybrid
+    prediction. Therefore, this paper proposes a data-knowledge hybrid                                             driven
+    driven intelligent prediction method of tunnel excavation profile
+    geometric deformation. A dynamic data-driven tunnel excavation
+    knowledge extraction method is designed, along with the construction
+    of a multi-process coupled tunnel excavation knowledge base.
+    Additionally, a deep learning-based excavation profile deformation
+    prediction model is developed, integrating the data-knowledge hybrid
+    driven method to improve prediction performance. The experimental
+    results demonstrate that the method proposed in this paper can
+    significantly integrate and analyse the deformation elements of the
+    tunnel excavation scene. It achieves intelligent prediction of the tunnel
+    excavation profile geometric deformation, with reductions of 57.46%,
+    76.00%, and 53.12% in MAE, MSE, and RMSE, respectively, compared
+    with the traditional prediction model. This method effectively enhances
+    the deformation prediction accuracy of the tunnel excavation profile
+    twin model.
+
+
+
+
+1. Introduction
+Tunnels, as an essential component of transportation infrastructure, demand high standards in
+construction quality and safety management (Cui, Broere, and Lin 2021; Zhu et al. 2024). The con­
+cept of digital twins aims to map the real world physical entities to the virtual models, effectively
+enabling the monitoring, simulation, prediction, diagnosis, and decision-making. Applying digital
+twin technology to tunnel excavation enables intelligent construction, playing a critical role in
+
+CONTACT Jun Zhu      Zhujun@swjtu.edu.cn                   Faculty of Geosciences and Engineering, Southwest Jiaotong University,
+Chengdu 610031, People’s Republic of China
+© 2025 The Author(s). Published by Informa UK Limited, trading as Taylor & Francis Group
+This is an Open Access article distributed under the terms of the Creative Commons Attribution License (http://creativecommons.org/licenses/by/4.0/),
+which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited. The terms on which this
+article has been published allow the posting of the Accepted Manuscript in a repository by the author(s) or with their consent.
+2      Y. HU ET AL.
+
+
+ensuring construction safety and advancing intelligent building techniques (Guo et al. 2025; Tao
+et al. 2018; Wu et al. 2023; Zhu et al. 2024). In practice, complex geological conditions often
+lead to significant geometric deformation of the tunnel profile, affecting its stability (Cai, Hu,
+and Ma 2021; Zhang et al. 2024). As a result, tunnel profile deformation prediction becomes a cru­
+cial aspect of tunnel engineering. Monitoring and accurately predicting these deformations can pro­
+vide a basis and guidance for tunnel construction risk management, construction plan adjustments,
+and decision-making. These measures are essential for ensuring the quality of tunnel engineering.
+   Currently, common methods for tunnel construction deformation predicting mainly include the
+gray model method, finite element analysis and deep learning. Gray model method is a mathematical
+method for predicting and analysing uncertain events. It allows for modelling with limited data and
+offers low computational costs (Chen and Wang 2020; Tien 2011; Xie 2022). However, the defor­
+mation data of tunnel construction often exhibits significant spatiotemporal variability. Gray model
+method relies on limited historical data for analysis, and the prediction accuracy is limited. Moreover,
+the gray model method cannot effectively capture the complex relationship within extensive exca­
+vation data (Fei et al. 2020; He, Armaghani, and Lai 2023; Huang, Ninic, and Zhang 2021; Mahmood­
+zadeh, Nejati, and Mohammadi 2022). Finite element analysis can decompose the complex tunnel
+continuum into simpler finite elements. By constructing equations for these elements, the tunnel
+profile deformation analysis and prediction results can be obtained. It is capable to handle complex
+geometries, boundary conditions, and material properties, making it suitable for analysing composite
+materials and structures during tunnel construction (Cuomo et al. 2022; La Russa et al. 2022; Liu et al.
+2023). However, in tunnel engineering, the geological conditions are highly variable. It takes a lot of
+time to establish a finite element model of tunnel excavation process that integrates elements such as
+tunnel stratigraphy, groundwater levels, and geological structures (Li et al. 2024a; Sun et al. 2022; Ye,
+Zhao, and Wang 2021). Moreover, the amount of calculation required for finite element analysis is
+very large, especially when the model involves a substantial number of nodes and elements, which
+requires high-performance computing resources (Fukuda et al. 2021; Zhang et al. 2022).
+   In recent years, the maturity of deep learning theory and its applications have provided new
+opportunities for solving tunnel-related issues. Deep learning is based on a large amount of data
+for calculation. It not only relies on data for training and optimization, but also can automatically
+learn and extract useful information from data (Ganaie et al. 2021; Reichstein et al. 2019). It is a
+typical data-driven method, which is particularly good at identifying and learning complex patterns
+and relationships within data. Meanwhile, it can adapt to new situations and dynamically changing
+environments by constantly learning from new data (Pan and Zhang 2022; Zhang et al. 2021). How­
+ever, tunnel excavation process involves multifaceted geological conditions and engineering knowl­
+edge that are difficult to directly obtain from data. Deep learning models rely on data for training,
+and certain factors that significantly affect deformation may not be fully represented in the dataset.
+Additionally, during tunnel excavation process, the effects of factors such as geological conditions,
+excavation methods, and support parameters on the deformation of the excavation profile are com­
+plex and intertwined. It is difficult to directly deduce the interactions and relationships between
+these numerous factors from the data, resulting in challenges related to interpretability (Jong,
+Ong, and Oh 2021; Li et al. 2024b; Zhu et al. 2024).
+   In response to the above problems, this paper innovatively introduces the concept of knowledge and
+proposes a data-knowledge hybrid driven intelligent prediction method of tunnel excavation contour
+geometric deformation. Firstly, based on existing knowledge graph construction methods, combined
+with the characteristics of tunnel excavation process data, a dynamic data-driven tunnel excavation
+knowledge extraction method is proposed. Secondly, to clarify the numerous knowledge of tunnel exca­
+vation process, a multi-process coupled tunnel excavation process organization framework is proposed,
+forming the foundation for the tunnel excavation knowledge base construction. Finally, a method for
+organizing deformation factors of tunnel excavation profiles is proposed to generate a deformation fea­
+ture map. An integrated prediction model that combines asymmetric convolution and Transformer
+modules is constructed to predict deformations, significantly improving prediction accuracy.
+                                                        INTERNATIONAL JOURNAL OF DIGITAL EARTH       3
+
+
+2. Methods
+2.1. Framework
+Figure 1 illustrates the overall framework of this paper, which comprises three main components: the
+tunnel excavation data basis, the tunnel excavation knowledge basis, and the excavation profile defor­
+mation prediction model. Firstly, the data basis consists of multi-source data, such as laser point
+cloud, construction design parameters, construction measurement data. These data serve as the
+input for tunnel identification and the prediction model. Secondly, the tunnel sections under exca­
+vation are dynatableically identified based on the tunnel identification data, enabling the cyclic and
+dynamic extraction of knowledge from the excavation scene. The tunnel excavation knowledge
+base is constructed, and the knowledge is used as a guide to filter the prediction model input data.
+Through the integration of data and knowledge, a hybrid-driven approach optimizes data acquisition
+and updates the input dataset dynamically. Finally, Through the integration of data and knowledge, a
+hybrid-driven approach optimizes data acquisition and updates the input dataset dynamically. a pre­
+diction model combining asymmetric convolution and Transformer modules is established to calcu­
+late the deformation prediction output. In summary, based on the method proposed in this paper, the
+data-knowledge hybrid driven intelligent prediction of tunnel excavation profile deformation is rea­
+lized, providing accurate data support for tunnel excavation control.
+
+
+2.2 Dynamic data driven tunnel excavation knowledge extraction
+Tunnel excavation is a continuous and repetitive process where different excavation sections
+encounter varying construction environments. Segmenting and dynamically extracting knowledge
+about tunnel excavation helps to fully consider the diverse impacts resulting from different exca­
+vation conditions. This paper designs a dynamic data-driven knowledge extraction method. During
+the forward excavation process, the dynamic storage and update of excavation knowledge is realized
+in units of tunnel section.
+    As shown in Figure 2, the process begins with the extraction of identification data from the tunnel
+sections currently under excavation, such as section number, starting point, ending point, section
+length. Based on this data, knowledge is extracted from each excavation scene and matched with
+its corresponding scene. As the tunnel excavation progresses, the above process is applied to all
+new section, enabling the dynamic data-driven knowledge extraction of tunnel excavation scene.
+
+
+2.3 Construction of multi-process coupled knowledge base for tunnel excavation
+The geometric deformation of tunnel excavation profile is influenced by numerous factors during
+the excavation process. Different excavation processes correspond to various geometric
+
+
+
+
+Figure 1. Overall framework.
+4        Y. HU ET AL.
+
+
+
+
+Figure 2. Dynamic data driven tunnel excavation knowledge extraction.
+
+
+deformation factors, resulting in different deformation effects. Therefore, this paper proposes a
+multi-process coupled tunnel excavation process organization framework to clarify the tunnel exca­
+vation process, improving the efficiency of knowledge base construction and supporting the predic­
+tion of geometric deformation.
+   Tunnel excavation follows a cyclical process of ‘drilling and blasting – mucking – support’,
+repeated continuously until the tunnel breakthrough. Based on this sequence, a multi-process
+coupled organization framework of excavation process designed in this paper is shown in Figure 3.
+The framework is structured around the three primary construction processes: drilling and blasting,
+mucking, and support. Specific construction links are separated from the three basic processes of
+tunnel construction. Complex interrelationships exist between these links during actual tunnel con­
+struction. By sorting out the theoretical, layout, and operational issues of specific construction links,
+detailed correlations are extracted to realize the construction of a multi-process coupled tunnel
+excavation process organization model.
+   Based on the above excavation process organization framework, a knowledge base is constructed
+for the tunnel sections currently under excavation. Figure 4 describes the construction process of
+the multi-process coupled tunnel excavation knowledge base. Firstly, multi-source data serve as
+the foundational data for building the knowledge base framework. The data includes professional
+data in this field, cross-domain professional data, field sensor data, design drawings and existing
+foundational data. Next, the detailed construction processes are extracted according to the multi-
+process coupled tunnel excavation process organizational framework described above, providing
+the structural basis for the knowledge base. Finally, with the above basic work, through the steps
+of coupling relationship analysis, element entity extraction, association relationship mapping, con­
+straint rule setting, etc., the tunnel excavation knowledge base is constructed.
+   Based on the above model, this paper defines the tunnel excavation ontology through the follow­
+ing structure:
+
+                                              O = {CP, DF, RM|TC}                                    (1)
+                                                                   INTERNATIONAL JOURNAL OF DIGITAL EARTH   5
+
+
+
+
+Figure 3. Multi-process coupled organization framework of excavation process.
+
+
+
+
+Figure 4. Construction method of tunnel excavation knowledge base.
+6        Y. HU ET AL.
+
+
+Among them, O represents the tunnel excavation entity, TC represents the tunnel section identification
+data, which is used to label the excavated tunnel sections for dynamic, data-driven database updates.­
+ CP represents the construction process. DF = EF, MF, PF represents the deformation factors, which
+include environmental factors (EF), mechanical factors (MF), personnel factors (PF) and so on.
+RM = EC, IC, DR represents the relationship model, which includes external coupling relationships
+(EC), internal coupling relationships (IC), deformation relationship (DR) construction and so on.
+As the tunnel excavation progresses forward, the knowledge that has a greater impact on the defor­
+mation can be found in the previous knowledge base, guiding the data collection of the future sections.
+
+
+2.4 Data-knowledge hybrid driven prediction of tunnel excavation profile deformation
+2.4.1 Organization of deformation element
+In predicting tunnel excavation profile deformation using deep learning, high-quality data is criti­
+cal, as it directly affects the prediction’s accuracy and efficiency. Given the numerous factors that
+influence tunnel profile deformation, it is essential to use effective methods to filter the input
+data (Figure 5).
+   Using the knowledge base constructed using the method described in Section 2.3, techniques
+such as relevance analysis, centrality analysis, and influence propagation models are employed to
+identify the most significant factors impacting deformation. This analysis filters out less influential
+factors, simplifies input data, and optimizes the sample library for deformation prediction.
+   In the subsequent deformation predictions, it is necessary to integrate multiple deformation
+elements for feature extraction, including deformation values and related influencing factors. To
+improve the efficiency of deformation feature extraction, this paper proposes a organization
+method of tunnel excavation profile deformation factor. Firstly, the tunnel point cloud profile
+lines are extracted in equal distances along the excavation direction. Each profile line is divided
+into feature lines at equal angles. The angle of each point is extracted, and the point closest to
+the feature line is the feature point. As shown in Figure 6.
+   The tunnel surface space is mapped onto a two-dimensional plane, where each grid in the plane
+grid corresponds to a feature point on the tunnel arc segment, creating a deformation feature map.
+This realizes the mapping of the three-dimensional tunnel surface into the two-dimensional plane,
+facilitating the extraction of deformation features using neural networks. Different deformation
+elements are represented as separate channels in the feature map, with each grid storing the
+
+
+
+
+Figure 5. Schematic diagram of knowledge-driven input data optimization.
+                                                                          INTERNATIONAL JOURNAL OF DIGITAL EARTH     7
+
+
+
+
+Figure 6. Construction of tunnel surface space.
+
+
+deformation factor values corresponding to points on the tunnel surface. The schematic diagram of
+deformation element organization is shown in Figure 7.
+   The process can be expressed as the following formula:
+                                      C = f (x1,1 , x1,2 , . . . , xi,1 , xi,2 , . . . , xi,j )                    (2)
+
+                                X = C1 × w1 + C2 × w2 + . . . + Cm+1 × wm+1                                        (3)
+   Among them, C is one of the single channels in the two-dimensional plane, i is the number of
+tunnel profile arcs, and f is the nonlinear relationship between the grids. X is the complete defor­
+mation feature map. w is the weight of each deformation element in the deformation. m represents
+the number of deformation key factors, that is, the number of deformation key factor layers.
+
+
+2.4.2 Intelligent prediction of tunnel excavation profile geometric deformation
+The deformation of tunnel excavation profile has both temporal and spatial characteristics during
+tunnel excavation. Using a single model for prediction presents certain limitations. To address this,
+an intelligent prediction model that can take into account both the temporal and spatial character­
+istics of tunnel excavation profile deformation is proposed.
+
+
+
+
+Figure 7. Schematic diagram of deformation element organization.
+8        Y. HU ET AL.
+
+
+    The deformation of tunnel excavation profile has feature correlations in the horizontal and ver­
+tical directions. Horizontally, the deformation relationships between different feature points on the
+same excavation profile. Vertically, the deformation relationship between feature points at similar
+positions on successive profiles along the tunnel’s extension direction. Asymmetric convolution is
+an efficient convolution operation. The use of asymmetric convolution kernels can extract the fea­
+tures of the feature map in the horizontal and vertical directions respectively, enhancing the sensi­
+tivity of the model to features in different directions (Ding et al. 2019). In this paper, asymmetric
+convolution is cited, with convolution 1 × 3 convolution and 3 × 1 convolution decomposed from
+3 × 3 convolution to extract the characteristic relationship of the horizontal and vertical defor­
+mation of tunnel excavation respectively.
+    The Transformer model employs a self-attention mechanism to analyse global temporal
+relationships in sequence data, enabling efficient processing of complex spatial–temporal inter­
+actions. Unlike the traditional RNN model, which rely on the output of the previous step, the Trans­
+former model has higher parallel processing capabilities. For data such as tunnel profile
+deformation prediction that contains complex spatiotemporal relationships, the Transformer
+model is more efficient in sequence data processing (Sekhar and Dahiya 2023). Therefore, this
+paper introduces the Transformer module to conduct an overall analysis of the tunnel excavation
+profile deformation sequence data.
+    The intelligent prediction model of tunnel excavation profile is illustrated in Figure 8. The input
+consists of the deformation factor organization results described in Section 2.4.1. Firstly, asym­
+metric convolution kernels are used to capture the slight changes between the deformation value
+and the deformation factor in the local area through convolution operations in different directions.
+The relationship between the deformation value and the deformation factor of each deformation
+feature point is obtained to improve the accuracy of the prediction. The calculation process is as
+follows:
+
+                                   􏽘
+                                   2                                   􏽘
+                                                                       2
+                  Y(i, j, :) =           X(i, j + p, :) · K1×3 (q) ⊕         X(i + p, j, :) · K3×1 (p)
+                                   q=0                                 p=0
+                                       2 􏽘
+                                       􏽘 2
+                                   ⊕             X(i + p, j + q, :) · K3×3 (p)                           (4)
+                                       p=0 q=0
+
+
+Y is the output feature map, X is the input deformation feature map, and K is the convolution ker­
+nel. The obtained feature map Y is input into the Transformer module. The time series information
+is analysed as a whole through the attention mechanism and feedforward network in the Transfor­
+mer. The deformation value is effectively predicted, improving the accuracy and efficiency of the
+prediction. The Transformer module contains two input parts: Encoder and Decoder. The Encoder
+needs to process the entire feature map to extract the global deformation information of the tunnel,
+and the input is the entire row and column of the deformation feature map. The Decoder only
+
+
+
+
+Figure 8. Intelligent prediction model of tunnel excavation profile.
+                                                        INTERNATIONAL JOURNAL OF DIGITAL EARTH        9
+
+
+processes the part before the current excavation contour, and the input is the prediction result of the
+model before the current time step.
+
+
+3. Experiments and results
+3.1 Case introduction
+To verify the method proposed in this paper, a large-scale tunnel excavation project from an
+ongoing high-speed railway construction site in the mountainous region of northwestern China
+was selected for experimental analysis. The tunnel site area is a tectonic erosion low-medium moun­
+tain and medium-mountain landform, with complex topography and landforms, steep terrain, deep
+valleys. The surface vegetation is relatively well-developed, with generally thin soil cover, exposed
+bedrock in some sections, and multiple areas of hazardous rock falls. The construction of this exper­
+imental case area faces problems such as complex geological conditions, high risk level, strong
+demand for technical measures, and great construction difficulty. The experimental case area is
+shown in Figure 9.
+
+
+3.2 Experimental results and analysis
+To test the data-knowledge hybrid driven intelligent prediction method of tunnel excavation profile
+deformation proposed in this paper, an intelligent prediction experiment for tunnel excavation
+profile geometry deformation was carried out. In this experiment, Neo4j community 4.4.2 was
+used to store graph data, and the prediction model was tested based on the PyCharm 2022 inte­
+grated development environment. The environment configuration information involved is
+shown in Table 1.
+
+
+3.2.1 Construction of tunnel excavation knowledge base
+A prototype system for intelligent prediction of tunnel excavation profile deformation was developed,
+enabling 3D visualization of the tunnel excavation geometric scene. The system provides a series of
+tunnel excavation profile deformation analysis related functions, and stores the knowledge graph
+model layer and data layer of the tunnel excavation scene. The system supports functions such as tun­
+nel excavation profile view display, knowledge graph query, and deformation record analysis, which
+are effectively applied to tunnel excavation profile deformation prediction (Figure 10).
+
+
+
+
+Figure 9. Experimental case area.
+10         Y. HU ET AL.
+
+
+Table 1. Development environment configuration.
+                                    Content                                                     Details
+Hardware                        CPU                                     Intel(R) Core(TM) i5-7300HQ CPU @ 2.50 GHz 2.50 GHz
+                                GPU                                     Intel(R) HD Graphics 630 NVIDIA GeForce 940MX
+                                Memory                                  16GB
+Software                        IDE                                     PyCharm 2022
+                                Graph databases                         Neo4j community 4.4.2
+                                DL Framework                            Keras 2.3.1
+                                System                                  Windows 10
+
+
+
+
+Figure 10. Prototype system interface of the intelligent prediction for tunnel excavation profile deformation.
+
+
+    Based on the requirements of graph database construction and integrating multi-source data from
+the tunnel excavation process, such as surrounding rock conditions, support parameters, and defor­
+mation monitoring, a tunnel excavation geometric scene knowledge graph was constructed. The con­
+structed knowledge graph contains 106 nodes and 211 relationships, which includes 4 tunnel section
+constraints, 77 tunnel excavation scene data nodes, 25 tunnel excavation contour surface deformation
+features. Through the method described in this paper, the knowledge graph of the tunnel excavation
+geometry scene is constructed. The graph is stored in Neo4j, with nodes and relationships organized
+according to their attributes and connections. The storage example is shown in Table 2.
+    After the storage of nodes and relationships each node is associated according to the specified
+relationship. The storage example of the tunnel excavation scene knowledge graph in the system
+is shown in Figure 11.
+
+3.3.2 Tunnel excavation profile deformation elements organization
+Based on the technical methods proposed in Section 2.4.1 of this article, the deformation elements
+of the experimental area are organized. According to the establishment of the knowledge graph and
+                                                                      INTERNATIONAL JOURNAL OF DIGITAL EARTH                 11
+
+
+Table 2. Storage example of knowledge graph nodes and relationships.
+Type                   Name                                                    Property
+Source node     Rock conditions         name: Surround Rocks id: 20 description: Description of surrounding rock characteristics
+Relationship    is_a                    Id: 231
+Target node     Geological conditions   name: Geological conditions id: 53 level: Ⅳ
+
+
+
+
+Figure 11. System storage example of knowledge graph system for tunnel excavation (partial).
+
+
+data analysis above, the factors that have a greater impact on the deformation in the experimental
+area are: temperature, humidity, surrounding rock level, and distance from the tunnel face. The fea­
+ture lines were set at angles of 0°, 30°, 60°, 90°, 120°, 150°, and 180°. Taking the 17th, 18th, and 25th
+contours of the experimental tunnel section as an example, the deformation elements on the tunnel
+section are extracted as shown in Table 3.
+   On the same tunnel profile, feature points share similar distances from the tunnel face. In actual
+tunnel scenarios, the surrounding rock features do not change rapidly at adjacent locations.
+
+
+Table 3. Extraction results example of tunnel deformation features.
+                                                              Influencing factors
+Feature point   Actual angle (°)   Temperature (°C)   Humidity (％)     Surrounding rock level   Distance (m)    Deformation(m)
+P17-1           −0.0023                  24                 50                   Ⅳ                   70             0.0740
+P17-2               29.6675              24                 50                   Ⅳ                   70             0.0721
+P17-3               60.0915              24                 52                   Ⅳ                   70             0.1018
+P17-4               89.2342              25                 50                   Ⅳ                   70             0.0769
+P17-5             119.1184               25                 50                   Ⅳ                   70             0.1003
+P17-6             150.0695               24                 52                   Ⅳ                   70             0.0391
+P17-7             179.9740               24                 50                   Ⅳ                   70             0.1210
+P18-5             120.0129               25                 53                   Ⅳ                   74             0.1055
+P25-5             120.0902               22                 48                   Ⅴ                  107             0.0641
+12        Y. HU ET AL.
+
+
+Therefore, most adjacent feature points are found within the same or similar surrounding rock
+levels. Additionally, the same profile typically experiences similar temperature and humidity con­
+ditions. Due to the complex relationship between deformation elements, it is impossible to obtain
+accurate prediction values from the perspective from data analysis. It is necessary to input the geo­
+metric deformation element extraction results into the deformation prediction model according to
+the method described in this article, and further systematically analyse the association between
+deformation elements and predict the output.
+
+
+3.3.3 Prediction of tunnel excavation profile geometric deformation
+The geometric deformation element data extracted above are preprocessed and then input into the
+prediction model. In this paper, min–max normalization is used for data preprocessing. This
+method scales the data linearly while preserving the shape of the distribution, ensuring that the
+input features are on similar scales. The formula for min–max normalization is as follows:
+                                                              X − Xmin
+                                                 Xscaled =                                        (5)
+                                                             Xmax − Xmin
+Among them, X is the original data, Xmin is the minimum value in the data, Xmax is the maximum
+value in the data, and Xscaled is the normalized data. Meanwhile, to better reflect the model’s per­
+formance, the predicted deformation values were restored to their original scale. This approach
+facilitates capturing practical insights.
+   In this paper, a total of 10,330 tunnel arc segments were selected as the experimental area. Each
+arc segment was divided into seven feature points at equal angular intervals, resulting in a total of
+72,310 feature points. The first 80% of the data was used as the training set, while the remaining 20%
+was used as the test set. The proposed method is used to predict the deformation of tunnel exca­
+vation profile surface. The comparison of predicted values and the true values on some training
+sets is shown in Figure 12.
+   From the comparison of the predicted values and the true values on the training set, we can see
+that the trends of the predicted values and the true values are basically consistent. The predicted
+results of some mutation values fail to accurately fit the true value, but no significant deviations
+
+
+
+
+Figure 12. Comparison of the predicted values and true values on the training set (partial).
+                                                                    INTERNATIONAL JOURNAL OF DIGITAL EARTH                   13
+
+
+
+
+Figure 13. Comparison of the predicted values and the true values on the test set (partial).
+
+
+are observed overall. The prediction performance is generally better for neighbouring points with
+similar deformation values.
+    The comparison between the predicted values and the true values on some test sets is shown in
+Figure 13.
+    The comparison between the predicted and true values on the test set shows that the knowledge-
+guided tunnel excavation profile deformation prediction model effectively captures the future
+trends of excavation profile deformation. The performance on the testing set is close to that on
+the training set, both demonstrating good predictive accuracy. This indicates that the proposed
+model successfully learns deformation features from the training set while exhibiting strong gener­
+alization capabilities.
+    The prediction results evaluation indicators of the training set and the test set are shown in Table
+4. The evaluation metrics are calculated using deformation values on the original scale. From the
+comparison of evaluation metrics between the predicted results on the training and test sets, it
+can be observed that the errors on the test set are similar to those on the training set. This further
+demonstrates that the proposed model has learned sufficient features from the training set and exhi­
+bits strong generalization capabilities.
+    To further prove the applicability and accuracy of the prediction model proposed in this paper,
+on the basis of the same test set, the same structure model without data-knowledge drive, the tra­
+ditional convolutional model with data-knowledge drive, and the traditional convolutional model
+without knowledge constraint were selected for prediction. The comparison of the prediction
+results evaluation indicators of the prediction model constructed by the method in this paper
+and the other three prediction models is shown in Table 5.
+    From the above comparative experimental results, it can be found that knowledge constraints
+and model structure each contributed to improving the prediction model’s accuracy with varying
+
+
+Table 4. The comparison of the evaluation indicators between the predicted results of the training set and the test set.
+Dataset                                                              MAE                        MSE                        RMSE
+Tunnel excavation profile deformation training set                  4.2210                     32.5993                 5.7095
+Tunnel excavation profile deformation test set                      6.0093                     41.2108                 6.4196
+14        Y. HU ET AL.
+
+
+Table 5. Comparison of prediction results evaluation indicators of four models.
+Prediction Model                                                            MAE       MSE       RMSE
+The prediction model proposed in this paper                                4.2210    32.5993    5.7095
+the same structure model without data-knowledge drive                      7.0276    64.1729    8.0108
+Traditional convolutional model with data-knowledge drive                  8.7104    81.9514    9.0592
+Traditional convolutional model without knowledge constraint               9.9233   148.3216   12.1787
+
+
+degrees. Among them, the prediction model proposed in this paper has improved the performance
+of MAE, MSE, and RMSE by 39.93%, 49.20%, and 28.73% respectively compared with the same
+structure model without driven by data-knowledge. The prediction model proposed in this paper
+has improved the performance of MAE, MSE, and RMSE by 51.54%, 60.22%, and 36.98% respect­
+ively compared with the traditional convolution model driven by data-knowledge. The prediction
+model proposed in this paper has improved the performance of MAE, MSE, and RMSE by 57.46%,
+76.00%, and 53.12% respectively compared with the traditional convolution model without
+data-knowledge.
+
+
+4. Conclusions
+The profile geometric deformation during tunnel excavation process involves numerous entities,
+complex behaviours, and dynamic states. Traditional prediction methods of excavation profile
+deformation often suffer from poor interpretability, limited comprehensiveness, and low accuracy.
+By integrating the concept of digital twins with the tunnel excavation, the prediction accuracy of
+tunnel profile deformations can be significantly enhanced. Therefore, this paper proposes a data-
+knowledge hybrid driven intelligent prediction method of the tunnel excavation profiles geometric
+deformation. A knowledge graph is introduced to enhance the interpretability of the various defor­
+mation influencing factors during tunnel excavation process. Additionally, a novel method for con­
+structing a knowledge base tailored to describe tunnel excavation profile deformations is designed
+to better address the specific needs of the excavation process. Finally, by improving the existing
+deep learning models and combining them with the data-knowledge hybrid driven method, the pre­
+diction accuracy of tunnel profile geometric deformation is effectively increased. The main contri­
+butions of this paper are specifically summarized as follows:
+   Firstly, knowledge is introduced to describe the deformation-influencing factors of tunnel exca­
+vation. Based on the tunnel section identification data, knowledge is extracted dynamically from
+each tunnel section, enabling dynamic data-driven knowledge extraction of tunnel excavation scen­
+arios. Secondly, a multi-process coupled tunnel excavation knowledge base construction method is
+designed to describe the tunnel excavation process more completely and accurately. Additionally,
+the data collection and acquisition of future tunnel sections can be guided by the above process,
+achieving the integration effect of data and knowledge. Thirdly, the prediction model input is opti­
+mized through a data-knowledge hybrid driven method. By combing asymmetric convolution and
+Transformer models, an improved intelligent prediction model of tunnel excavation profiles geo­
+metric deformation is constructed. According to the experimental results, the proposed method
+shows improvements in MAE, MSE, and RMSE compared with the basic traditional methods
+can reach 57.46%, 76.00%, and 53.12% respectively. Based on the above results, this paper presents
+a method that can effectively improve the prediction accuracy of tunnel excavation profile geo­
+metric deformation.
+   The intelligent deformation prediction model proposed in this paper, based on convolutional
+neural networks, is primarily used to extract tunnel excavation profile features. In future work,
+this method can be extended to other similar application scenarios. For example, it could be adapted
+for deformation scenarios of structures such as bridges and station buildings, the knowledge graph
+construction and parameter settings can be adjusted according to the actual situation. Such exten­
+sions would broaden the applicability of this method, making it highly valuable for deformation
+                                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH          15
+
+
+monitoring across a wider range of fields. Additionally, parameters such as elastic modulus and
+fracture development characteristics can be introduced. By employing rock mass experiments
+and numerical simulation techniques, the dynamic variations of the physical and mechanical par­
+ameters of surrounding rock under the influence of factors such as temperature, humidity, and in-
+situ stress can be analysed. This enables the development of a more comprehensive deformation
+prediction model.
+
+
+Author contributions
+Conception, Ya Hu and Jun Zhu; Methodology, Jingyi Lu; Writing-original draft, Jingyi Lu; Acqui­
+sition of data, Huixin Zhang, Jianlin Wu, Heng Zhang and Hongyue Zhao; Software, Jingyi Lu, Ying
+Ren, Heng Zhang and Xiang Zeng; Validation, Ya Hu, Huixin Zhang, Jianlin Wu and Jianbo Lai;
+Investigation, Jun Zhu, Ying Ren, and Xiang Zeng. All authors have read and agreed to the pub­
+lished version of the manuscript.
+
+
+Disclosure statement
+No potential conflict of interest was reported by the author(s).
+
+
+Funding
+This work was supported by Chengdu Normal University [Grant Number CS22XMPY0107]; National Natural
+Science Foundation of China [Grant Number 42171397]; Open project fund of National Engineering Research Cen­
+ter of Digital Construction and Evaluation Technology of Urban Rail Transit [Grant Number 2024 Experimental
+Research External Contract 015].
+
+
+Data availability statement
+The data that support the findings of this study are available from the corresponding author, Zhu, upon reasonable
+request.
+
+
+References
+Cai, Q., Q. Hu, and G. Ma. 2021. “Improved Hybrid Reasoning Approach to Safety Risk Perception Under
+   Uncertainty for Mountain Tunnel Construction.” Journal of Construction Engineering and Management 147
+   (9): 04021105. https://doi.org/10.1061/(ASCE)CO.1943-7862.0002128.
+Chen, Y., and J. Wang. 2020. “Ecological Security Early-Warning in Central Yunnan Province, China, Based on the
+   Gray Model.” Ecological Indicators 111:106000. https://doi.org/10.1016/j.ecolind.2019.106000.
+Cui, J., W. Broere, and D. Lin. 2021. “Underground Space Utilisation for Urban Renewal.” Tunnelling and
+   Underground Space Technology 108 (3): 103726. https://doi.org/10.1016/j.tust.2020.103726.
+Cuomo, S., V. S. Di Cola, F. Giampaolo, G. Rozza, M. Raissi, and F. Piccialli. 2022. “Scientific Machine Learning
+   Through Physics–Informed Neural Networks: Where we are and What’s Next.” Journal of Scientific Computing
+   92 (3): 1–62. https://doi.org/10.1007/s10915-022-01939-z.
+Ding, X., Y. Guo, G. Ding, and J. Han. 2019. “Acnet: Strengthening The Kernel Skeletons For Powerful Cnn Via
+   Asymmetric Convolution Blocks.” IEEE/CVF International Conference on Computer Vision 1911-1920.
+   https://doi.org/10.1109/ICCV.2019.00200.
+Fei, J., Z. Wu, X. Sun, D. Su, and X. Bao. 2020. “Research on Tunnel Engineering Monitoring Technology Based on
+   BPNN Neural Network and MARS Machine Learning Regression Algorithm.” Neural Computing and Applications
+   33 (1): 1–17. https://doi.org/10.1007/s00521-020-04988-3.
+Fukuda, D., H. Liu, Q. Zhang, J. Zhao, J. I. Kodama, Y. Fujii, and A. H. C. Chan. 2021. “Modelling of Dynamic Rock
+   Fracture Process Using the Finite-Discrete Element Method with a Novel and Efficient Contact Activation
+   Scheme.” International Journal of Rock Mechanics and Mining Sciences 138 (1): 104645. https://doi.org/10.1016/
+   j.ijrmms.2021.104645.
+Ganaie, M. A., M. Hu, A. K. Malik, M. Tanveer, and P. N. Suganthan. 2021. “Ensemble Deep Learning: A Review.”
+   Engineering Applications of Artificial Intelligence 115:105151. https://doi.org/10.1016/j.engappai.2022.105151.
+16        Y. HU ET AL.
+
+
+Guo, Y., J. Zhu, J. Wu, J. Zhang, Z. Guo, W. Li, and H. Zhang. 2025. “An Automated Construction Method of 3D
+    Knowledge Graph Based on Multi-Agent Systems in Virtual Geographic Scene.” International Journal of Digital
+    Earth 18 (1): 2449185. https://doi.org/10.1080/17538947.2024.2449185.
+He, B., D. J. Armaghani, and S. H. Lai. 2023. “Assessment of Tunnel Blasting-Induced Overbreak: A Novel
+    Metaheuristic-Based Random Forest Approach.” Tunnelling and Underground Space Technology 133:104979.
+    https://doi.org/10.1016/j.tust.2022.104979.
+Huang, M., J. Ninic, and Q. Zhang. 2021. “BIM, Machine Learning and Computer Vision Techniques in
+    Underground Construction: Current Status and Future Perspectives.” Tunnelling and Underground Space
+    Technology 108:103677. https://doi.org/10.1016/j.tust.2020.103677.
+Jong, S. C., D. E. L. Ong, and E. Oh. 2021. “State-of-the-art Review of Geotechnical-Driven Artificial Intelligence
+    Techniques in Underground Soil-Structure Interaction.” Tunnelling and Underground Space Technology
+    113:103946. https://doi.org/10.1016/j.tust.2021.103946.
+La Russa, F. M., M. Intelisano, M. Galizia, I. Caliò, and C. Santagati. 2022. ““An Expeditious Parametric Approach for
+    City Information Modeling and Finite Element Analysis.” The International Archives of the Photogrammetry.”
+    Remote Sensing and Spatial Information Sciences 46:307–314. https://doi.org/10.5194/isprs-archives-XLVI-2-
+    W1-2022-307-2022.
+Li, W., J. H. Haunert, A. Forsch, J. Zhu, Q. Zhu, and Y. Dehbi. 2024a. “Informed Sampling and Recommendation of
+    Cycling Routes: Leveraging Crowd-Sourced Trajectories with Weighted-Latent Dirichlet Allocation.”
+    International Journal of Geographical Information Science 38 (12): 2492–2513. https://doi.org/10.1080/
+    13658816.2024.2391428.
+Li, W., J. Zhu, Q. Zhu, J. Zhang, X. Han, and Y. Dehbi. 2024b. “Visual Attention-Guided Augmented Representation
+    of Geographic Scenes: A Case of Bridge Stress Visualization.” International Journal of Geographical Information
+    Science 38 (3): 527–549. https://doi.org/10.1080/13658816.2023.2301313.
+Liu, C., Z. Peng, J. Cui, X. Huang, Y. Li, and W. Chen. 2023. “Development of Crack and Damage in Shield Tunnel
+    Lining Under Seismic Loading: Refined 3D Finite Element Modeling and Analyses.” Thin-Walled Structures
+    185:110647. https://doi.org/10.1016/j.tws.2023.110647.
+Mahmoodzadeh, A., H. R. Nejati, and M. Mohammadi. 2022. “Optimized Machine Learning Modelling for
+    Predicting the Construction Cost and Duration of Tunnelling Projects.” Automation in Construction
+    139:104305. https://doi.org/10.1016/j.autcon.2022.104305.
+Pan, Y., and L. Zhang. 2022. “Integrating BIM and AI for Smart Construction Management: Current Status and
+    Future Directions.” Archives of Computational Methods in Engineering 30 (2): 1081–1110. https://doi.org/10.
+    1007/s11831-022-09830-8.
+Reichstein, M., G. Camps-Valls, B. Stevens, M. Jung, J. Denzler, N. Carvalhais, and F. Prabhat. 2019. “Deep Learning
+    and Process Understanding for Data-Driven Earth System Science.” Nature 566 (7743): 195–204. https://doi.org/
+    10.1038/s41586-019-0912-1.
+Sekhar, C., and R. Dahiya. 2023. “Robust Framework Based on Hybrid Deep Learning Approach for Short Term
+    Load Forecasting of Building Electricity Demand.” Energy 268:126660. https://doi.org/10.1016/j.energy.2023.
+    126660.
+Sun, Z., D. Zhang, A. Li, S. Lu, Q. Tai, and Z. Chu. 2022. “Model Test and Numerical Analysis for the Face Failure
+    Mechanism of Large Cross-Section Tunnels Under Different Ground Conditions.” Tunnelling and Underground
+    Space Technology 130:104735. https://doi.org/10.1016/j.tust.2022.104735.
+Tao, F., W. Liu, J. Liu, X. Liu, Q. Liu, T. Qu, et al. 2018. “Digital Twin and its Potential Application Exploration.”
+    Computer Integrated Manufacturing Systems 24 (1): 1–18. https://doi.org/10.13196/j.cims.2018.01.001.
+Tien, T. L. 2011. “The Indirect Measurement of Tensile Strength by the new Model FGMC (1, n).” Measurement 44
+    (10): 1884–1897. https://doi.org/10.1016/j.measurement.2011.08.029.
+Wu, J., J. Zhu, J. Zhang, P. Dang, W. Li, Y. Guo, et al. 2023. “A Dynamic Holographic Modelling Method of Digital
+    Twin Scenes for Bridge Construction.” International Journal of Digital Earth 16 (1): 2404–2425. https://doi.org/10.
+    1080/17538947.2023.2229792.
+Xie, N. 2022. “A Summary of Grey Forecasting Models.” Grey Systems: Theory and Application 12 (4): 703–722.
+    https://doi.org/10.1108/GS-06-2022-0066.
+Ye, S., Z. Zhao, and D. Wang. 2021. “Deformation Analysis and Safety Assessment of Existing Metro Tunnels
+    Affected by Excavation of a Foundation pit.” Underground Space 6 (4): 421–431. https://doi.org/10.1016/j.
+    undsp.2020.06.002.
+Zhang, W., L. Han, X. Gu, L. Wang, F. Chen, and H. Liu. 2022. “Tunneling and Deep Excavations in Spatially
+    Variable Soil and Rock Masses: A Short Review.” Underground Space 7 (3): 380–407. https://doi.org/10.1016/j.
+    undsp.2020.03.003.
+Zhang, J., K. K. Phoon, D. Zhang, H. Huang, and C. Tang. 2021. “Deep Learning-Based Evaluation of Factor of Safety
+    with Confidence Interval for Tunnel Deformation in Spatially Variable Soil.” Journal of Rock Mechanics and
+    Geotechnical Engineering 13 (6): 1358–1367. https://doi.org/10.1016/j.jrmge.2021.09.001.
+Zhang, J., J. Zhu, Y. Zhou, Q. Zhu, J. Wu, Y. Guo, et al. 2024. “Exploring Geospatial Digital Twins: A Novel
+    Panorama-Based Method with Enhanced Representation of Virtual Geographic Scenes in Virtual Reality
+                                                             INTERNATIONAL JOURNAL OF DIGITAL EARTH            17
+
+
+  (VR).” International Journal of Geographical Information Science 38 (11): 2301–2324. https://doi.org/10.1080/
+  13658816.2024.2386064.
+Zhu, J., P. Dang, Y. Cao, J. Lai, Y. Guo, P. Wang, and W. Li. 2024. “A Flood Knowledge-Constrained Large Language
+  Model Interactable with GIS: Enhancing Public Risk Perception of Floods.” International Journal of Geographical
+  Information Science 38 (4): 603–625. https://doi.org/10.1080/13658816.2024.2306167.
+Zhu, J., P. Dang, J. Zhang, Y. Cao, J. Wu, W. Li, et al. 2024. “The Impact of Spatial Scale on Layout Learning and
+  Individual Evacuation Behavior in Indoor Fires: Single-Scale Learning Perspectives.” International Journal of
+  Geographical Information Science 38 (1): 77–99. https://doi.org/10.1080/13658816.2023.2271956.
+Zhu, J., J. Zhang, Q. Zhu, W. Li, J. Wu, and Y. Guo. 2024. “A Knowledge-Guided Visualization Framework of
+  Disaster Scenes for Helping the Public Cognize Risk Information.” International Journal of Geographical
+  Information Science 38 (4): 626–653. https://doi.org/10.1080/13658816.2023.2298299.
+

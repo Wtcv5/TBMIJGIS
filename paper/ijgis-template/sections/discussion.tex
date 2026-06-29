@@ -2,7 +2,7 @@
 \label{sec:graph_necessity}
 The main contribution is an excavation-step-indexed spatial relation model,
 not a higher-accuracy response predictor. The model constructs a component
-$\times$ excavation-step anomalous interaction field from a TSP-derived rock
+$\times$ excavation-step anomaly readout field from a TSP-derived rock
 voxel field and an advancing parameterized TBM surface, then aligns this field
 with monitoring responses. Monitoring sequences describe response inertia, and
 TSP voxels describe geological heterogeneity, but neither representation alone states
@@ -10,8 +10,8 @@ which geological voxels are candidate interaction partners for which TBM
 components at a given chainage. The proposed graph closes this representational
 gap by linking rock voxels, TBM surface nodes, and geometry-compatible
 candidate edges in one excavation coordinate system, and by aligning the
-resulting field with monitoring residuals to support
-excavation anomaly discovery and jamming-risk-oriented interpretation.
+resulting field with monitoring residuals to support excavation anomaly
+readout and response-aligned interpretation.
 
 For spatial modelling, the graph is an explicit data representation rather
 than a predictive architecture. It has defined entities, relation types,
@@ -37,11 +37,11 @@ persistence?'' This framing matches the present data scale.
 The SJLS results illustrate the value of this framing: raw chainage and global
 Vp summaries are substantially associated with the selected residual, but their
 associations largely disappear after linear detrending, whereas the proposed
-candidate-edge field readout remains strong.
+candidate-edge field readout remains large within the evaluated interval.
 The step-change readout further shows a large negative association between
 $\Delta I_c(t)$ and the step-level shield-pressure residual change in SJLS,
 supporting the interpretation of the output as an excavation-step anomaly
-field rather than only a static geological summary.
+readout rather than only a static geological summary.
 
 The BSLL results show that the graph and field readouts are constructed
 consistently in compact intervals, while residual-consistency evidence is more
@@ -80,7 +80,7 @@ that physically different TBM components are exchangeable. The whole-series
 component reassignment diagnostic (Table~\ref{tab:component_series_reassignment})
 is more conservative and shows that the fixed target component is not always
 the strongest complete component series. The evidence therefore supports
-candidate-edge field consistency more strongly than unique
+candidate-edge field consistency more directly than unique
 component-label specificity.
 
 \subsection{Interpretation boundaries}
@@ -125,7 +125,7 @@ than a fully 3D-inverted voxel field, so cross-sectional geological variation
 is not captured by the current field readout.
 
 Third, the step-wise component-label disruption diagnostic only disrupts labels within
-the standardized graph support. Larger datasets would allow stronger null
+the standardized graph support. Larger datasets would allow more formal null
 designs and inference that accounts for multiple comparisons. Fourth, the
 study lacks independent engineering labels such as jamming records, shield
 pressure anomaly logs, construction intervention logs, or geological exposure

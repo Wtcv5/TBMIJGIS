@@ -1,15 +1,15 @@
 \label{sec:methods}
-This section formalises rock--TBM interaction as an excavation-step-indexed
-spatial entity-relation graph. The method starts from a TSP-derived rock voxel
-field, an advancing parameterized TBM surface, and aligned monitoring records
-under a common excavation-step index. It then constructs a sparse rock--TBM
-interaction graph at each excavation step using active-zone, distance,
-normal-compatibility, and excavation-state constraints. Finally, weighted
-rock--machine edges are aggregated by TBM component to compute a component
-$\times$ excavation-step anomalous interaction field. This field supports
-excavation anomaly indication, component-indexed readout, and
-jamming-risk-oriented interpretation while retaining traceable edge
-contributions.
+This section formalises rock--TBM interpretation as an
+excavation-step-indexed spatial entity-relation graph. The method starts from
+a TSP-derived rock voxel field, an advancing parameterized TBM surface, and
+aligned monitoring records under a common excavation-step index. It then
+constructs a dynamic rock--TBM spatial relation graph at each excavation step
+using active-zone, distance, normal-compatibility, and excavation-state
+constraints. Finally, weighted rock--machine edges are aggregated by TBM
+component to compute a component $\times$ excavation-step geological anomaly
+readout field. This field supports excavation anomaly readout,
+component-indexed querying, and response-aligned interpretation while retaining
+traceable edge contributions.
 The graph is sparse because rock--machine edges are not fully connected; they
 are retained only when the four spatial and excavation-state constraints are
 jointly satisfied.
@@ -18,9 +18,10 @@ Figure~\ref{fig:pipeline} summarises the method structure.
 The three subsections correspond to the input representation and two core
 algorithmic operations. Section~\ref{sec:definition} defines the two graph
 entity types and the aligned monitoring records. Section~\ref{sec:construction}
-defines geometry-constrained sparse graph construction, and
-Section~\ref{sec:interpretable_computation} defines component-level anomalous
-interaction field computation from screened rock--machine edges.
+defines geometry-constrained sparse graph construction as relation-support
+construction, and Section~\ref{sec:interpretable_computation} defines
+component-indexed anomaly readout field computation from screened
+rock--machine edges.
 
 The formulation estimates a queryable field rather than a direct
 mechanical response. Given geological voxels $D_{\mathrm{geo}}$, a
@@ -35,21 +36,21 @@ operator
 \mathcal{F}: (G_t,\phi(g_i),\rho_j)\mapsto
 \{I_c(t),\Delta I_c(t)\}_{c\in C,t=1,\ldots,T}
 \]
-aggregates those relations into a component-indexed anomalous interaction
+aggregates those relations into a component-indexed geological anomaly readout
 field. The aligned monitoring records are used to read this field against
 excavation responses; they are not inputs to $\mathcal{G}$ and do not define
 graph edges.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{fig1_method_framework.pdf}
-\caption{Method overview of the geometry-constrained rock--TBM spatial
-interaction graph computation. (a) Sparse graph construction from active rock
+\includegraphics[width=0.95\linewidth]{figure1.png}
+\caption{Method overview of the dynamic rock--TBM spatial relation graph
+computation. (a) Sparse graph construction from active rock
 voxels and component-labelled TBM surface nodes using active-zone, distance,
 normal-compatibility, and excavation-state constraints. (b) TSP-derived rock
 voxel field with geological attribute support. (c) Parameterized TBM surface
 components advanced along the excavation direction. (d) Component $\times$
-excavation-step anomalous interaction field computed by aggregating weighted
+excavation-step geological anomaly readout field computed by aggregating weighted
 rock--machine edges by TBM component; the field can subsequently be aligned
 with monitoring responses and queried back to contributing edges.}
 \label{fig:pipeline}
@@ -61,7 +62,7 @@ The input data are organised into two graph entity types and aligned
 monitoring records: rock voxels, TBM surface nodes, and excavation monitoring
 responses aligned to excavation steps. Monitoring records are not graph nodes;
 they are used after graph computation to evaluate and interpret the
-component-level anomalous interaction field.
+component-indexed anomaly readout field.
 
 \paragraph{Rock voxel.} The geological input is a TSP-derived voxel field
 $D_{\mathrm{geo}}=\{(c_i,g_i)\}$, where $c_i=(x_i,y_i,z_i)$ is the coordinate
@@ -283,15 +284,15 @@ $E_t^{rm}$, and $w_{ij}^{rm}(t)$ defined, the graph entities of
 Section~\ref{sec:definition} have become a computable rock--TBM interaction
 graph.
 
-\subsection{Component-indexed anomalous interaction field computation}
+\subsection{Component-indexed anomaly readout field computation}
 \label{sec:interpretable_computation}
 Once the graph is constructed, the central graph computation is to aggregate
-screened rock--machine edges into a component-level anomalous interaction
-field. Response alignment and edge-level query are downstream readouts of this
+screened rock--machine edges into a component-indexed anomaly readout field.
+Response alignment and edge-level query are downstream readouts of this
 field rather than separate method branches.
 
 \begin{algorithm}[htbp]
-\caption{Component-level anomalous interaction field computation}
+\caption{Component-indexed anomaly readout field computation}
 \label{alg:interaction_field}
 \begin{algorithmic}[1]
 \REQUIRE Graph snapshots $G_t$, anomaly scores $q_i=\phi(g_i)$, component labels $\rho_j$
@@ -357,10 +358,12 @@ which reports the weighted geological anomaly intensity in the screened
 candidate relations incident to component $c$.
 $I_c(t)$ is defined for cutterhead, front shield, middle shield, and tail
 shield at each chainage step. Together with its step-level change
-$\Delta I_c(t)$, it forms the component $\times$ excavation-step anomalous
-interaction field. $A_c(t)$ is retained as an auxiliary exposure readout, not
-as part of the anomalous interaction field itself. Here, the field denotes the
-component $\times$ excavation-step matrix of $I_c(t)$ and $\Delta I_c(t)$
+$\Delta I_c(t)$, it forms the component $\times$ excavation-step anomaly
+readout field. $A_c(t)$ is retained as an auxiliary exposure readout, not as
+part of the anomaly readout field itself. In this paper, ``field'' refers to a
+discrete readout over the product domain of TBM components and excavation
+steps, rather than a continuous physical field in 3D space. The field denotes
+the component $\times$ excavation-step matrix of $I_c(t)$ and $\Delta I_c(t)$
 values, whereas a field readout denotes a downstream use of that matrix through
 response alignment or edge-contribution query.
 

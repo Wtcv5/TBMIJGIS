@@ -1,0 +1,1128 @@
+      International Journal of Geographical Information
+      Science
+
+
+
+      ISSN: 1365-8816 (Print) 1362-3087 (Online) Journal homepage: www.tandfonline.com/journals/tgis20
+
+
+
+
+Scene-GCN: a time-series prediction method
+in complex monitoring environments through
+spatial–temporal knowledge graph (ST-KG)
+
+Weihao Li, Yufeng He, Lizhi Tao, Jifa Chen, Xing Wang, Yong Ge & Hui Lin
+
+To cite this article: Weihao Li, Yufeng He, Lizhi Tao, Jifa Chen, Xing Wang, Yong Ge & Hui Lin
+(2025) Scene-GCN: a time-series prediction method in complex monitoring environments
+through spatial–temporal knowledge graph (ST-KG), International Journal of Geographical
+Information Science, 39:10, 2211-2235, DOI: 10.1080/13658816.2025.2479183
+
+To link to this article: https://doi.org/10.1080/13658816.2025.2479183
+
+
+
+
+       Published online: 19 Mar 2025.
+
+
+
+       Submit your article to this journal
+
+
+
+       Article views: 733
+
+
+
+       View related articles
+
+
+
+       View Crossmark data
+
+
+
+       Citing articles: 2 View citing articles
+
+
+
+
+                      Full Terms & Conditions of access and use can be found at
+             https://www.tandfonline.com/action/journalInformation?journalCode=tgis20
+INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE
+2025, VOL. 39, NO. 10, 2211–2235
+https://doi.org/10.1080/13658816.2025.2479183
+
+
+RESEARCH ARTICLE
+
+Scene-GCN: a time-series prediction method in complex
+monitoring environments through spatial–temporal
+knowledge graph (ST-KG)
+Weihao Lia,b, Yufeng Hea,b, Lizhi Taoa,b, Jifa Chena,b, Xing Wangc, Yong Gea,b
+and Hui Linb
+a
+  Key Laboratory of Poyang Lake Wetland and Watershed Research, Ministry of Education/School of
+Geography and Environment, Jiangxi Normal University, Nanchang, China; bEarly Warning and
+Assessment of Jiangxi Province, Key Laboratory of Natural Disaster Monitoring, Nanchang, China;
+c
+ School of Atmospheric Sciences, Nanjing University, Nanjing, China
+
+
+    ABSTRACT                                                                ARTICLE HISTORY
+    Current forecasting methods for complex geographic scenes often         Received 7 November 2024
+    fail to adequately account for both intrinsic factors and external      Accepted 10 March 2025
+    environmental variables, which limits their predictive accuracy. This
+    study proposes Scene-GCN, a Graph Convolutional Network (GCN)-          KEYWORDS
+    based model that utilizes a spatio-temporal knowledge graph             Geographic scene/VGE;
+                                                                            graph convolutional
+    (ST-KG) to integrate static and dynamic environmental factors with      network (GCN); spatial–
+    the scene’s spatio-temporal characteristics to predict trends. First,   temporal knowledge
+    variations at each monitoring target point are abstracted as            representation; time-series
+    geo-processes, and instantaneous monitoring values are repre­           forecasting
+    sented as geographic states, forming a coupled “process-state”
+    ST-KG model tailored for monitoring networks in complex geo­
+    graphic scenes. Environmental knowledge, both dynamic and static,
+    is then embedded within the nodes of the ST-KG, capturing histor­
+    ical and real-time contextual influences through feature computa­
+    tion. Next, a temporal graph convolutional network (T-GCN) cell is
+    developed to quantify the relationships between spatio-temporal
+    features, environmental knowledge, and target predictions.
+    Experimental evaluation on a real-world time-series dataset for
+    monitoring surface deformation in a tailings dam shows that our
+    method outperforms baseline models. Ablation studies further
+    show that the integration of the ST-KG enhances forecasting per­
+    formance, reducing root mean square error (RMSE) by 49.2% com­
+    pared to a T-GCN model without ST-KG. Additionally, leveraging a
+    graph neural network framework improves the model’s interpret­
+    ability over traditional time-series forecasting methods.
+
+
+
+
+1. Introduction
+The geographic scenes (Geo-scene) Data Model offers a holistic framework for repre­
+                          € et al. 2018, Huang et al. 2019, He et al. 2022). In environ­
+senting the environment (Lu
+mental monitoring, a ‘scene’ refers to a defined spatial area monitored to analyze
+
+
+CONTACT Yufeng He           Yuf.he@jxnu.edu.cn
+� 2025 Informa UK Limited, trading as Taylor & Francis Group
+2212     W. LI ET AL.
+
+
+dynamic processes and detect anomalies. Geographic scene monitoring technologies
+utilizing GNSS (Li 2011) and the Internet of Things (IoT) (da Cruz et al. 2018) are exten­
+sively applied in safety-critical fields such as landslide monitoring, subsidence tracking,
+tailings dam surveillance, and bridge inspection (Metternicht et al. 2005, Sun et al.
+2012, Qin et al. 2018). Accurate trend prediction within these geographic scenes is
+essential for proactive disaster prevention. It is well known that disasters are influ­
+enced not only by the hazard-affected body but also by the surrounding environment.
+However, few studies incorporate the impact of environmental factors into time-series
+prediction for hazard-affected bodies (Wang et al. 2024). This gap highlights the
+urgent need for trend prediction methods in geographic scene monitoring that
+account for environmental influences.
+    Currently, various prediction methods that consider temporal dependencies, such
+as Gradient Boosting Decision Trees (GBDT) (Gao et al. 2022), Bayesian inference (Shen
+et al. 2022), and Support Vector Machine (SVM) variants (Ji et al. 2022), have been
+applied to assess risk trends within geographic scenes based on observational data
+(Gama et al. 2020). These methods, although considering the dynamic changes cap­
+tured by monitoring points within their respective areas in geographic scenes, fail to
+comprehensively account for the entire geographic scene. Specifically, they overlook
+the spatial characteristics inherent in the monitoring network formed by monitoring
+points within complex geographic scenes, consequently omitting the indispensable
+spatial dependencies within these scenes. To better capture spatial features, Yang
+et al. (2023) utilized convolutional neural networks (CNNs) to model the spatial charac­
+teristics of monitoring points. CNNs are deep learning model designed to automatic­
+ally extract local features from data through convolution operations, widely used in
+image processing and computer vision tasks. However, CNNs are constrained by
+Euclidean data structures (e.g. regular grids and images) (Defferrard et al. 2016), mak­
+ing it challenging to accurately represent the complex network relationships among
+monitoring points within geographic scenes. Consequently, these methods are limited
+in characterizing the spatial dependencies inherent to such networks.
+    In contrast, graph neural networks (GNNs) allow real-world problems to be
+abstracted into graph-structured data, capturing dependencies by passing messages
+between graph nodes (Zhou et al. 2020). GNNs are deep learning models designed to
+effectively process and analyze graph-structured data by capturing relationships and
+dependencies between nodes through message passing mechanisms. Lin et al. applied
+the graph attention network (GAT) (Lin et al. 2023) to model the spatial dependencies
+among monitoring points within complex geographic scenes, yielding promising pre­
+diction results. This approach integrates CNNs into the GNN framework, enabling effi­
+cient processing of data from non-Euclidean domains (Yao et al. 2019). These
+advances underscore the importance of spatio-temporal methods in complex geo­
+graphic scene monitoring, particularly those that integrate environmental influences
+for enhanced trend prediction and proactive disaster prevention.
+    However, accurate trend prediction of monitoring targets in complex geographic
+scenes requires not only the integration of the spatial–temporal characteristics associ­
+ated with target evolution but also a comprehensive incorporation of the various fac­
+tors influencing observations from the monitoring network. The trend of these
+                           INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE     2213
+
+
+observations is governed not only by environmental changes (i.e. external dynamic
+factors) but also by the intrinsic characteristics of the scene itself (i.e. static factors).
+For example, in a tailings dam monitoring system, static factors such as soil compos­
+ition, rock structure, and slope orientation remain constant over time. In contrast,
+dynamic factors like precipitation fluctuate, exerting substantial influence over
+extended periods. Rainfall can lead to the gradual accumulation of moisture on the
+dam surface, resulting in osmotic erosion that progressively undermines the dam’s
+structural stability (Silva Rotta et al. 2020). These combined influences introduce con­
+siderable uncertainty in forecasting for monitoring targets such as tailings dams, pre­
+senting a significant challenge for precise trend prediction in complex geographic
+scenes (Jiang et al. 2024). To structure both dynamic and static scene knowledge, a
+spatio-temporal knowledge graph that integrates entities and relationships offers an
+efficient approach for organizing scene knowledge (He et al. 2025), enabling advanced
+knowledge mining and prediction.
+    To comprehensively account for monitoring networks in complex geographic scenes,
+this paper proposes a spatial–temporal forecasting method named Scene-GCN. This
+approach integrates various factors influencing each monitoring point as dynamic and
+static environmental knowledge, addressing the issue in complex geographic scene
+modeling where only monitoring targets are considered, yet the inherent connections
+between targets and scenes are overlooked. Additionally, it further integrates the tem­
+poral dependence of historical time-series monitoring data and the spatial dependence
+of the monitoring location. The main contributions of our study are as follows:
+
+1.   To construct a spatial–temporal knowledge graph (ST-KG), dynamic and static
+     environmental knowledge in complex geographic scenes is embedded as attrib­
+     utes into historical time-series monitoring data. Subsequently, a weighted undir­
+     ected connected(adjacency) graph is established to anchor the spatial structure of
+     the monitoring network within the scene, facilitating the learning of network top­
+     ology within the graph model. By fully considering the lagged effects of environ­
+     mental factors in the surrounding area, the attribute embedding in ST-KG
+     enhances the model’s performance by synthesizing data from neighboring points
+     and various influencing elements, thus increasing the interpretability of the fore­
+     casting method and improving its predictive accuracy.
+2.   The T-GCN cell (Zhao et al. 2020) is used to extract feature information from the
+     ST-KG and realize spatial–temporal forecasting. The spatial dependencies between
+     nodes in the ST-KG are captured by the GCN, while the gated recurrent unit
+     (GRU) is utilized to analyze the temporal dependencies in the time-series data and
+     capture dynamic changes within the ST-KG.
+
+    The remainder of this paper is structured as follows: Section 2 provides a review of
+relevant forecasting studies on monitoring networks within complex geographic
+scenes. Section 3 presents the methodological framework in detail. In Section 4,
+experiments using real-world datasets are conducted to evaluate the proposed mod­
+el’s performance compared to baseline models. Finally, Section 5 summarizes the find­
+ings and discusses prospects for future research.
+2214     W. LI ET AL.
+
+
+2. Related work
+With the rapid advancement of technology, the application of advanced methods to
+improve the efficiency and accuracy of prediction and early warning systems in com­
+plex geographic scenes has become a prominent research focus.
+    Among previously proposed approaches for monitoring network forecasting in
+complex geographic scenes, Physical modeling methods primarily involve profiling the
+engineering structures within complex geographic scenes and modeling and analyzing
+the physical processes occurring in the surrounding geological environment (Yin et al.
+2011). Representative methods include finite element analysis (FEA) (Krahn 2003), com­
+putational fluid dynamics (CFD) (Gao and Fourie 2015), and the inverse-velocity
+method (Rose and Hungr 2007). All these physical modeling approaches have
+achieved significant advances in forecasting research within complex geographic
+scenes. However, the physical properties and environmental influences vary across dif­
+ferent complex geographic scenes, making it challenging to develop a universal phys­
+ical model that can account for the distinct characteristics of each scene. This
+limitation arises from the numerous implicit physical relationships among variables
+that directly or indirectly affect the physical system, many of which are likely unknown
+(Elsheikh et al. 2019).
+    In contrast, data-driven approaches rely on large volumes of monitoring network
+data within complex geographic scenes to perform forecasting tasks, eliminating the
+need for detailed physical analysis of the scenes. Although these approaches do not
+account for the physical properties of the environment or provide explanations for the
+underlying processes that drive changes within these scenes, they have become
+increasingly popular due to their adaptability and high predictive accuracy. With the
+increasing body of research related to prediction and early warning in complex geo­
+graphic scenes, numerous high-accuracy prediction methods have emerged, which
+can be broadly classified into two categories: parametric and nonparametric models
+(Vlahogianni et al. 2004, Van Lint and Van Hinsbergen 2012). Parametric models are a
+class of statistical models that assume a fixed structure for the data distribution. These
+models achieve the task of monitoring target forecasting by completely describing the
+distribution of the data through a set of parameters. Time series models and linear
+regression models (Diskin 1970, Mendoza et al. 2021) are common examples of para­
+metric methods. Nie et al. and Bui et al. applied these methods to geotechnical engin­
+eering-related forecasting tasks (Bui et al. 2019, Nie et al. 2022). Traditional
+parameterized model algorithms are straightforward to interpret; however, these
+methods involve assumptions about data distribution that cannot sufficiently capture
+the nonlinearity and uncertainty in forecasting within complex geographic scenes (Li
+et al. 2019). In contrast, nonparametric models address this issue effectively and can
+capture complex data patterns when sufficient historical data are available. Examples
+of nonparametric models include support vector regression, k-nearest neighbors, and
+neural networks (Elshorbagy et al. 2010, Salazar et al. 2015). Deep learning methods
+(Silver et al. 2016, Morav�c�ık et al. 2017) possess superior fitting capabilities for model­
+ing arbitrarily complex nonlinear relationships and demonstrate strong compatibility
+when integrated with traditional physical modeling methods (Kochkov et al. 2024).
+                          INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE    2215
+
+
+Consequently, these methods have been widely applied in prediction and early warn­
+ing within complex geographic scenes (Yang et al. 2019).
+    The models can be categorized into two groups based on whether they consider spa­
+tial correlation. Some forecasting methods focus solely on temporal dependence, and
+several studies have achieved improved forecasting accuracy by training models such as
+long short-term memory (LSTM) (Zhu et al. 2022) and GRU (Zhang et al. 2022). However,
+these models consider only temporal dependencies and overlook the spatial characteris­
+tics in complex geographic scenes, resulting in predictions that do not account for the
+spatial constraints inherent in monitoring networks. Fully leveraging the spatial–
+temporal dependencies within monitoring networks in complex geographic scenes is
+essential for enhancing related forecasting tasks. To better capture spatial features, some
+researchers have employed convolutional neural networks (CNNs) to establish spatial
+correlations within monitoring networks (Yang et al. 2020, Hua et al. 2023).
+    The methods described above incorporate CNNs in the process of establishing spa­
+tial dependence and have shown notable progress in forecasting tasks. However, the
+CNN approach primarily relies on Euclidean spatial features, such as images and regu­
+lar grids, making it ineffective at capturing or applying non-Euclidean spatial features,
+including topological relationships and interrelationships. This limitation hinders its
+ability to accurately reflect the true spatial dependencies within monitoring networks
+in complex geographic scenes. With the advent of the graph convolutional network
+(GCN) approach (Kipf and Welling 2016), some studies have leveraged this network to
+enhance the capture of spatial features within graph-structured data (Zhao et al. 2020,
+Ma et al. 2021, Ruan et al. 2023).
+    In complex geographic scenes, the development of GCN models for monitoring net­
+work forecasting has been constrained due to their insufficient integration of the
+spatial–temporal characteristics associated with the evolution of monitored targets.
+Moreover, these models rarely incorporate the dynamic and static environmental
+knowledge of the scene, limiting their ability to interpret changes in monitoring tar­
+gets. The T-GCN model (Zhao et al. 2020) has been proven effective in handling the
+spatial–temporal features of urban traffic networks but has yet to be practically
+applied in the monitoring and forecasting of complex geographic scenes. To address
+the lack of dynamic and static environmental knowledge within the scene, He et al.
+(2025) proposed a seven-element data model encompassing time, space, event, pro­
+cess, state, and human/object to depict the dynamic spatial–temporal evolution of a
+geographic scene and developed an ST-KG to represent environmental influences on
+monitored targets. Therefore, in our Scene-GCN framework, we incorporate the ST-KG
+construction theory from the aforementioned work and further integrate the T-GCN
+model to achieve predictions. These predictions not only improve accuracy but also
+enhance interpretability.
+
+
+3. Methodology
+3.1 Framework
+The Scene-GCN model integrates the spatio-temporal features of complex geographic
+scenes with dynamic and static environmental knowledge through the ST-KG
+2216     W. LI ET AL.
+
+
+
+
+Figure 1. Scene-GCN spatio-temporal forecasting modeling framework.
+
+approach and employs T-GCN units to perform spatio-temporal predictions. As shown
+in Figure 1, taking deformation monitor scene as example, First, the monitoring tar­
+gets in complex geographic scenes (e.g. surface deformation) are represented as the
+feature matrix X; and use a weighted adjacency matrix A to model the spatial depend­
+encies among the monitoring targets. Second, in complex geographic monitoring
+scenes, observational data from IoT-based sensor networks are subject to influence
+                          INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE   2217
+
+
+from the dynamic and static environmental factors. On the one hand, dynamic
+changes in the environment around monitors (e.g. the dry beach length, reservoir
+level, phreatic line, and precipitation in the monitoring environment) influence the sta­
+bility of the monitoring target (Yin et al. 2011, Dong et al. 2020, Hancock 2021, Ruan
+et al. 2023). On the other hand, the static environmental factors are related to the
+intrinsic properties of the monitoring target (e.g., the deformation dimensions, soil
+type, and lithology in the monitoring environment), also affect the stability of the
+monitoring target (Sun et al. 2012, Naeini and Akhtarpour 2018, Du et al. 2022).
+Therefore, the dynamic and static environmental factors are represented using a
+dynamic attribute matrix D and a static attribute matrix S; respectively. Third, the fea­
+ture matrix X is combined with the two attribute matrices S and D to form the attri­
+bute-enhanced matrix M: Subsequently, the relationships between attributes and
+features in matrix M are established through the attribute embedding method of the
+ST-KG, thereby constructing the ST-KG. Fourth, for each timestamp of the ST-KG, the
+proposed method extracts the feature values from the feature matrix X; the spatial
+dependencies corresponding to these feature values in the weighted adjacency matrix
+A; and the attribute values associated with these feature values in the attribute matri­
+ces S and D: After the extraction, the spatial dependencies of the feature values within
+each timestamp and the temporal dependencies among feature values, attribute val­
+ues, and the interactions between feature values and attribute values across different
+timestamps are established. Finally, spatio-temporal predictions are performed using
+the T-GCN units.
+    Therefore, based on the above definitions, examples, and the framework illustrated
+in Figure 1, the time-series forecasting problem can be defined as learning the func­
+tion f to predict the time-series data at a future time, given the network topology A
+of the monitors, the feature matrix X; the attribute matrices S and D; the attribute-
+enhanced matrix M, and the spatial–temporal knowledge graph (ST-KG):
+                             y ¼ f ðA, M ¼ ðX, S, DÞ, ST − KGÞ                         (1)
+
+
+3.2 Spatial–temporal knowledge graph
+In complex geographic scenes, IoT-based sensor networks encompass various moni­
+tors, including deformation monitors, water level monitors, and precipitation monitors.
+To model the interactions between monitoring targets and both dynamic and static
+environmental factors, the ST-KG construction method (as shown in Figure 2) is devel­
+oped as follows:
+   Assuming the monitoring target is deformation within the scene, with environmen­
+tal factors such as precipitation and water level represented as attributes. (1) Each
+monitoring target is conceptualized as an entity, with the temporal evolution of each
+entity abstracted as a process, and deformation values at different time points repre­
+sented as states. Spatial dependencies are established by quantifying the spatial struc­
+ture between entity states, allowing not only for consideration of temporal
+dependencies within individual processes but also for the extension of temporal
+dependencies across multiple processes. (2) Attributes of the monitoring target are
+classified into dynamic and static types, as the evolution of these attributes may
+2218     W. LI ET AL.
+
+
+
+
+Figure 2. Schematic diagram of the ST-KG construction method.
+
+amplify or attenuate the deformation values of the monitoring target. Consequently,
+embedding attributes into entities significantly enhances the graph’s capacity for
+knowledge representation.
+
+(1) Abstraction and representation of deformation-related spatial–temporal knowledge
+To express the spatial dependence among the studied monitor, a weighted, undir­
+ected, connected graph G ¼ ðV, E, W Þ is defined in this paper, as shown in Figure 3.
+The monitors are abstracted as graph nodes, i.e., V ¼ v1 , v2 , . . . , vN ; where N is the
+number of monitors. Each pair containing any two monitors has one undirected edge
+E: The total number of undirected edges E is given by E ¼ N � ðN − 1Þ=2: W 2 RN�N
+denotes the adjacency matrix based on the spatial proximity of all monitors. The spa­
+tial distance between two monitors relates to their time-series data and represents an
+important factor affecting the spatial dependence between the points (Ma et al. 2021).
+The Gaussian similarity function based on spatial proximity is used to calculate the
+weights of the weighted adjacency matrix (Von Luxburg 2007), the formula of which is
+given below:
+                              wði, jÞ ¼ exp ð−k vi − vj k2 =2r2 Þ                          (1)
+where wði, jÞ is the weight size of the undirected edge eij between two monitors
+ðvi , vj Þ; k vi − vj k2 is the spatial distance between the two monitors ðvi , vj Þ; and r is
+the standard deviation of the set of distances of each monitoring point.
+                            INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE      2219
+
+
+
+
+Figure 3. The weighted connected graph of the monitoring network in complex geographic scenes.
+
+
+   The weighted adjacency matrix among the monitors is shown below:
+                           2                               3
+                                0    wð1, 2Þ � � � wð1, NÞ
+                           6 wð2, 1Þ    0    � � � wð2, NÞ 7
+                           6                               7
+                      Aw ¼ 6    ..      ..   ..        ..  7                                (2)
+                           4     .       .       .      .  5
+                             wðN, 1Þ wðN, 2Þ � � �    0
+
+   To express the temporal dependence of monitors, a feature matrix X 2 RN�L includ­
+ing the time-series information of all monitors is constructed. Here, N denotes the
+number of monitors, and L is the total length of the time series. X 2 RN�t represents
+the observed values of all monitors at time t: If n historical time-series data points are
+given, this is expressed as:
+                                       ½Xt−n , . . . , Xt−1 , Xt �                          (3)
+
+   Accordingly, the forecast of the future T time series lengths are:
+                                    ½Xtþ1 , . . . , XtþT−1 , XtþT �                         (4)
+
+
+(2) Attribute-embedding method for the ST-KG
+The intrinsic properties of the monitoring target are taken as the static attributes ðSÞ;
+and dynamic changes in the environmental factors are taken as the dynamic attributes
+2220      W. LI ET AL.
+
+
+
+
+Figure 4. Construction of the attribute matrix.
+
+ðDÞ: Considering the time-series state entity X; the process of embedding attributes
+S, D into state X is shown in Figure 4.
+    Embedding the static attributes: Let S 2 RN�p be the set of p distinct static attrib­
+utes fS1 , S2 , . . . , Sp g: These static attributes do not change over time, and the constant
+values of S are used to generate a matrix of the static attributes MSt for each time
+point. Specifically, the matrix of static attributes at timepoint t is defined below:
+                                    MSt ¼ ½Xt , S�, MSt 2 RN�ðpþ1Þ                                  (5)
+
+    Embedding the dynamic attributes: Unlike S; let D 2 RN�ðq�tÞ be the set of q distinct
+dynamic attributes fD1 , D2 , . . . , Dq g: Considering the time lag in the observed values
+relative to changes in external environmental factors, when constructing the dynamic
+attribute matrix MDt ; the size of the selection window is extended to m þ 1 to replace
+the attribute corresponding to the original time t; i.e., the dynamic attribute matrix
+Dqt−m, t ¼ ½Dqt−m , . . . , Dqt−1 , Dqt � is chosen as the dynamic attribute submatrix Dq :
+Specifically, the dynamic attribute matrix at time t is defined below:
+                                   h                                     i
+                        MDt ¼ Xt , D1t−m, t , D2t−m, t , . . . , Dqt−m, t , MDt 2 RN�½q�ðmþ1Þ� (6)
+
+  Finally, the combined representation of the feature matrix X; the static attributes S;
+and the dynamic attributes D combined with the attribute matrix MSt , D at time t can
+be defined as follows:
+                       h                                              i
+              MSt , D ¼ Xt , S, D1t−m, t , D2t−m, t , . . . , Dqt−m, t , MSt , D 2 RN�½pþ1þq�ðmþ1Þ� (7)
+
+where q denotes the number of dynamic attributes.
+
+
+3.3 Time-series forecasting method based on the Scene-GCN
+The ST-KG described above establishes a graph data model for the non-Euclidean
+domain, while the GCN (Wu et al. 2021) can effectively capture the spatial dependence
+in non-Euclidean domain data. When a node’s features are updated, this model can
+comprehensively consider the characteristics of node’s neighbors (and those of the
+node itself). The sigmoid function is used as the activation function for the GCN to
+                             INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE       2221
+
+
+
+
+Figure 5. Structure of the two deep learning model. (a) The graph convolutional network structure.
+(b) The gated recurrent unit structure.
+
+obtain the features with the spatial dependence from all the nodes by updating the
+feature information in the graph structure (Kipf and Welling 2016, Zhao et al. 2020).
+   As shown in Figure 5(a), to obtain the spatial dependence between nodes, the GCN
+takes the adjacency matrix A and feature matrix X as inputs, whose layer-by-layer
+propagation rule is given by:
+                                        � 1       1
+                                                        �
+                                             � −2 � � −2
+                                 Y ðlþ1Þ ¼ r D A D Y ðlÞ W ðlÞ                                 (8)
+        �
+where A ¼ A þ IN is the self-connected       adjacency matrix of the undirected graph G;
+                                   �   P�                                �
+and IN is the identity matrix; D ¼ j Aij is the degree matrix of A; W ðlÞ is the layer l
+trainable weight matrix; rð�Þ denotes the sigmoid function, a non-linear activation
+function commonly used in neural network models; Y ðlÞ 2 RN�D is the matrix activated
+in layer l; Y ðlþ1Þ is the output of the convolutional layer, and Y ð0Þ ¼ X:
+   In this study, the two-layer GCN model is used to capture spatial dependencies,
+and its expression is as follows:
+                                                   ^ 0 ÞW1 Þ
+                                            ^ ReLU AXW
+                               f ðX, AÞ ¼ r A                                                  (9)
+             � −12 � � −12
+where A  ^ ¼ D AD represents the preprocessing step, W0 2 R            P�H
+                                                                      denotes the weight
+matrix from the input layer to the hidden layer, P is the length of the feature matrix
+and H is the number of hidden units. W1 2 RH�T denotes the weight matrix from the
+hidden layer to the output layer, T is the prediction length. ReLUðÞ represents the
+Rectified Linear Unit, a widely used activation function in modern deep neural
+networks.
+     The GRU has a gating unit to regulate information flow inside the unit. There is no
+separate storage unit; thus, the GRU is simpler in structure and more efficient in its
+training time and update optimization compared to the LSTM approach (Chung et al.
+2014, Cho et al. 2014).
+     As shown in Figure 5(b), the input feature matrix in the node at the current time is
+Xt ; the hidden state at the previous moment is ht−1 ; the reset gate rt is used to control
+the extent to which historical information is ignored; the update gate ut is used to
+control the extent to which historical information is combined with the current state
+of inputs; ct is the candidate memory cell, that is, the content of the information stor­
+age at time t; ht is the hidden state of the output at time t; Y^ t is the forecast of
+observed values at time t: The GRU uses the current monitoring information at time t
+and the hidden state information at t − 1 as inputs; thus, when capturing the
+2222      W. LI ET AL.
+
+
+monitoring information at the current moment, it can also consider trends in historical
+information to synthesize the output results.
+   If the current time is t; Mt is the corresponding attribute matrix extracted at that
+time point; this is then imported into the GCN layer for feature updating and time-
+series changes with spatial dependence are produced as output features. These fea­
+ture sequences are then used as inputs to the GRU to construct the temporal depend­
+ence of the sequences in the gating unit, which ultimately realizes the time-series
+forecasting task. The derivation process is as follows:
+                               rt ¼ rðWr � ½gcðA, Mt Þ, ht−1 � þ br Þ                        (10)
+                              ut ¼ rðWu � ½gcðA, Mt Þ, ht−1 � þ bu Þ                         (11)
+                             ct ¼ tan h½gcðA, Mt Þ, ðrt �ht−1 Þ� þ bc Þ                      (12)
+                                   ht ¼ ut �ht−1 þ ð1 − ut Þ�ct                              (13)
+where gcð�Þ is the graph convolution process, rð�Þ and tan hð�Þ are the activation func­
+tions, and the parameters W and b are the learnable weights and biases, respectively.
+
+
+4. Experiments and analysis
+4.1 Overview of the study area
+The model proposed in this paper was validated through a case study of the monitor­
+ing network in the complex geographic scene of the Dexing copper mine tailings dam
+in China. The Dexing copper mine has a total area of 37 km2 and is situated in the
+middle and lower reaches of the Yangtze River; this mine belongs to Dexing
+Township, Shangrao City, northeastern Jiangxi Province, which is located in the Huayu
+Mountains (Zhang et al. 2021, Du et al. 2022). The No.4 tailings pond is situated at the
+boundary of the open pit area of the Dexing Copper Mine and has the largest volume,
+surface area, and dam volume. The structure, surrounding environment, and monitor­
+ing network of this complex geographic scene are shown in Figure 6.
+
+
+4.2 Dataset description and processing
+The dataset used in this study consists of monitoring network data from August 25,
+2022, to November 6, 2023, for the Dexing Copper Mine No. 4 tailings pond. The
+deformation is described by X, Y, Z 3-D surface deformation data, while the data types
+
+
+
+
+Figure 6. Schematic diagram illustrating the monitoring network distribution at the No. 4 tailings
+pond.
+                          INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE   2223
+
+
+of the external environmental factors are the dry beach length, reservoir water level,
+phreatic line, and precipitation. Using those features, the following workflow was
+applied:
+
+1.   Construct the feature matrix: to comprehensively consider the interaction among
+     the long time-series deformation features at each deformation monitoring point,
+     deformation data in the X; Y; and Z directions from 10 surface deformation moni­
+     toring points are used, resulting in a total of 30 time series. Each time series con­
+     tains 21,027 time points, with an interval of 30 minutes between two consecutive
+     time points. The size of the corresponding matrix is 30�21027.
+2.   Construct the adjacency matrix: because all the monitors influence among each
+     other, fully connected graph is used in this experiment. the distance weight
+     matrix based on the Gaussian similarity function is constructed for the studied
+     deformation monitors. The size of this matrix is 30�30.
+3.   Construct the static attribute matrix: the X, Y, Z dimensions are used as static
+     attributes. The size of this matrix is 30�1.
+4.   Construct the dynamic attribute matrix: three dry beach length monitors, two res­
+     ervoir water level monitors, 45 phreatic line monitors, and two precipitation moni­
+     tors were used, and the time-series interval was synchronized with the
+     deformation data. In order to synthesize the influence of the external factors on
+     the study area, the data were processed to obtain the average dry beach length,
+     average reservoir water level, average phreatic line, and maximum precipitation at
+     each time point. The size of the corresponding matrix containing these data is
+     4�30�21027.
+
+   The constructed feature matrix, static attribute matrix, and dynamic attribute matrix
+were then linearly transformed from the original data using min-max normalization
+such that the normalized results were mapped to the range ½0, 1� using the following
+transformation equation:
+                                           x − xmin
+                                    X¼                                              (14)
+                                         xmax − xmin
+where xmax is the maximum value in the matrix, xmin is the minimum value in the
+matrix, x is the original data point in the matrix, and X is the normalized result.
+
+
+4.3 Model training and parameterization
+(1) Training rules
+The dataset division approach is shown in Figure 7. As shown, 80% of the values in
+the dataset were used to form the training set, while the remaining 20% were used as
+the test set. The samples from the training set were extracted using a sliding window
+approach in the forward direction of the time series. Considering the practical require­
+ments of tailings dam failure early warning research, it is necessary to quickly predict
+short-term changes in the dam body to enable timely emergency measures. Therefore,
+a short-term prediction approach was adopted to enhance the model’s real-time
+responsiveness. In this approach, six training samples were extracted each time; of
+2224       W. LI ET AL.
+
+
+
+
+Figure 7. Dataset segmentation.
+
+these, the first five were used as sample inputs and the sixth was used for labeling,
+with a sliding step size of one. The test set was processed in the same way.
+   The goal of the tailings dam deformation prediction is to ensure that the predicted
+results are as close as possible to the true deformation state of the tailings dam.
+Therefore, the loss function aims to minimize the forecast error of the model, and the
+loss function used for the training process is defined as:
+                                    Xn
+                             loss ¼    t¼1
+                                           ðYt − Y^ t Þ2 =n þ kLreg                (15)
+
+where n is the total number of training samples, Yt is the ground truth value of the
+tailings dam deformation, Y^ t is the predicted value of the tailings dam deformation,
+Lreg is the L2 regularization term that helps to avoid overfitting problems, and k is the
+hyperparameter that adjusts the degree of regularization
+
+(2) Evaluation metrics
+The overall performance of the model was evaluated based on the following five
+metrics.
+
+a.     Root mean square error (RMSE):
+                                           �                   �12
+                                         1 Xn                2
+                                  RMSE ¼        ðYt − Y^ t Þ                         (16)
+                                         n  t¼1
+
+       The closer the RMSE value is to 0, the smaller the model’s forecasting error is;
+       thus, smaller values indicate that the model’s forecast is more accurate.
+b.     Mean absolute error (MAE):
+                                              Pn
+                                                   jYt − Y^ t j
+                                       MAE ¼ t¼1                                  (17)
+                                                    n
+                           INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE   2225
+
+
+     The MAE metric is used to assess the degree of closeness between the model’s
+     predictions and the real dataset: the closer its value is to 0, the better the model
+     is fitted.
+c.   Accuracy:
+
+                                                    k Y − Y^ kF
+                                   Accuracy ¼ 1 −                                      (18)
+                                                      k YkF
+
+     where Y and Y^ represent the sets of Yt and Y^ t ; respectively, and k �kF represents
+     the Frobenius norm. The Frobenius norm normalizes the error (k Y − Y^ kF ) relative
+     to the overall scale of the actual data (k YkF ), ensuring that the error and accuracy
+     are comparable across datasets with different scales or units. The closer the value
+     is to 1, the better the performance of the model.
+d.   R2 :
+                                             Pn
+                                     2              ðYt − Y^ t Þ2
+                                    R ¼ 1 − Pt¼1n               2
+                                                                                       (19)
+                                                t¼1 ðYt − Y t Þ
+
+     The R2 metric is mainly used to measure the model’s forecasting ability. Where
+     Pn
+                  ^ 2                        squared residuals, which measures the error
+        t¼1 ðYt − Y t Þ represents the sum ofP
+                                              n              2
+     introduced by the predictions, and       t¼1 ðYt − Y t Þ represents the total sum of
+     squares (TSS), which measures the total variance in the actual data. Here, Y t
+     denotes the mean value of the observed data. The closer the R2 value is to 1, the
+     better the forecasting results.
+e.   Explainable variability (VAR):
+
+                                                 varðY − Y^ Þ
+                                     VAR ¼ 1 −                                         (20)
+                                                   varðYÞ
+
+
+     VAR measures the proportion of the model’s predictions that account for actual
+     tailings dam deformation. Where varðY − Y^ Þ represents the variance of the error
+     between the predicted values and the actual values, and varðYÞ represents the
+     overall variance of the actual data. The closer the value of this metric is to 1, the
+     better the model’s predictive ability.
+
+(3) Parameter setting
+In this paper, the main hyperparameters of the proposed model include the training
+epoch, batch size, learning rate, and the number of GRU hidden units. In the experi­
+ments, a small batch size resulted in larger gradient fluctuations during updates, while
+an excessively large batch size increased the risk of the model getting stuck in local
+optima. And a small learning rate could lead to convergence at local optima, whereas
+a large learning rate might cause the model to miss the global optimum. Taking these
+factors into account, we manually adjusted the parameters and set the batch size to
+64 and the initial learning rate to 0.001. Furthermore, the Adam optimizer (Kingma
+and Ba 2014) was employed during model training to dynamically and adaptively
+adjust the learning rate. Notably, the number of hidden units of the model is crucial
+2226     W. LI ET AL.
+
+
+
+
+Figure 8. Comparison of the model’s predicted performance on the test set with different hidden
+units. (a) Changes in RMSE and MAE. (b) Changes in accuracy, R2, and VAR.
+to the accuracy of its forecasting; thus, this parameter was determined through mul­
+tiple experiments.
+   The number of GRU hidden units was selected from the range [8,16,32,64,100,128]
+to analyze the variations in forecast accuracy. In Figure 8, the horizontal axis repre­
+sents the number of hidden units, and the vertical axis represents the variations in dif­
+ferent evaluation metrics. Figure 8(a) shows the variations of RMSE and MAE in the
+test set, where the error is minimized when the number of hidden units is 100.
+Similarly, Figure 8(b) shows variations in the accuracy, R2 ; and VAR metrics on the test
+set, with the best values of all three evaluation metrics achieved when the number of
+hidden units was set to 100. It is worth noting that in both Figure 8(a) and (b), as the
+number of hidden units increases, the prediction precision firstly increases and then
+decreases. This is primarily because when the number of hidden units exceeds a cer­
+tain threshold, the complexity and computational difficulty of the model significantly
+increase, leading to overfitting on the training data. Considering these factors, we set
+the number of hidden units to 100. And the value of the training epoch was set in
+the same way as for the GRU hidden unit and finally adjusted to 2500.
+
+
+4.4. Experimental results and analysis
+In this section, the experimental results for 30 time-series datasets of monitoring tar­
+gets within the monitoring network in complex geographic scenes are analyzed from
+two perspectives: (1) comparison with other baseline methods using the assessment
+metrics described above and (2) ablation experiments to validate the utility of the
+Scene-GCN approach in tailings dam deformation forecasting.
+
+(1) Comparison of experimental results
+We compare the performance of the proposed model in this paper to the following
+baseline methods for time-series forecasting: the autoregressive integrated moving
+average model (ARIMA) (Percival and Walden 1993), the support vector regression
+model (SVR) (Smola and Scho   €lkopf 2004), the GRU model (Cho et al. 2014), the atten­
+tion temporal graph convolutional network (A3T-GCN) (Bai et al. 2021), and the T-GCN
+model (Zhao et al. 2020). In the baseline model considering spatial dependence, the
+adjacency matrix construction process is identical to the model proposed in this paper.
+The forecast results of the various models are shown in Table 1.
+                                  INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE                            2227
+
+
+Table 1. The prediction results of the Scene-GCN and other baseline methods on the Dexing No.
+4 tailings pond dataset.
+Evaluation metrics      ARIMA      SVR         GRU         A3T-GCN      T-GCN        Scene-GCN ST-KG (Static þ Dynamic)
+RMSE                  14.741    1.813     0.941    0.682         0.720                  0.366
+MAE                   14.730    1.052     0.519    0.344         0.362                  0.196
+Accuracy                 �      0.945     0.945    0.946         0.944                  0.965
+R 2                      �      0.969     0.969    0.970         0.968                  0.987
+VAR                      �      0.970     0.969    0.971         0.968                  0.987
+�indicates that the values are small enough to be negligible, indicating that the model has poor forecasting
+  capability.
+
+
+Table 2. Ablation Experiments under different experimental settings. (a) Unembedded ST-KG vs.
+embedded single attribute (b) Unembedded ST-KG vs. model embedded with different attributes
+(all static attributes/all dynamic attributes/all static þ all dynamic attributes).
+(a) Unembedded ST-KG vs. embedded single attribute
+                                                                     Scene-GCN
+                                                                             ST-KG (Dynamic attribute knowledge)
+Evaluation               ST-KG (Static attribute knowledge)      Dry beach         Reservoir      Phreatic
+metrics       T-GCN          3D Deformation direction             length          water level       line        Precipitation
+RMSE          0.720                    0.716                         0.400           0.399         0.464           0.398
+MAE           0.362                    0.353                         0.215           0.212         0.240           0.211
+Accuracy      0.944                    0.949                         0.965           0.961         0.961           0.965
+R2            0.968                    0.973                         0.987           0.984         0.985           0.988
+VAR           0.968                    0.973                         0.987           0.984         0.985           0.988
+
+
+
+(b) Unembedded ST-KG vs. model embedded with different attributes (all static attributes/all dynamic attributes/all
+static þ all dynamic attributes)
+                                                                       Scene-GCN
+Evaluation                       ST-KG (Static attribute           ST-KG (Dynamic               ST-KG (Static þ Dynamic
+metrics               T-GCN           knowledge)                attribute knowledge)             attribute knowledge)
+RMSE                  0.720              0.716                           0.391                          0.366
+MAE                   0.362              0.353                           0.215                          0.196
+Accuracy              0.944              0.949                           0.962                          0.965
+R2                    0.968              0.973                           0.985                          0.987
+VAR                   0.968              0.973                           0.986                          0.987
+
+    The experimental results show that the Scene-GCN method achieves better per­
+formance than traditional methods such as ARIMA and SVR as well as deep learning
+methods such as GRU, A3T-GCN, and T-GCN. The former model group cannot adapt to
+situations involving complex changes in deformation, while the latter group only con­
+siders time-dependency or spatial–temporal dependency and does account for the
+influence of geographic knowledge on deformation generation. The results indicate
+that the RMSE value of the Scene-GCN (Static þ Dynamic) model is 97.5%, 79.8%,
+61.1%, 46.4% and 49.2% lower than that of ARIMA, SVR, GRU, A3T-GCN, and T-GCN,
+respectively.
+
+(2) Ablation experiments
+The ablation experiments performed here confirm that the dynamic and static attrib­
+utes in the Scene-GCN can improve the forecasting performance of deep learning
+models. The ablation experiments were conducted using the settings described above,
+2228     W. LI ET AL.
+
+
+which are categorized as no ST-KG embedded, only a single static or dynamic attribute
+embedded, all static or dynamic attributes embedded, and all static and dynamic
+attributes embedded. The results of this analysis are shown in Table 2.
+    As shown in Table 2(a), compared to the T-GCN without embedded ST-KG, the
+Scene-GCN models with a single embedded attribute exhibited great improvements in
+all evaluation metrics. Specifically, the RMSE decreased by 0.6% when embedding a
+single static attribute, while the average RMSE decreased by 42.3% when embedding
+a single dynamic attribute. Similarly, Table 2(b) shows that the Scene-GCN embedded
+with different attributes (static only/dynamic only/static þ dynamic) exhibited signifi­
+cant improvements in all evaluation metrics compared to the T-GCN model
+without embedded ST-KG. Among these, the accuracy of the evaluation metrics
+embedded with the static attributes is as described above; the RMSE of the model
+embedded with dynamic attributes decreased by 45.8%, and the RMSE of the model
+embedded with both the static and dynamic attributes decreased by 49.2%.
+    To further investigate the effectiveness of the Scene-GCN approach, we randomly
+selected a single monitoring point from the monitoring network and visualized the
+results of the ablation experiments for its time-series data. The comparisons of the
+predicted visualizations are shown in Figures 9–11.
+    As shown in Figures 9–11, embedding the ST-KG improves the model’s ability to
+perceive peaks and inflection points. In addition, when the deformation monitoring
+data and the model prediction data have the same monotonicity, the fit of the pre­
+dicted deformation is improved and the predicted results are closer to the ground
+truth.
+    From the visualization results shown in Figure 12, relative to the ground truth, the
+deviations in the forecast results from the model with both dynamic and static attrib­
+utes embedded are smaller than those from models with only static or only dynamic
+
+
+
+
+Figure 9. Comparison between model forecasting with embedded static attributes and forecasting
+with no attributes.
+                          INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE    2229
+
+
+
+
+Figure 10. Comparison between model forecasting with embedded dynamic attributes and fore­
+casting with no attributes.
+
+
+
+
+Figure 11. Comparison between model forecasting with embedded static and dynamic attributes
+and forecasting with no attributes.
+
+attributes, with more accurate predictions at peaks and inflection points. This suggests
+that incorporating diverse geographic knowledge when constructing the ST-KG can
+improve the model’s forecasting accuracy in complex geographic scenes.
+   Based on the above analysis, Scene-GCN models that consider only single or partial
+attributes are unable to effectively capture the implicit relationship between deform­
+ation and the influencing attributes, making it challenging to further improve forecast
+2230      W. LI ET AL.
+
+
+
+
+Figure 12. Comparison of embedding different state attributes for forecasting.
+
+accuracy. In contrast, the Scene-GCN model that incorporates all attributes performs
+better. This indicates that the inclusion of attribute knowledge related to the predic­
+tion targets enriches the structure of the ST-KG, enabling Scene-GCN to more compre­
+hensively capture the spatio-temporal dependencies associated with the prediction
+targets. Therefore, this process clearly demonstrates that the improvement in Scene-
+GCN’s prediction capability is attributable to its ability to incorporate more attribute
+knowledge, thereby better explaining the changes and trends of the prediction tar­
+gets. In other words, it enhances the interpretability of the deep learning model in
+deformation prediction. Therefore, embedding the ST-KG approach significantly
+improves both the accuracy and interpretability of deep learning models in complex
+geographic scenes.
+
+
+5. Conclusion
+In this study, Scene-GCN time-series prediction model based on the ST-KG approach is
+proposed for monitoring networks in complex geographic scenes. Our model over­
+comes the limitations of traditional forecasting methods by providing the monitoring
+network in complex geographic scenes with a spatial structure suitable for graph
+model learning. It combines dynamic and static environmental knowledge of the
+scene with the dynamic changes in time-series data from the monitoring targets, con­
+structing a "process–state" ST-KG that allows the model to incorporate various attrib­
+utes that may influence deformation. Additionally, the T-GCN cell captures the spatial–
+temporal dependencies within the monitoring network by learning time-series and
+attribute information from different monitoring points within the ST-KG. Experimental
+results demonstrate that the Scene-GCN outperforms baseline models across all
+studied prediction tasks. Furthermore, a series of ablation experiments validate the
+effectiveness of integrating the ST-KG within our proposed model. As the T-GCN
+                             INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE      2231
+
+
+model exhibits robust performance in both short- and long-term predictions (Zhao
+et al. 2020), thereby empowering the Scene-GCN framework to enhance real-time
+responsiveness while enabling risk assessment and long-term planning.
+   The effectiveness of the proposed method depends on two key factors: (1) the pre­
+cise construction of adjacency matrices and (2) the accurate identification of environ­
+mentally influential factors. When both are well-defined, Scene-GCN demonstrates
+strong performance across various geographic scales. In small-scale environments,
+such as tailings ponds, clearly defined spatial relationships and homogeneous environ­
+mental conditions enable Scene-GCN to achieve state-of-the-art performance.
+However, scaling Scene-GCN to larger, more heterogeneous geographic scenes
+presents significant challenges. As monitoring points extend across diverse topograph­
+ical features, such as rivers and valleys, determining spatial correlations becomes
+increasingly complex, reducing adjacency matrix accuracy. Additionally, extracting rele­
+vant environmental factors in large-scale scenes is further complicated by spatial vari­
+ability, making it difficult to identify common environmental patterns and integrate
+accurate data into the framework. To enhance the model’s applicability, future
+research will focus on developing tools for adjacency matrix construction and methods
+for rapidly selecting common environmental factors in large-scale geographic scenes.
+
+
+Acknowledgement
+We sincerely thank the editors and reviewers for their insightful comments and constructive
+suggestions, which have significantly improved the quality of this paper.
+
+
+Author contributions
+Weihao Li formulated the collected data, conducted the experiment, and wrote the manuscript.
+Yufeng He overarching research goals, contributed to the concept of the current research and
+provided experimental ideas. Lizhi Tao and Jifa Chen formatted the manuscript and corrected
+any errors observed. Hui Lin and Yong Ge was responsible for the quality audit of the
+manuscript.
+
+
+Disclosure statement
+No potential conflict of interest was reported by the author(s).
+
+
+Funding
+This work was supported by [National Natural Science Foundation of China] under Grants
+[42301533, 42230108 and 42471461], [China Postdoctoral Science Foundation] under Grant
+[2024M751558], [Natural Science Foundation of Jiangxi Province] under Grant [20242BAB25118],
+[Key Research and Development Program Project of Jiangxi Province] under Grant
+[20243BBI91033].
+
+
+Notes on contributors
+Weihao Li is currently pursuing the M.S. degree at Jiangxi Normal University. His research direc­
+tions are geographic knowledge graph, graph neural networks, and spatio-temporal forecasting.
+2232      W. LI ET AL.
+
+
+
+Yufeng He is currently an associate professor at Jiangxi Normal University. His research interests
+include geoinformatics, spatiotemporal data models, and geographic big data mining. At pre­
+sent, his main research directions are geographic knowledge graph and Virtual Geographic
+Environments/Geo-Scene.
+Lizhi Tao is currently a lecturer at Jiangxi Normal University. Her research interests include spa­
+tio-temporal big data mining, time series analysis and modeling.
+Jifa Chen is currently a lecturer at Jiangxi Normal University. His research interests include spa­
+tio-temporal big data mining, time series analysis and modeling.
+Xing Wang is a postdoctoral researcher in Nanjing University. His research interests include
+Multimodal data analysis, Wireless sensor network, Deep learning, and Video-GIS.
+Yong Ge is a researcher at Jiangxi Normal University, a researcher at the Institute of Geographic
+Sciences and Resources, Chinese Academy of Sciences (IGSR, CAS), a recipient of the National
+Distinguished Youth Fund (NYF), a chairperson of the Specialised Committee on Cartography
+and Geographic Information Systems (SCGIS) of the Geographical Society of China (GSC), and
+the secretary-general of the Specialised Committee on Data-Driven and Geological Development
+(SDGD) of the Chinese Geological Society (CGS). She is currently employed as Associate Editor
+of Computers & Geosciences, Associate Editor of Journal of Remote Sensing, and Editorial Board
+Member of Spatial Statistics, among others. She has been honored as the Most Beautiful
+Geoscientist and one of the top 2% scientists in the world at Stanford University.
+Hui Lin is Professor and Dean of the School of Geography and Environment, Jiangxi Normal
+University. He is mainly engaged in Virtual Geographic Environments, Remote Sensing in
+Tropical and Sub-Tropical Areas, Spatially Integrated Humanities and Social Science.
+
+
+Data and codes availability statement
+The dataset used in this study consists of monitoring network data from August 25, 2022, to
+November 6, 2023, for the Dexing Copper Mine No. 4 tailings pond. The model was constructed
+by using Python language in Jupyter notebook. The study was conducted using Tensorflow ver­
+sion 1.15, operating system ubuntu 20.04, 32 G of RAM and 1 T hard disk.
+    The model and data code of the paper is provided in the following link: https://github.com/
+Jolisen/Scene-GCN
+
+
+References
+Bai, J., et al., 2021. A3t-gcn: Attention temporal graph convolutional network for traffic forecast­
+   ing. ISPRS International Journal of Geo-Information, 10 (7), 485.
+Bui., et al., 2019. Predicting slope stability failure through machine learning paradigms. ISPRS
+   International Journal of Geo-Information, 8 (9), 395.
+Cho, K., et al., 2014. On the properties of neural machine translation: encoder-decoder
+   approaches. arXiv preprint arXiv:1409.1259.
+Chung, J., et al., 2014. Empirical evaluation of gated recurrent neural networks on sequence
+   modeling. arXiv preprint arXiv:1412.3555.
+da Cruz, M.A., et al., 2018. A reference model for internet of things middleware. IEEE Internet of
+   Things Journal, 5 (2), 871–883.
+Defferrard, M., Bresson, X., and Vandergheynst, P., 2016. Convolutional neural networks on
+   graphs with fast localized spectral filtering. Advances in Neural Information Processing Systems,
+   29.
+Diskin, M., 1970. Definition and uses of the linear regression model. Water Resources Research, 6
+   (6), 1668–1673.
+                             INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE          2233
+
+
+Dong, L., Deng, S., and Wang, F., 2020. Some developments and new insights for environmental
+    sustainability and disaster control of tailings dam. Journal of Cleaner Production, 269, 122270.
+Du, S. G., et al., 2022. A new approach for evaluation of slope stability in large open-pit mines: a
+    case study at the Dexing Copper Mine, China. Environmental Earth Sciences, 81 (3), 102.
+Elsheikh, A., Yacout, S., and Ouali, M.S., 2019. Bidirectional handshaking LSTM for remaining use­
+    ful life prediction. Neurocomputing, 323, 148–156.
+Elshorbagy, A., et al., 2010. Experimental investigation of the predictive capabilities of data
+    driven modeling techniques in hydrology - Part 2: Application. Hydrology and Earth System
+    Sciences, 14 (10), 1943–1961.
+Gama, F., et al., 2020. Deformations prior to the Brumadinho Dam collapse revealed by sentinel-
+    1 InSAR data using SBAS and PSI techniques. Remote Sensing, 12 (21), 3664.
+Gao, J., and Fourie, A., 2015. Using the flume test for yield stress measurement of thickened tail­
+    ings. Minerals Engineering, 81, 116–127.
+Gao, W., et al., 2022. Modelling and prediction of GNSS time series using GBDT, LSTM and SVM
+    machine learning approaches. Journal of Geodesy, 96 (10), 71.
+Hancock, G.R., 2021. A method for assessing the long-term integrity of tailings dams. The Science
+    of the Total Environment, 779, 146083.
+He, Y., et al., 2023. Processes and events in the center: a taxi trajectory-based approach to
+    detecting traffic congestion and analyzing its causes. International Journal of Digital Earth, 16
+    (1), 509–531.
+He, Y., et al., 2025. SceneKG: a geo-scene based spatiotemporal knowledge representation
+    framework considering geo-processes. Transactions in GIS, 29 (1), e13270.
+He, Y., et al., 2022. Processes and events in the centre: a dynamic data model for representing
+    spatial change. International Journal of Digital Earth, 15 (1), 276–295.
+Hua, G., et al., 2023. Research on the uplift pressure prediction of concrete dams based on the
+    CNN-GRU model. Water, 15 (2), 319.
+Huang, Y., et al., 2019. Using geographic ontologies and geo-characterization to represent geo­
+    graphic scenarios. ISPRS International Journal of Geo-Information, 8 (12), 566.
+Ji, P., et al., 2022. A new method to obtain 3-D surface deformations from InSAR and GNSS data
+    with genetic algorithm and support vector machine. IEEE Geoscience and Remote Sensing
+    Letters, 19, 1–5.
+Jiang, Y., et al., 2024. Deformation mechanism-assisted deep learning architecture for predicting
+    step-like displacement of reservoir landslide. International Journal of Applied Earth Observation
+    and Geoinformation, 133, 104121.
+Kingma, D.P., and Ba, J., 2014. Adam: a method for stochastic optimization. arXiv preprint arXiv:
+    1412.6980.
+Kipf, T.N., and Welling, M., 2016. Semi-supervised classification with graph convolutional net­
+    works. arXiv preprint arXiv:1609.02907.
+Kochkov, D., et al., 2024. Neural general circulation models for weather and climate. Nature, 632
+    (8027), 1060–1066.
+Krahn, J., 2003. The 2001 RM Hardy lecture: the limits of limit equilibrium analyses. Canadian
+    Geotechnical Journal, 40 (3), 643–660.
+Li, J., et al., 2019. Tailings pond risk prediction using long short-term memory networks. IEEE
+    Access, 7, 182527–182537.
+Li, Y., 2011. Web-based GNSS deformation monitoring software for landslide and dam. ed. 2011
+    International Conference on Remote Sensing, Environment and Transportation Engineering,
+    2825–2827.
+Lin, X., et al., 2023. A hybrid deep learning model for rapid probabilistic earthquake source par­
+    ameter estimation with displacement waveforms from a flexible set of seismic or HR-GNSS
+    stations. IEEE Transactions on Geoscience and Remote Sensing, 61, 1–16.
+ u, G., et al., 2018. Geographic scenario: a possible foundation for further development of virtual
+L€
+    geographic environments. International Journal of Digital Earth, 11 (4), 356–368.
+2234      W. LI ET AL.
+
+
+Ma, Z., et al., 2021. A deep learning approach using graph convolutional networks for slope
+   deformation prediction based on time-series displacement data. Neural Computing and
+   Applications, 33 (21), 14441–14457.
+Mendoza, R., et al., 2021. Estimation of the Pb content in a tailings dam using a linear regression
+   model based on the chargeability and resistivity values of the wastes (La Carolina Mining
+   District, Spain). Minerals, 12 (1), 7.
+Metternicht, G., Hurni, L., and Gogu, R., 2005. Remote sensing of landslides: An analysis of the
+   potential contribution to geo-spatial systems for hazard assessment in mountainous environ­
+   ments. Remote Sensing of Environment, 98 (2-3), 284–303.
+Morav�c�ık, M., et al., 2017. Deepstack: Expert-level artificial intelligence in heads-up no-limit
+   poker. Science (New York, N.Y.), 356 (6337), 508–513.
+Naeini, M., and Akhtarpour, A., 2018. Numerical analysis of seismic stability of a high centerline
+   tailings dam. Soil Dynamics and Earthquake Engineering, 107, 179–194.
+Nie, W., et al., 2022. 3D visualization monitoring and early warning system of a tailings dam—
+   gold copper mine tailings dam in Zijinshan, Fujian, China. Frontiers in Earth Science, 10,
+   800924.
+Percival, D.B., and Walden, A.T., 1993. Spectral analysis for physical applications. Cambridge:
+   Cambridge University Press.
+Qin, L., Feng, S., and Zhu, H., 2018. Research on the technological architectural design of geo­
+   logical hazard monitoring and rescue-after-disaster system based on cloud computing and
+   Internet of things. International Journal of System Assurance Engineering and Management, 9
+   (3), 684–695.
+Rose, N.D., and Hungr, O., 2007. Forecasting potential rock slope failure in open pit mines using
+   the inverse-velocity method. International Journal of Rock Mechanics and Mining Sciences, 44
+   (2), 308–320.
+Ruan, S., et al., 2023. Proactive control model for safety prediction in tailing dam management:
+   Applying graph depth learning optimization. Process Safety and Environmental Protection, 172,
+   329–340.
+Salazar, F., et al., 2015. An empirical comparison of machine learning techniques for dam behav­
+   iour modelling. Structural Safety, 56, 9–17.
+Shen, N., Chen, L., and Chen, R., 2022. Displacement detection based on Bayesian inference from
+   GNSS kinematic positioning for deformation monitoring. Mechanical Systems and Signal
+   Processing, 167, 108570.
+Silva Rotta, L.H., et al., 2020. The 2019 Brumadinho tailings dam collapse: Possible cause and
+   impacts of the worst human and environmental disaster in Brazil. International Journal of
+   Applied Earth Observation and Geoinformation, 90, 102119.
+Silver, D., et al., 2016. Mastering the game of Go with deep neural networks and tree search.
+   Nature, 529 (7587), 484–489.
+Smola, A.J., and Scho     €lkopf, B., 2004. A tutorial on support vector regression. Statistics and
+   Computing, 14 (3), 199–222.
+Sun, E., Zhang, X., and Li, Z., 2012. The internet of things (IOT) and cloud computing (CC) based
+   tailings dam monitoring and pre-alarm system in mines. Safety Science, 50 (4), 811–815.
+Van Lint, J., and Van Hinsbergen, C., 2012. Short-term traffic and travel time prediction models.
+   Artificial Intelligence Applications to Critical Transportation Issues, 22 (1), 22–41.
+Vlahogianni, E.I., Golias, J.C., and Karlaftis, M.G., 2004. Short-term traffic forecasting: overview of
+   objectives and methods. Transport Reviews, 24 (5), 533–557.
+Von Luxburg, U., 2007. A tutorial on spectral clustering. Statistics and Computing, 17 (4), 395–
+   416.
+Wang, J., Li, G., and Ai, T., 2024. Revealing association rules within intricate ecosystems: A spatial
+   co-location mining method based on Geo-Eco knowledge graph. International Journal of
+   Applied Earth Observation and Geoinformation, 133, 104116.
+Wu, Z., et al., 2021. A comprehensive survey on graph neural networks. Ieee Transactions on
+   Neural Networks and Learning Systems, 32 (1), 4–24.
+                            INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE        2235
+
+
+Yang, B., et al., 2023. Updated global navigation satellite system observations and attention-
+   based convolutional neural network–long short-term memory network deep learning algo­
+   rithms to predict landslide spatiotemporal displacement. Remote Sensing, 15 (20), 4971.
+Yang, J., et al., 2020. A CNN-LSTM model for tailings dam risk prediction. IEEE Access, 8, 206491–
+   206502.
+Yang, J., et al., 2019. Measure dry beach length of tailings pond using deep learning algorithm.
+   ed. Proceedings of the 2019 International Conference on Robotics, Intelligent Control and
+   Artificial Intelligence, 503–508.
+Yao, L., Mao, C., and Luo, Y., 2019. Graph convolutional networks for text classification. ed.
+   Proceedings of the AAAI conference on artificial intelligence, 7370–7377.
+Yin, G., et al., 2011. Stability analysis of a copper tailings dam via laboratory model tests: A
+   Chinese case study. Minerals Engineering, 24 (2), 122–130.
+Zhang, M., et al., 2021. Continuous detection of surface-mining footprint in copper mine using
+   google earth engine. Remote Sensing, 13 (21), 4273.
+Zhang, W., et al., 2022. Displacement prediction of Jiuxianping landslide using gated recurrent
+   unit (GRU) networks. Acta Geotechnica, 17 (4), 1367–1382.
+Zhao, L., et al., 2020. T-GCN: a temporal graph convolutional network for traffic prediction. IEEE
+   Transactions on Intelligent Transportation Systems, 21 (9), 3848–3858.
+Zhou, J., et al., 2020. Graph neural networks: a review of methods and applications. AI Open, 1,
+   57–81.
+Zhu, Y., et al., 2022. A tailings dam long-term deformation prediction method based on empir­
+   ical mode decomposition and LSTM model combined with attention mechanism. Water, 14
+   (8), 1229.
+

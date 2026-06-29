@@ -331,6 +331,83 @@ def edge_concentration_rows(case_id: str, component: str, response: str, context
     return rows
 
 
+def edge_lifecycle_rows(case_id: str, context: dict[str, Any]) -> list[dict[str, Any]]:
+    """Summarise candidate-edge turnover between consecutive excavation steps."""
+    rows = []
+    previous_edges: set[tuple[int, int]] | None = None
+    previous_chainage: float | None = None
+
+    for sample_idx, (chainage, graph_seq) in enumerate(zip(context["test_chainages"], context["test_graph_seqs"])):
+        snapshot = graph_seq[-1]
+        edge_store = snapshot.hetero_data["rock", "interact", "tbm"]
+        edge_index = edge_store.edge_index.detach().cpu().numpy()
+        src = edge_index[0]
+        dst = edge_index[1]
+        rock_node_ids = snapshot.hetero_data["rock"].node_ids.detach().cpu().numpy()
+        tbm_node_ids = snapshot.hetero_data["tbm"].node_ids.detach().cpu().numpy()
+        edges = {
+            (int(rock_node_ids[int(i)]), int(tbm_node_ids[int(j)]))
+            for i, j in zip(src, dst)
+        }
+        distances = np.asarray(edge_store["edge_attrs"]["distance"], dtype=np.float64).reshape(-1)
+        kappas = np.asarray(edge_store["edge_attrs"]["kappa"], dtype=np.float64).reshape(-1)
+
+        if previous_edges is None:
+            new_edges = len(edges)
+            expired_edges = 0
+            retained_edges = 0
+            jaccard = 0.0
+        else:
+            new_edges = len(edges - previous_edges)
+            expired_edges = len(previous_edges - edges)
+            retained_edges = len(edges & previous_edges)
+            union = len(edges | previous_edges)
+            jaccard = float(retained_edges / union) if union else 0.0
+
+        rows.append(
+            {
+                "case_id": case_id,
+                "case_label": CASE_LABELS[case_id],
+                "sample_idx": sample_idx,
+                "previous_chainage": previous_chainage if previous_chainage is not None else "",
+                "chainage": float(chainage),
+                "edge_count": int(len(edges)),
+                "new_edges": int(new_edges),
+                "expired_edges": int(expired_edges),
+                "retained_edges": int(retained_edges),
+                "edge_jaccard": jaccard,
+                "mean_distance": float(np.mean(distances)) if len(distances) else 0.0,
+                "mean_kappa": float(np.mean(kappas)) if len(kappas) else 0.0,
+            }
+        )
+        previous_edges = edges
+        previous_chainage = float(chainage)
+    return rows
+
+
+def summarise_edge_lifecycle(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    transition_rows = [row for row in rows if row["sample_idx"] > 0]
+    if transition_rows:
+        new_edges = [float(row["new_edges"]) for row in transition_rows]
+        expired_edges = [float(row["expired_edges"]) for row in transition_rows]
+        retained_edges = [float(row["retained_edges"]) for row in transition_rows]
+        jaccard = [float(row["edge_jaccard"]) for row in transition_rows]
+    else:
+        new_edges = expired_edges = retained_edges = jaccard = [0.0]
+    return {
+        "case_id": rows[0]["case_id"] if rows else "",
+        "case_label": rows[0]["case_label"] if rows else "",
+        "n_steps": len(rows),
+        "mean_edge_count": float(np.mean([float(row["edge_count"]) for row in rows])) if rows else 0.0,
+        "mean_new_edges": float(np.mean(new_edges)),
+        "mean_expired_edges": float(np.mean(expired_edges)),
+        "mean_retained_edges": float(np.mean(retained_edges)),
+        "mean_edge_jaccard": float(np.mean(jaccard)),
+        "mean_distance": float(np.mean([float(row["mean_distance"]) for row in rows])) if rows else 0.0,
+        "mean_kappa": float(np.mean([float(row["mean_kappa"]) for row in rows])) if rows else 0.0,
+    }
+
+
 def component_label_permutation_test(
     all_ic: np.ndarray,
     target_component: str,
@@ -625,6 +702,8 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
     delta_rows = delta_field_rows(case_id, component, response, descriptor_series, residual)
     relation_rows = relation_support_ablation_rows(case_id, component, response, context, residual, chainage)
     edge_concentration = edge_concentration_rows(case_id, component, response, context)
+    edge_lifecycle = edge_lifecycle_rows(case_id, context)
+    edge_lifecycle_summary = summarise_edge_lifecycle(edge_lifecycle)
 
     case_dir = output_dir / case_id
     # Separate permutation result from the null comparison table to keep CSV
@@ -640,6 +719,8 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
     write_csv(delta_rows, case_dir / "delta_field_association.csv")
     write_csv(relation_rows, case_dir / "relation_support_ablation.csv")
     write_csv(edge_concentration, case_dir / "edge_contribution_concentration.csv")
+    write_csv(edge_lifecycle, case_dir / "edge_lifecycle.csv")
+    write_csv([edge_lifecycle_summary], case_dir / "edge_lifecycle_summary.csv")
     save_json(
         {
             "case_id": case_id,
@@ -655,6 +736,8 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
             "delta_field_association": delta_rows,
             "relation_support_ablation": relation_rows,
             "edge_contribution_concentration": edge_concentration,
+            "edge_lifecycle": edge_lifecycle,
+            "edge_lifecycle_summary": edge_lifecycle_summary,
             "traceability_top_edges": trace_rows,
         },
         case_dir / "descriptor_diagnostics_summary.json",
@@ -669,6 +752,8 @@ def process_case(config_path: Path, output_dir: Path) -> dict[str, Any]:
         "delta_rows": delta_rows,
         "relation_rows": relation_rows,
         "edge_concentration_rows": edge_concentration,
+        "edge_lifecycle_rows": edge_lifecycle,
+        "edge_lifecycle_summary": edge_lifecycle_summary,
         "permutation_row": permutation_row,
         "component_series_rows": component_series_rows,
     }
@@ -686,6 +771,8 @@ def main() -> None:
     all_delta = []
     all_relation = []
     all_edge_concentration = []
+    all_edge_lifecycle = []
+    all_edge_lifecycle_summary = []
     all_permutation = []
     all_component_series = []
     for rel_config in CASE_CONFIGS:
@@ -698,6 +785,8 @@ def main() -> None:
         all_delta.extend(result["delta_rows"])
         all_relation.extend(result["relation_rows"])
         all_edge_concentration.extend(result["edge_concentration_rows"])
+        all_edge_lifecycle.extend(result["edge_lifecycle_rows"])
+        all_edge_lifecycle_summary.append(result["edge_lifecycle_summary"])
         all_permutation.append(result["permutation_row"])
         all_component_series.extend(result["component_series_rows"])
 
@@ -713,6 +802,8 @@ def main() -> None:
     write_csv(all_delta, output_dir / "delta_field_association.csv")
     write_csv(all_relation, output_dir / "relation_support_ablation.csv")
     write_csv(all_edge_concentration, output_dir / "edge_contribution_concentration.csv")
+    write_csv(all_edge_lifecycle, output_dir / "edge_lifecycle.csv")
+    write_csv(all_edge_lifecycle_summary, output_dir / "edge_lifecycle_summary.csv")
     print(f"Saved descriptor diagnostics to {output_dir}")
 
 

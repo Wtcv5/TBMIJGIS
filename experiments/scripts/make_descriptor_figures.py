@@ -318,41 +318,54 @@ def plot_case_context(root: Path, out_dir: Path) -> None:
         "sjls_dyk1252_411": {"label": "SJLS h=3", "tunnel": "Dyk1252+411",
                               "interval": (99.0, 115.0), "samples": "76 / 16 / 17"},
     }
-    fig, axes = plt.subplots(3, 1, figsize=figure_size("double", aspect=0.52), sharex=False)
-    comp_colors = [COMPONENT_PALETTE[c] for c in COMPONENT_ORDER]
+    fig, axes = plt.subplots(
+        3,
+        1,
+        figsize=figure_size("double", aspect=0.56),
+        sharex=False,
+        constrained_layout=True,
+    )
+    im = None
     for idx, (ax, (case_id, meta)) in enumerate(zip(axes, case_meta.items())):
         csv_path = root / case_id / "component_spatial_descriptors.csv"
         if not csv_path.exists():
             ax.set_axis_off()
             continue
         df = read_csv(csv_path)
-        # Test interval shading
-        t_start, t_end = meta["interval"]
-        ax.axvspan(t_start, t_end, color=CASE_PALETTE[case_id], alpha=0.10, zorder=0)
-        ax.axvline(t_start, color=CASE_PALETTE[case_id], linewidth=0.6, linestyle=":", zorder=1)
-        ax.axvline(t_end, color=CASE_PALETTE[case_id], linewidth=0.6, linestyle=":", zorder=1)
-        # Plot I_c(t) per component vs chainage
-        for comp, color, comp_label in zip(COMPONENT_ORDER, comp_colors, COMPONENT_LABELS):
-            cdf = df[df["component"] == comp].sort_values("chainage")
-            ax.plot(cdf["chainage"], cdf["I_interaction_intensity"],
-                    color=color, linewidth=1.0, marker="o", markersize=2.2,
-                    label=comp_label, zorder=3)
-        # Case label (annotated on plot)
+        pivot = (
+            df.pivot(index="component", columns="chainage", values="I_interaction_intensity")
+            .reindex(COMPONENT_ORDER)
+            .sort_index(axis=1)
+        )
+        chainages = pivot.columns.to_numpy(dtype=float)
+        im = ax.imshow(
+            pivot.values,
+            aspect="auto",
+            cmap=IJGIS_CMAPS["sequential"],
+            vmin=0.0,
+            vmax=1.0,
+            interpolation="nearest",
+        )
+        ax.set_yticks(np.arange(len(COMPONENT_ORDER)), COMPONENT_LABELS, fontsize=6.8)
+        tick_positions = np.linspace(0, max(0, len(chainages) - 1), min(5, len(chainages))).astype(int)
+        ax.set_xticks(tick_positions, [f"{chainages[i]:.0f}" for i in tick_positions], fontsize=6.8)
+        ax.set_xlabel("Along-alignment distance / excavation step (m)", fontsize=7)
+        ax.set_ylabel("TBM component", fontsize=7)
+        for x in np.arange(-0.5, len(chainages), 1):
+            ax.axvline(x, color="white", linewidth=0.35, alpha=0.45)
+        for y in np.arange(-0.5, len(COMPONENT_ORDER), 1):
+            ax.axhline(y, color="white", linewidth=0.45, alpha=0.65)
         ax.text(0.02, 0.95, f"{meta['label']}  ({meta['tunnel']})",
                 transform=ax.transAxes, fontsize=7.5, fontweight="bold",
-                color=CASE_PALETTE[case_id], va="top")
+                color="white", va="top",
+                bbox=dict(facecolor=CASE_PALETTE[case_id], edgecolor="none", pad=1.8, alpha=0.92))
         ax.text(0.98, 0.95, f"train/val/test: {meta['samples']}",
                 transform=ax.transAxes, fontsize=6.5, ha="right", va="top",
-                color=IJGIS_COLORS["gray_dark"])
-        ax.set_ylabel(r"$I_c(t)$", fontsize=7)
-        ax.tick_params(axis="both", labelsize=6.5)
-        ax.grid(axis="y", alpha=0.25)
-        if idx == 0:
-            ax.legend(loc="lower right", fontsize=6, ncol=2, frameon=False)
-        if idx == len(case_meta) - 1:
-            ax.set_xlabel("Chainage (m)")
+                color="white",
+                bbox=dict(facecolor=IJGIS_COLORS["gray_dark"], edgecolor="none", pad=1.6, alpha=0.80))
         add_panel_label(ax, "abc"[idx], x=-0.04, y=0.98)
-    fig.subplots_adjust(hspace=0.38)
+    if im is not None:
+        set_colorbar_style(fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.025, pad=0.018), r"$I_c(t)$")
     out_dir.mkdir(parents=True, exist_ok=True)
     save_pdf_and_png(fig, out_dir / "fig4_case_context.pdf")
 

@@ -1,0 +1,1304 @@
+      International Journal of Geographical Information
+      Science
+
+
+
+      ISSN: 1365-8816 (Print) 1362-3087 (Online) Journal homepage: www.tandfonline.com/journals/tgis20
+
+
+
+
+Adaptive dynamic graph learning for forecasting
+urban multimodal ﬂow
+
+Lei Zhu, Tianhong Zhao, Jinzhou Cao, Shengao Yi, Shizhen Liu, Wei Tu &
+Hongping Zhang
+
+To cite this article: Lei Zhu, Tianhong Zhao, Jinzhou Cao, Shengao Yi, Shizhen Liu, Wei
+Tu & Hongping Zhang (19 Dec 2025): Adaptive dynamic graph learning for forecasting
+urban multimodal ﬂow, International Journal of Geographical Information Science, DOI:
+10.1080/13658816.2025.2595655
+
+To link to this article: https://doi.org/10.1080/13658816.2025.2595655
+
+
+
+
+       Published online: 19 Dec 2025.
+
+
+
+       Submit your article to this journal
+
+
+
+       Article views: 212
+
+
+
+       View related articles
+
+
+
+       View Crossmark data
+
+
+
+       Citing articles: 4 View citing articles
+
+
+
+
+                      Full Terms & Conditions of access and use can be found at
+             https://www.tandfonline.com/action/journalInformation?journalCode=tgis20
+INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE
+https://doi.org/10.1080/13658816.2025.2595655
+
+
+RESEARCH ARTICLE
+
+Adaptive dynamic graph learning for forecasting urban
+multimodal flow
+Lei Zhua , Tianhong Zhaoa , Jinzhou Caoa                       , Shengao Yib      , Shizhen Liua,
+Wei Tuc,d,e  and Hongping Zhanga
+a
+ School of Artificial Intelligence, Shenzhen Technology University, Shenzhen, China; bDepartment of
+City and Regional Planning, University of Pennsylvania, Philadelphia, PA, USA; cShenzhen Key
+Laboratory of Spatial Information Smart Sensing and Services, Department of Urban Informatics,
+School of Architectureand Urban Planning, Shenzhen University, Shenzhen, China; dGuangdong Key
+Laboratory for Urban Informatics, Shenzhen, China; eMinistry of Natural Resources (MNR) Key
+Laboratory for Geo-Environmental Monitoring of Great Bay Area, Shenzhen, China
+
+
+    ABSTRACT                                                                   ARTICLE HISTORY
+    The increasing diversity and integration of transportation modes is        Received 28 June 2025
+    changing urban mobility, resulting in complex spatiotemporal               Accepted 18 November 2025
+    urban flow patterns. The current forecasting models, which typically
+    rely on static or manually defined graph structures, are inadequate        KEYWORDS
+    for capturing the dynamic spatial heterogeneity and complex cross-         Urban multimodal flow;
+                                                                               dynamic graph neural
+    modal interactions that are present in real urban systems. To              network; cross-modal
+    address these limitations, this study introduces a multimodal              interaction; multitask
+    dynamic graph neural network (MM-DyGNN), a novel deep learning             learning; spatiotemporal
+    model that is designed for urban multimodal flow prediction. MM-           modeling
+    DyGNN introduces three key innovations: (i) a time-varying multi­
+    modal graph learning module based on Tucker decomposition that
+    adaptively constructs mode- and time-specific diffusion graphs; (ii)
+    a sparse cross-modal interaction module that employs a top-k strat­
+    egy to capture the most relevant region–mode dependencies; and
+    (iii) an adaptive multitask learning strategy with uncertainty weight­
+    ing to balance heterogeneous modal objectives. Comprehensive
+    experiments conducted on real-world urban mobility datasets dem­
+    onstrate that the MM-DyGNN significantly outperforms the baseline
+    models in terms of forecasting accuracy. Ablation studies further
+    validate the effectiveness of each component and demonstrate the
+    ability of the model to interpret dynamic spatiotemporal depend­
+    encies and cross-modal interactions. This work provides a methodo­
+    logical foundation for understanding and managing the evolving
+    complexities of urban mobility.
+
+
+
+
+1. Introduction
+With rapid urbanization, traffic congestion, energy consumption, and environmental
+pollution have become major obstacles to sustainable urban development (Yin et al.
+2024). To address these challenges, smart cities and intelligent transportation systems
+(ITSs) have been developed. These systems aim to optimize traffic management,
+
+CONTACT Tianhong Zhao            zhaotianhong@sztu.edu.cn
+� 2025 Informa UK Limited, trading as Taylor & Francis Group
+2     L. ZHU ET AL.
+
+
+improve operational efficiency, and improve the travel experience through advanced
+information and communication technologies (Li et al. 2024). A pivotal technology
+within ITSs is accurate and real-time urban flow forecasting, which refers to predicting
+the volume of trips departing from or arriving at a spatial unit within a given time
+interval. As urban transport infrastructure improves, citizens increasingly exhibit multi­
+modal travel behaviors, including the use of metro systems, buses, taxis, and shared
+bicycles. Consequently, forecasting urban multimodal flow, as opposed to single-mode
+usage, is essential. Accurate urban multimodal flow forecasting enables smarter traffic
+planning schemes and better travel services by optimizing the distribution of resour­
+ces between different modes of transportation. (Tao et al. 2023).
+   In recent years, deep learning has driven remarkable progress in traffic prediction.
+Recurrent neural networks (RNNs) have been widely applied to capture temporal
+dependencies in sequential traffic data (Cui et al. 2024). To capture spatial dependen­
+cies, convolutional neural networks (CNNs) and, more recently, graph neural networks
+(GNNs) have been employed to represent urban transportation systems. Building on
+these advances, spatiotemporal GNNs such as STGCN (Yu et al. 2018), ASTGCN (Guo
+et al. 2019), and Graph WaveNet (Wu et al. 2019) have demonstrated strong perform­
+ance in single-mode traffic prediction. These methods have demonstrated strong per­
+formance in single-mode transport prediction scenarios. With respect to multimodal
+transport prediction, the existing approaches often treat different transportation
+modes (e.g., metros, buses, and taxis) as multiple input channels or apply feature
+fusion strategies to unify heterogeneous inputs. Some recent studies have proposed
+modality-sensitive graph structures or cross-modal attention mechanisms to achieve
+improved integration performance (Liang et al. 2022b, Wang et al. 2022).
+   However, extending these approaches to urban multimodal flow forecasting intro­
+duces several unique challenges. The first challenge encountered when predicting
+urban multimodal flow lies in the dynamic spatial heterogeneity that is present both
+within and across transportation modes. Although GNN-based models such as the
+STGCN and ASTGCN have shown strong performance in terms of forecasting urban
+flow (Guo et al. 2019), their core assumption involves the capture of spatial dependen­
+cies through a preconstructed static graph structure. Their adjacency matrices are
+often defined on the basis of prior knowledge, such as the geographical distance,
+road connectivity, or functional similarity between regions (Huang et al. 2022a).
+However, real-world urban traffic systems exhibit dynamic and time-varying structures
+that are not adequately represented by static graphs. As illustrated in Figure 1 (a),
+intramodal spatial correlations vary over time. This means that a fixed, static graph
+cannot accurately capture the true intramodal dynamics of urban flow, as the underly­
+ing relationships between regions are constantly shifting.
+   The second challenge lies in the intricate spatial interactions among different
+transport modes. The flow patterns of various modes, such as metros, buses, and taxis,
+do not evolve independently but rather exhibit significant mutual influences (Zhao
+et al. 2023). These intermodal dependencies are shaped by shared infrastructure, over­
+lapping service areas, and the competitive or complementary relationships between
+modes (Zhang et al. 2023). However, not all intermodal interactions are equally inform­
+ative. Long-range or semantically unrelated connections can introduce significant noise
+                                INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE        3
+
+
+
+
+Figure 1. Key concepts in multimodal urban flow prediction. (a) Intramodal dynamics: temporal
+evolution of spatial dependencies across TAZs represented as dynamic graphs. (b) Intermodal inter­
+actions: cross-influences between transport modes (e.g., buses, metros, taxis), where distant links
+may indicate noise rather than meaningful connections.
+
+and hinder the performance of the developed model. As illustrated in Figure 1(b),
+effective multimodal transportation system modeling necessitates the capacity to dis­
+tinguish truly relevant intermodal dependencies from spurious or irrelevant associa­
+tions. Therefore, it is essential for prediction models to incorporate adaptive
+mechanisms that selectively emphasize meaningful cross-modal correlations while
+attenuating the influences of noisy or uninformative links.
+    The third challenge faced when predicting urban multimodal flow lies in multitask
+learning. In many of the existing approaches, a common practice is to apply a uniform
+loss weighting scheme, i.e., calculating the overall loss by directly adding or averaging
+the individual losses induced by each subtask (Gong et al. 2019). While simple and
+computationally efficient, this uniform treatment fails to account for substantial task
+difficulty or gradient magnitude differences, as well as the potential for conflicting
+task objectives. Consequently, the optimization process may become biased toward
+subtasks that are inherently easier to learn or those that yield larger losses, thereby
+overshadowing harder or more nuanced tasks. This imbalance can lead to suboptimal
+generalization capabilities and degraded performance across underrepresented or
+more complex prediction targets.
+    To address the aforementioned challenges, a novel deep learning model named
+the multimodal dynamic GNN (MM-DyGNN) is proposed in this study to achieve more
+accurate and robust urban multimodal flow forecasting. We developed a multimodal
+time-varying dynamic graph (MTDG) learning module to address static graphs’ inability
+to capture the dynamic, varied nature of multimodal transportation. Instead of static
+adjacency matrices, this module adaptively creates a dynamic traffic diffusion graph
+for each mode (e.g., metros, buses, taxis) at each time step. To address the issues
+related to noisy global dependencies in cross-modal interaction modeling tasks, we
+introduce a sparse cross-modal interaction (SCMI) module. This module employs a
+dynamic selection mechanism (e.g., a top-k strategy) to identify and focus on the most
+critical and strongly interacting local region-mode pairs in the spatial dimension.
+Finally, an adaptive multitask learning strategy is designed to dynamically balance
+multiple subtasks during training, optimizing the overall prediction performance.
+4     L. ZHU ET AL.
+
+
+   The remainder of this paper is organized as follows. Section 2 reviews the related
+work. Section 3 specifies notation and problem setup. Section 4 presents the proposed
+model architecture and its key components in detail. Section 5 introduces the experi­
+mental setup, including the datasets used, the evaluation metrics, and the baseline
+methods, as well as a comprehensive analysis of the results. Section 6 discusses the
+robustness of the proposed model and the impact of hyperparameter settings on its
+performance. Finally, Section 7 concludes the paper.
+
+
+2. Related work
+2.1. Urban multimodal flow prediction
+With the diversification of travel modes, urban transportation systems have become
+increasingly complex and dynamic. Early studies mainly focused on single-mode fore­
+casting (e.g., buses or metros) using statistical models such as ARIMA and SVR. The
+advent of deep learning significantly improved prediction accuracy and generalization.
+RNNs and LSTMs effectively model temporal dependencies (Zhao et al. 2022), whereas
+CNNs capture spatial features. However, with emerging modes such as bike sharing
+and ride-hailing, single-mode prediction has become inadequate for fine-grained man­
+agement. Recent studies thus emphasize multimodal flow prediction, which jointly
+models the coevolution of multiple modes (e.g., metro, bus, taxi, and bike) (Liang
+et al. 2022b). Existing methods typically adopt either multichannel input or multitask
+learning (MTL) frameworks to unify multimodal patterns (Li et al. 2021a, Yang et al.
+2025, Cao et al. 2025b), yet they still face challenges in model design and interaction
+representation.
+   Current multimodal flow prediction approaches can be grouped into three catego­
+ries: multichannel input models, MTL frameworks, and GNN-based fusion methods.
+Multichannel models process different modes in parallel with CNN or ConvLSTM archi­
+tectures, but fail to capture explicit intermodal dependencies. MTL frameworks jointly
+optimize different modes (Liang et al. 2022a, Liu et al. 2021), yet rely on static loss
+weighting and struggle with task imbalance. GNN-based approaches such as STGCN,
+ASTGCN, and Graph WaveNet (Gammelli et al. 2021) have shown success in single-
+mode prediction and are extended to multimodal settings via multigraph or hyper­
+graph structures (Ma et al. 2022, Cao et al. 2025a). However, most still depend on
+static graphs, ignoring temporal variations and fine-grained spatial heterogeneity.
+Consequently, current methods often neglect the spatiotemporal coupling among
+modes (e.g., simultaneous metro–bus surges) and rely on global or fully connected
+mechanisms that introduce redundant or noisy dependencies, limiting interpretability
+and generalization.
+
+
+2.2. Spatial dependence modeling
+Spatial dependence is a key property of urban transportation systems. Early studies
+adopted grid-based CNN or ConvLSTM frameworks to model spatiotemporal traffic
+patterns, such as the DeepST model (Guo et al. 2021), which combined CNNs and
+RNNs to capture spatial and temporal dynamics. However, grid-based methods fail to
+                            INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE   5
+
+
+represent the non-Euclidean topology of road networks. To overcome this, GNNs were
+introduced to represent cities as graphs, where nodes denote regions or sensors and
+edges describe spatial relationships. Representative models such as STGCN (Yu et al.
+2018), ASTGCN, and Graph WaveNet (Cao et al. 2023) integrate temporal convolution,
+attention, or diffusion mechanisms to capture spatiotemporal dependencies. Although
+these GNN-based models have become the mainstream paradigm for spatial modeling,
+they still rely on static adjacency matrices, which cannot capture dynamic spatial influ­
+ence changes across time.
+   Recent advances have extended spatial modeling into three categories: static,
+dynamic, and adaptive graph learning. Static models (e.g., STGCN, ASTGCN, DCRNN)
+use fixed adjacency matrices derived from geography or road connectivity (Dai et al.
+2020), which ensures interpretability but lacks temporal adaptability. Dynamic models,
+such as DGCRN (Li et al. 2021b), update adjacency matrices through gating mecha­
+nisms to reflect evolving spatial patterns (Hu et al. 2022). Adaptive approaches like
+MTGNN (Wang et al. 2024) directly learn topologies from multivariate time series,
+improving flexibility (Jiang et al. 2022). Nevertheless, most DGNNs focus on single-
+mode systems and overlook multimodal heterogeneity. They fail to model dynamic
+diffusion ranges—e.g., metro influence expands during peak hours but contracts off-
+peak (Yang et al. 2019)—and lack mechanisms to jointly capture intramodal and inter­
+modal structural evolution (Dai et al. 2024). To address these issues, we propose an
+MTDG module based on Tucker decomposition, which constructs a dynamic graph
+tensor for multimodal systems to jointly model temporal dynamics and cross-modal
+heterogeneity, providing a more expressive and adaptive framework for urban trans­
+portation modeling (Mi et al. 2023).
+
+
+2.3. Cross-modal transport interaction
+With the growth of shared mobility services, urban travel behaviors have become
+increasingly multimodal, making coordination among transport modes a key research
+focus. Intermodal relationships such as complementarity, substitution, and collabor­
+ation frequently occur—for instance, rising metro ridership during peak hours often
+coincides with increased bus and bike flows, whereas at night, taxi services compen­
+sate for metro closures (Jin et al. 2022). Recent studies have begun to jointly model
+these interactions. Liang et al. (2022b) proposed ST-MRGNN to predict metro–ride-
+hailing flows via multirelational attention, while Yang et al. (2025) introduced GRAPE,
+integrating bike and taxi data through transmodality and equity graphs to enhance
+predictive accuracy and fairness. These works confirm the feasibility and importance of
+capturing intermodal dependencies.
+   Existing modeling approaches can be grouped into three categories: multichannel
+fusion, graph-based modeling, and attention-driven frameworks. Multichannel meth­
+ods (Li et al. 2022) process modes as independent input channels but fail to capture
+strong interdependencies. Graph-based approaches, such as heterogeneous graphs
+in Xu et al. (2022), explicitly encode multimodal topologies but rely on manually
+defined edge weights, risking biased interaction intensity estimation. Attention-based
+methods (Zhang et al. 2024) improve flexibility by capturing both local and global
+6     L. ZHU ET AL.
+
+
+dependencies, yet fully connected attention often introduces noisy or redundant rela­
+tions in large-scale systems. Overall, current methods face limitations in identifying
+locally meaningful and temporally dynamic interactions (Wu et al. 2024). To overcome
+these challenges, we propose an SCMI mechanism that employs a dynamic top-k strat­
+egy to identify the most influential region–modality pairs in both spatial and modal
+dimensions. This sparse and adaptive design enables efficient structure learning, filters
+out redundant dependencies, and enhances model interpretability and generalization
+by dynamically emphasizing significant cross-modal correlations.
+
+
+3. Preliminaries
+The forecasting of multimodal urban flow involves specifying (i) where urban flow is
+measured (spatial regions R ¼ fr1 , . . . , rN g); (ii) what attributes are observed (the his­
+torical urban flow across modes M ¼ fbus, taxi, metrog); and (iii) how modes interact
+over a historical window T and the forecasting horizon s: We summarize the main
+notations used throughout the paper in Table 1.
+
+
+3.1. Definition 1 (traffic analysis zones)
+We partition the target city into N TAZs, denoted as R ¼ fr1 , . . . , rN g; based on land-
+use and transport criteria. The TAZ is a commonly used spatial unit in urban and trans­
+portation studies, serving as the basic analytical element to model travel demand and
+mobility patterns (Castiglione et al. 2025; Wu et al. 2025). Throughout the paper, the
+terms ‘TAZ’, ‘region’, and ‘node’ are used interchangeably.
+
+
+3.2. Definition 2 (urban multimodal flow)
+In this study, the urban multimodal flow characterizes short-term trip boardings across
+different transportation modes, capturing the number of passengers boarding within
+each TAZ over successive time intervals. For each mode m 2 M; the flow is stored in
+a matrix Xm 2 RN�T ; where each entry ðXm Þi, t records the number of trips of mode m
+departing from region ri at time step t. Mathematically, the urban multimodal flow
+tensor is thus defined as
+                               �                  �
+                          X ¼ Xbus jXmetro jXtaxi 2 RN�T�M ,                        (1)
+where N is the number of spatial regions, T is the length of the lookback window, and
+M ¼ jMj is the number of transport modes.
+
+          Table 1. Summary of the key symbols and notations used in this paper.
+          Symbol(s)                                     Description
+           R, N       Set of spatial regions (TAZs) and number of regions, respectively
+           M, M       Set of transportation modes and number of modes, respectively
+           m� , M−    Target transportation mode and exogenous modes, respectively
+           Xm , X     Historical flow matrices for mode m and multimodal flow tensor, respectively
+           T, s       Historical window length and forecasting horizon, respectively
+                  m
+           Gm
+            t ,A      Dynamic intramode graph at slot t and its adjacency tensor, respectively
+           Hm , d     Hidden representation for mode m and hidden dimensionality, respectively
+                                INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE          7
+
+
+3.3. Definition 3 (intramode dynamic graph)
+An intramode dynamic graph represents the spatial dependencies within a single
+transport mode. Such graphs evolve over time slots within a day to reflect the tem­
+poral variations exhibited by intramode interactions. For each mode m 2 M; we
+define a dynamic graph for each daily time slot t 2 f1, . . . , Nt g (Nt denotes the num­
+ber of daily time slots): Gm                         m
+                                           t ¼ ðV, E t Þ; where the nodes V represent TAZs and the
+           m
+edges E t encode the interactions dynamically learned by the model. Specifically, an
+edge em                      m
+       i, j, t ¼ ðvi , vj , At, i, j Þ indicates a directed influence from node vi to node vj at time
+                           m
+t, weighted by At, i, j : Aggregating the adjacency matrices yields the adjacency ten­
+                      Nt
+sor: Am ¼ fAm     t gt¼1 2 R
+                                      Nt �N�N
+                                              :
+
+
+3.4. Definition 4 (intermodal interaction)
+We define  inter-modal interaction as the process of obtaining an enriched representa­
+       m�
+     ^
+tion H    for a target mode m� by adaptively fusing information from exogenous
+          m
+modes fH gm2M− via a learnable operator Ucm :
+                                   �        � �            �
+                                ^m
+                                H      ¼ Ucm Hm , fHm gm2M− ,                                     (2)
+
+   This intermodal interaction describes region-level dependencies among different
+transportation modes, reflecting how the flow of one mode in a given TAZ may correl­
+ate with the flow of other modes across the city (e.g., complementary bus–metro pat­
+terns during morning peaks).
+
+
+3.5. Problem statement (short-term multimodal urban flow forecasting)
+Given the urban multimodal flow tensor X ; the task is to learn a predictor:
+
+                                                            ^ M Þ,
+                                               ^ 1, . . . , Y
+                                   F : ðX Þ ! ðY                                                  (3)
+
+where each Y ^ m 2 Rs�N contains future flow for mode m, and the ðk, iÞ-th entry ^y m
+                                                                                         i, tþk
+forecasts the flow in region ri on horizon k (k ¼ 1, . . . , s) given data up to time t.
+
+
+4. Methodology
+4.1. Framework overview
+To tackle the multimodal short-term outflow forecasting task, We propose MM-DyGNN
+(Figure 2), a multimodal spatiotemporal model that integrates dependencies both
+within and across transportation modes for precise urban flow prediction. This model
+consists of three components: (i) Intramodal Interaction: Captures mode-specific spa­
+tiotemporal patterns using dynamic graphs and temporal convolutions. (ii) Intermode
+Interaction: An adaptive attention module (SCMI) that sparsely fuses information from
+different transport modes. (iii) Adaptive Multitask Learning: An uncertainty-based loss
+function to automatically balance the training objectives for each mode.
+8     L. ZHU ET AL.
+
+
+
+
+Figure 2. Overview of the proposed model. It demonstrates the intramodal interactions, intermodal
+interactions and adaptive learning processes among different components.
+
+4.2. Intramodal interaction
+The intramodal interaction module aims to capture fine-grained temporal and spatial
+dependencies within each transportation mode. It consists of three sequential stages.
+(i) A temporal encoder extracts long-range temporal patterns from raw flow sequen­
+ces. (ii) Dynamic graph construction is performed to learn a time-varying, mode-spe­
+cific adjacency matrix that reflects evolving spatial correlations. (iii) Dynamic graph
+convolution propagates information over the learned graphs to obtain spatially
+enriched representations for downstream forecasting.
+
+
+4.2.1. Temporal encoder
+To incorporate temporal periodicity, we first project the raw input Xm 2 RT�N for each
+mode m into a d-dimensional space Xm 2 RT�N�d using a fully connected layer. We
+                                  INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE             9
+
+
+then add two learnable time embeddings: Ttod 2 RNt �d (for time of day, Nt ¼ 144) and
+Tdow 2 RNw �d (for day of week, Nw ¼ 7). These embeddings are broadcast to all N spa­
+tial locations, forming the enhanced representation: Hm ¼ Xm þ Xtod þ Xdow : This out­
+put tensor Hm ; which now encodes periodicity, is passed to the temporal encoder.
+    To efficiently capture long-range temporal dependencies, the temporal encoder
+uses a stack of L temporal encoder blocks. Each block contains two dilated-causal 1-D
+convolutions, a Gated Linear Unit (GLU), and a 1 � 1 convolution:
+                                   �    �             �   �             ��
+                   ðm, tÞ                 ðmÞ               ðmÞ
+                 Hl       ¼ Conv1�1 tanh Hl−1 � Wfm, l � r Hl−1 � Wgm, l ,         (4)
+
+where � is a dilated-causal convolution with a dilation factor of 2l−1 : The tanh and r
+(sigmoid) functions form the GLU, and � denotes element-wise multiplication.
+    This architecture efficiently expands the model’s receptive field exponentially. The
+GLU acts as a selective filter for the temporal information, while the 1 � 1 convolution
+                                                              ðm, tÞ
+mixes channel features. After L blocks, the final output HL          aggregates high-level
+                                                    PL−1 l
+temporal features from a large window (length k l¼0 2 ), providing a rich representa­
+tion for the subsequent spatial-interaction module.
+
+4.2.2. Dynamic graph construction
+A naive implementation would allocate an independent learnable adjacency tensor
+A 2 RNt �N�N for each time slot, with Nt denoting the number of daily time slots, but
+this is both memory-inefficient and fails to exploit low-rank structure. To address this
+issue, we propose a compact Tucker-style factorization framework, as illustrated in
+Figure 3. Concretely, we introduce a time-slot embedding Ft 2 RNt �d ; a source-node
+
+
+
+
+Figure 3. Dynamic graph construction via Tucker decomposition. The spatiotemporal dependency
+tensor is factorized into a compact core tensor E and three factor matrices (F t ; F e ; F s ). These com­
+ponents reconstruct the full dependency tensor A; where each time slice At captures evolving
+spatial relationships.
+10     L. ZHU ET AL.
+
+
+embedding Fe 2 RN�d ; a target-node embedding Fs 2 RN�d ; and a compact core ten­
+sor E 2 Rd�d�d : The reconstructed tensor is
+                                      A0 ¼ E�1 Ft �2 Fe �3 Fs ,
+                                                                                           (5)
+                                      A ¼ SoftmaxðReLUðA0 ÞÞ,
+which yields a distinct adjacency matrix At for each time slot by slicing along the first
+(time) mode.
+   Importantly E, Ft , Fe , Fs are learnable model parameters: we randomize them and
+update them jointly with the rest of the network in back-propagation driven by the
+observed trip data and the model loss.As a result, the learned directed edge weights are
+data-driven and adapt to temporal changes in transport system (for example, amplifying
+links to/from commuting hubs during peak hours), rather than being fixed by physical
+route maps. This compact Tucker factorization reduces parameter cost from OðNt � N2 Þ to
+OðdðNt þ 2NÞ þ d3 Þ; while enabling expressive, time-varying intramode graphs.
+
+4.2.3. Dynamic graph convolution
+Graph convolutions aggregate neighboring information to model spatial dependen­
+cies. Following diffusion-based formulations (Lv et al. 2018), we treat flow propagation
+as a diffusion process over the dynamic graph Am  /ðtÞ : The hidden state update is com­
+puted as
+                                            K �
+                                            X                �k ðm, tÞ
+                                   Hm ¼              Am
+                                                      /ðtÞ     Hl W,                       (6)
+                                            k¼0
+         ðm, tÞ
+where Hl       denotes the output hidden states acquired from the temporal convolu­
+tion layer at block l, W is the learnable weight matrix associated with the k-th diffusion
+step, and K represents the maximum number of diffusion steps. This operation dynam­
+ically aggregates multi-hop spatial information under time-varying connectivity.
+
+
+4.3. Intermodal interaction
+Standard cross-attention mechanisms are widely used to model cross-modal dependen­
+cies (Lee et al. 2023, Miller et al. 2024). However, the full dot-product attention inherently
+computes all pairwise similarities between queries and keys, which may introduce noisy
+or irrelevant links across distant regions, thereby weakening predictive focus.
+   To address this, we propose the SCMI module, which adaptively captures meaningful
+intermodal influences while suppressing redundant correlations (Figure 4). Specifically,
+                                                           �
+given the hidden representations of a target mode Hm 2 RT�N�d and exogenous modes
+Hm 2 RT�N�d (m 2 M− ), we compute the query, key, and value matrices as:
+                                           ðmÞ
+                               QðmÞ ¼ Ht:: WQ ,                 8m 2 M− ,
+                                  �         ðm� Þ
+                               Kðm Þ ¼ Ht::         WK ,                                   (7)
+                                  �         ðm� Þ
+                               Vðm Þ ¼ Ht::         WV
+                           0
+where WQ , WK , WV 2 Rd�d are learnable parameters.
+                                 INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE         11
+
+
+
+
+Figure 4. The SCMI module computes sparse cross-attention between a target transport mode and
+multiple exogenous modes. Queries from exogenous modes interact with keys and values from the
+target mode, while a top-k operator enforces sparsity to retain only the most significant intermodal
+relations.
+
+
+   The cross-modal affinities are then computed via dot-products between queries
+and keys from all exogenous modes and aggregated into a mixed attention map
+Mmix 2 RN�N : A top-k sparsification operator T kð�Þ retains only the strongest correla­
+tions, defined as:
+                                               �
+                                                   Sij , if Sij 2 top-kðrow iÞ,
+                               ½T k ðSÞ�ij ¼                                                       (8)
+                                                   −1, otherwise:
+
+   After normalization via Softmax, the refined attention weights are applied to the
+value matrices across H heads and linearly projected to yield:
+                           "                                             !!            #H
+                                                           ðmÞ   ðm� Þ
+                 ^   m�                            Q ðK ÞT                     ðm Þ�
+                 H        ¼ softmax T k         � − h pffiffihffiffi          Vh              WO   (9)
+                                               m2M     dk                               h¼1
+
+
+where ½�� denotes the concatenation operation implemented across different heads, �
+represents elementwise aggregation performed across exogenous modes.
+   By dynamically enforcing sparsity, SCMI concentrates on the most informative
+region–mode relations, effectively enhancing intermodal spatial modeling and mitigat­
+ing noise from weak or spurious dependencies.
+12     L. ZHU ET AL.
+
+
+4.4. Adaptive multitask learning
+4.4.1. Output layer
+We attach an identity skip connection after every SCMI block. For each mode m 2 M
+                       ^ m 2 RT�N�dl (l ¼ 1, . . . , L). The residual update step is
+the l-th block outputs H l
+                                               �         �
+                          H     ^ m þ Conv1�1 H
+                           ~m ¼ H                 ^m ,         l � 2,                (10)
+                            l     l                  l−1
+
+where the 1 � 1 convolution projects dl−1 ! dl ; ensuring that the dimensions match
+for addition purposes.
+   Then, we apply two mode-specific fully connected layers to produce a s-step fore­
+cast:
+                           � � � � ����
+                                                       m
+                    Y^ ¼ FC r FC LN H  ~m       ,    Y^ 2 Rs�N ,                (11)
+                                         l
+
+where rð�Þ is the rectified linear unit (ReLU) function, and LN ð�Þ denotes the layer
+normalization operation executed along the channel dimension. The first dense layer
+enhances the capacity of the model; the second layer maps the latent features to
+mode-specific s-step flow prediction.
+
+4.4.2. Uncertainty weighting
+We frame multimodal flow forecasting as a multitask learning problem, where predict­
+ing the flow for each transport mode constitutes a distinct task. To balance tasks with
+differing difficulty levels, we adopt uncertainty weighting (Kendall et al. 2018).
+Introducing a learnable homoscedastic uncertainty term rm for each mode m, the
+total loss is
+                             X         �                     �
+                                           1
+                         L¼      m2M           Lm þ log rm ,                       (12)
+                                         2r2m
+where the per-mode loss is
+                                              N
+                                       1 Xs X
+                               Lm ¼             j^y m − yim, k j:                       (13)
+                                      sN k¼1 i¼1 i, k
+
+   The log rm term regularizes the optimization process and prevents the acquisition
+of the trivial solution rm ! 0:
+   This adaptive formulation enables the model to automatically calibrate the relative
+importance of each task on the basis of its difficulty and inherent noise. By minimizing
+the total loss, the model jointly optimizes the predictions obtained for all modes while
+mitigating the risk of overfitting to tasks with larger or noisier losses. As a result, this
+strategy facilitates a more robust and balanced multimodal forecasting process within
+our unified model.
+
+
+5. Experiments
+5.1. Datasets
+This study utilizes two large-scale multimodal transportation datasets to evaluate the
+proposed model: one from Shenzhen (SZ) and the other from New York City (NYC).
+                                 INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE              13
+
+
+Table 2. Summary and comparison of the SZ and NYC datasets.
+Category                              SZ Dataset                                 NYC Dataset
+Location               Shenzhen (491 TAZs)                         New York City (69 TAZs)
+Time span              2018/12/01–2019/02/01                       2022/12/01–2023/05/31
+Time slot              10 minutes                                  60 minutes
+Timestep               8928                                        4368
+Transport modes        Bus,Metro,Taxi                              Bus,Metro,Taxi/Ride-hailing
+Approx. daily volume   Buses:�2.85M; Metros:�1.84M; Taxis:�0.70M   Buses:�0.05M; Metros:�1.67M; Taxis:�0.1M
+Train/Val/Test ratio   7:1:2                                       7:1:2
+Input length           12                                          12
+Output length          12                                          12
+
+
+A detailed comparison of their key characteristics is presented in Table 2. The SZ data­
+set covers December 2018 to February 2019, with 10-minute temporal resolution and
+three transport modes (bus, metro, and taxi). Bus and metro flows are derived from
+smart card and GPS data, while taxi flows are reconstructed from trajectory data (Tu
+et al. 2018). The NYC dataset spans December 2022 to May 2023 and includes hourly
+regional flows for bus1, metro2, and taxi3. All data originate from official open sources
+(MTA and TLC) and are aggregated by TAZ.
+   To prevent temporal data leakage, we partitioned the dataset chronologically into
+training, validation, and test sets in a 7:1:2 ratio. Crucially, all preprocessing models,
+such as data scalers, were fitted only on the training set and then used to transform
+the validation and test sets.In addition, we use the data from 12 steps to predict the
+flow for the next 12 steps, i.e., a multistep prediction process.
+
+
+5.2. Experimental settings
+5.2.1. Network training
+All the experiments are conducted on a machine with an NVIDIA RTX A6000 GPU. We
+use Python 3.9.13, PyTorch 1.13.0 and BasicTS (Liang et al. 2023) platforms to run our
+models. The hidden dimensionality is 32, and the depth of the encoder layers L is 8.
+The dimensionality of the periodic time embeddings is 32. For dynamic graph learn­
+ing, we set all the embedding dimensions to 32. For the SCMI module, the attention
+dimensionality is 256, with 8 heads. The optimal model is selected according to the
+performance achieved on the validation set. We train our model via the adaptive
+moment estimation (Adam) optimizer with a learning rate of 0.001 and weight decay
+to 0.0003. The model is trained with a batch size of 32 for up to 500 epochs, utilizing
+an early stopping criterion based on the attained validation performance with a
+patience of 20 epochs.
+
+5.2.2. Baseline models
+We compare the proposed framework against both single modal and multimodal fore­
+casting baselines. For single modal prediction, we include representative models from
+four categories: MLP-based (STID, MTS-Mixers), GNN-based (STGCN, GWNET), RNN-
+based (DCRNN, DGCRN), and Transformer-based (Informer, iTransform). For multimodal
+forecasting, we select two state-of-the-art methods, M2-Former and ST-MRGNN, which
+jointly predict multimodal urban flow within unified spatiotemporal frameworks. All
+baselines are trained according to their original configurations; single modal models
+14     L. ZHU ET AL.
+
+
+are trained separately for each mode, while multimodal models generate joint predic­
+tions across all modes.
+
+� STID: STID tags every variable with a learnable spatial ID embedding and every
+  timestamp with a learnable temporal ID embedding; it concatenates these two IDs
+  with the raw value vector for that time step and maps the result through a small
+  MLP to forecast the next horizon (Shao et al. 2022).
+� MTS-Mixers: MTS-Mixers forecasts multivariate sequences using two factorized MLP
+  mixers: a temporal mixer that linearly mixes the past values of each variable along
+  the time axis and a channel mixer that (via low-rank factorization) mixes the varia­
+  bles within each timestep; stacking these mixers and finishing with a simple linear
+  head yields the future horizon (Li et al. 2025).
+� STGCN: This is a GCN-based deep learning model that captures spatiotemporal
+  dependencies through spatial graph convolutional layers and temporally gated
+  causal convolutional layers (Yu et al. 2018).
+� GWNET: This is a spatiotemporal graph learning approach that employs node
+  embeddings to model complex spatial dependencies and utilizes dilated causal
+  convolutions for temporal modeling purposes (Wu et al. 2019).
+� DCRNN: This model learns spatiotemporal patterns within graph-structured data by
+  integrating graph diffusion convolution to capture spatial dependencies and RNNs
+  to model temporal dynamics (Lv et al. 2018).
+� DGCRN: Built upon an RNN model, this model captures dynamic spatiotemporal
+  patterns by generating dynamic node embeddings and time-varying adjacency
+  matrices at each step, which are fused with a static graph within a specialized
+  recurrent GCN module (Li et al. 2021b).
+� Informer: This is an efficient transformer-based model for long-sequence time ser­
+  ies prediction that leverages a multihead ProbSparse self-attention mechanism and
+  a distillation architecture to increase its scalability and performance (Zhou et al.
+  2021).
+� iTransform: This model restructures the transformer architecture for conduct­
+  ing multivariate time series forecasting by treating the entire time series of
+  each variable as a token. This inversion scheme allows the model to better
+  capture intervariable correlations through its self-attention mechanism (Liu
+  et al. 2024).
+� M2-Former: A multitask Transformer-based model for multimodal inflow predic­
+  tion, which adopts an encoder-decoder structure. The encoder combines tem­
+  poral attention with adaptive multigraph convolution to capture dynamic
+  crossmodal dependencies, while the decoder extracts mode-specific features
+  and supports crossmode knowledge sharing for joint urban flow forecasting
+  (Yang et al. 2024).
+� ST-MRGNN: It constructs multirelational spatiotemporal relation graphs to cap­
+  ture heterogeneous spatial dependencies, integrates them with gated tem­
+  poral convolutions, and employs an attention-based aggregation mechanism
+  to model crossmodal spatiotemporal correlations for joint forecasting (Ke
+  et al. 2021).
+                                    INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE                                                                          15
+
+
+5.2.3. Evaluation metrics
+To evaluate the performance of the tested models for each transport mode, we adopt
+the mean absolute error (MAE), root mean square error (RMSE), and the coefficient of
+determination (R2 ). For transport mode m, these metrics are defined as:
+                                                             N
+                                               1X
+                                               MAEm ¼                     j^y − yi j,                                                                                (14)
+                                               N i¼1 i
+                                              vffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffi
+                                              u N
+                                              u1 X
+                                      RMSEm ¼ t                                   ð^y − yi Þ2 ,                                                                      (15)
+                                                N i¼1 i
+                                                     PN
+                                                          ð^y i − yi Þ2
+                                           R2m ¼ 1 − Pi¼1
+                                                       N              2
+                                                                        ,                                                                                            (16)
+                                                       i¼1 ðyi − y Þ
+
+where yi and ^y i denote the ground-truth and predicted values of transport mode m at
+region i, respectively, and y is the mean of the ground-truth values. When evaluating
+the metro mode, computation is limited to regions containing metro stations using a
+binary mask M; where Mi ¼ 1 if region i has a station and Mi ¼ 0 otherwise. Metrics
+are calculated only for Mi ¼ 1 regions to ensure metro-specific evaluation.
+
+
+5.3. Performance evaluation
+5.3.1. Overall performance across cities
+Overall performance on Shenzhen and New York City datasets is summarized in
+Tables 3 and 4. Each metric represents the mean across 12 forecast horizons. MM-
+DyGNN consistently achieves the best results across all modes and cities, outperform­
+ing both single-modal and multimodal baselines. On the SZ dataset, it yields the
+lowest MAE for buses (7.68, 7.5% gain), metros (18.76, 6.9% gain), and taxis (2.17, 1.2%
+gain). Similar gains are observed for NYC—buses (9.27, 8.8%), metros (153.86, 5.8%),
+and taxis (10.36, 4.9%). These results confirm that integrating cross-modal information
+with dynamic graph learning substantially enhances forecasting accuracy across
+diverse urban contexts.
+
+Table 3. Overall performance comparison on the SZ dataset.
+                           Buses                                                                     Metros                                                 Taxis
+Model           MAE #     RMSE #          R2 "                        MAE #                           RMSE #                              R2 "    MAE #    RMSE #    R2 "
+STID           13.2422    35.0326      0.7153                       38.9733                         105.6388                             0.5922   3.0743   7.3313   0.8738
+MTS-Mixers     10.3709    26.0494      0.8426                       34.5109                         109.0358                             0.5656   2.6471   6.2272   0.9089
+GWNet           8.3475    19.6434      0.9105                       20.1525                          57.3505                             0.8798   2.1965   4.8448   0.9449
+STGCN           9.0046    21.4736      0.8930                       25.6273                          69.7929                             0.8220   2.4574   5.5091   0.9287
+Informer        8.2969    19.0810      0.9155                       24.7346                          65.1595                             0.8449   2.3083   5.1405   0.9379
+iTransformer   11.0848    28.3017      0.8141                       28.9338                          83.5492                             0.7449   2.6883   6.2116   0.9094
+DCRNN          10.1547    28.2374      0.8150                       31.0589                          92.9277                             0.6844   2.3401   5.2962   0.9341
+DGCRN           8.5699    21.4108      0.8936                       20.5376                          60.0824                             0.8681   2.1936   4.8387   0.9450
+M2-Former       8.8824    20.1866      0.9055                       21.1998                          67.3503                             0.8341   2.5196   5.4649   0.9299
+ST-MRGNN        9.6416    23.0301      0.8769                       27.5702                          77.8338                             0.7784   2.5937   6.0196   0.9149
+MM-DyGNN        7.6768    16.8845      0.9334                       18.7602                          51.9242                             0.9014   2.1673   4.6263   0.9497
+Notes: Bold and underlined values denote the best and second-best results, respectively. Arrows (#/") indicate
+whether lower or higher is better.
+16       L. ZHU ET AL.
+
+
+Table 4. Overall forecasting performance on the NYC dataset.
+                            Buses                              Metros                                  Taxis
+Model            MAE #      RMSE #        R2 "      MAE #       RMSE #        R2 "         MAE #       RMSE #      R2 "
+STID             10.6354    18.7508      0.8584    225.3718    310.3428      0.9321        10.8969     18.8311    0.9501
+MTS-Mixers       16.7447    28.6899      0.6685    308.1846    513.2314      0.8143        18.7112     29.5210    0.8780
+GWNet            10.1689    17.8218      0.8721    163.2514    289.0537      0.9411        10.9577     18.9613    0.9493
+STGCN            11.1954    19.9843      0.8391    182.5952    323.1724      0.9263        12.5890     21.2686    0.9362
+Informer         11.1534    18.7767      0.8580    175.5140    306.7315      0.9336        11.2088     19.3430    0.9471
+iTransformer     11.3044    21.2856      0.8175    204.5588    336.9467      0.9199        14.7790     24.7386    0.9144
+DCRNN            11.3848    21.3816      0.8159    194.9248    329.2442      0.9236        14.1558     24.1540    0.9184
+DGCRN            19.3546    34.4659      0.5215    197.3286    330.3192      0.9231        11.2934     19.5609    0.9460
+M2-Former        10.4326    18.0181      0.8692    170.0826    298.3192      0.9372        11.8233     19.6685    0.9454
+ST-MRGNN         10.1740    18.4338      0.8631    176.5605    316.1079      0.9295        13.0808     21.3690    0.9356
+MM-DyGNN          9.2743    16.5996      0.8890    153.8571    281.7863      0.9440        10.3606     18.2947    0.9528
+Notes: Bold and underlined values denote the best and second-best results, respectively. Arrows (#/") indicate
+whether lower or higher is better.
+
+
+Table 5. Forecasting performance on SZ dataset across prediction horizons (bus mode shown as
+a representative example).
+Transportation      Model                 H¼3                           H¼6                             H ¼ 12
+                                                      2                               2
+                                MAE #    RMSE #     R "       MAE #     RMSE #       R "      MAE #     RMSE #     R2 "
+Buses            STID           9.3297   21.2441   0.8956 12.8352       32.1086   0.7610     18.6849    49.4051   0.4308
+                 MTS-Mix        7.9512   17.3180   0.9306  9.8799       23.2258   0.8750     14.2258    37.8541   0.6659
+                 GWNet          7.1340   15.4203   0.9449  8.2097       19.2107   0.9144     10.1667    24.9143   0.8552
+                 STGCN          7.6647   16.6965   0.9355  8.7340       20.4378   0.9032     11.1769    27.9782   0.8175
+                 Informer       7.3958   15.9976   0.9408  8.1475       18.3379   0.9220      9.6196    23.5952   0.8702
+                 iTransformer   8.0555   18.0277   0.9245 10.3574       26.0011   0.8433     14.6251    39.1962   0.6418
+                 DCRNN          7.6220   16.9969   0.9331  9.7954       25.2283   0.8525     13.8176    40.7731   0.6123
+                 DGCRN          6.8449   14.2979   0.9525  8.5257       20.2824   0.9047     10.4398    27.6744   0.8215
+                 M2-Former      7.3329   15.1743   0.9467  8.6642       18.8478   0.9177     11.5084    27.6795   0.8213
+                 ST-MRGNN       7.6295   16.7622   0.9347  9.3040       21.8536   0.8893     12.5641    30.2858   0.7861
+                 MM-DyGNN       6.7888   13.5315   0.9574 7.6052        15.8744   0.9415      9.4851    20.8994   0.8981
+Notes: Bold and underlined values denote the best and second-best results, respectively. Arrows (#/") indicate
+whether lower or higher is better.
+
+
+   Models lacking spatial structure, such as STID and MTS-Mixers, perform markedly
+worse; their metro MAE on SZ (38.97, 34.51) and NYC (225.37, 308.18) exceed MM-
+DyGNN’s by over 80–100%. While GNN-based models (STGCN, GWNet) capture spatial
+patterns, they remain constrained by static graphs. MM-DyGNN improves MAE by up
+to 8.0% on SZ and 8.8% on NYC. Existing multimodal methods (M2-Former, ST-
+MRGNN) also underperform due to fixed or noisy intermodal links. In contrast, MM-
+DyGNN’s adaptive dynamic graph and sparse cross-modal interaction mechanisms
+effectively filter irrelevant dependencies and amplify critical intermodal signals, ensur­
+ing more accurate and robust urban flow forecasting.
+
+5.3.2. Performance evaluation across prediction horizons
+By examining results at multiple horizons, we can assess the model’s responsiveness
+to short-term demand fluctuations as well as its capacity to capture long-range tem­
+poral dependencies. Table 5 presents the forecasting performance of different models
+for the bus mode in the SZ dataset at three representative horizons (H ¼ 3, 6, 12).
+Overall, MM-DyGNN consistently outperforms all baselines, achieving the lowest MAE
+and RMSE and the highest R2 across all horizons. For instance, at the long-term
+                                     INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE                     17
+
+
+horizon (H ¼ 12), MM-DyGNN attains an RMSE of 20.90, which is substantially lower
+than the second-best model (Informer, 23.60), reflecting superior temporal stability
+and error control. The RMSE of MM-DyGNN increases moderately from 13.53 to 20.90
+as the horizon extends from H ¼ 3 to H ¼ 12; indicating effective mitigation of cumu­
+lative error propagation over time. These results demonstrate that MM-DyGNN cap­
+tures both short-term variations and long-term dependencies in multimodal traffic
+flows more effectively than existing GNN- and Transformer-based baselines.
+
+
+5.4. Contribution of the intramodal dynamic graph constructor
+Modeling dynamic spatial dependencies—shaped by time-varying factors like conges­
+tion, incidents, and commuting patterns is a key challenge in predicting urban
+multimodal flows. To address this, our dynamic graph learning module employs time-
+specific graphs to capture these evolving relations. We assess its effectiveness in an
+ablation study by replacing the dynamic graph with two alternatives:
+
+� Time-invariant adaptive graph: We collapse the time axis (Nt ¼ 1) and learn a sin­
+  gle adjacency matrix per mode that is shared across all horizons and time slots.
+  The graph weights are still learned from data (adaptive), but do not vary over time.
+� Predefined spatial graph: In this variant, the learned intramodal dynamic graph is
+  replaced with a predefined, static adjacency matrix constructed based on the spa­
+  tial contiguity of TAZs.
+
+   As summarized in Table 6, the dynamic graph variant (MM-DyGNN) consistently
+outperforms both alternatives across all transport modes. Compared to the time-
+invariant adaptive graph, it achieves MAE improvements of 4.76% (Bus), 3.74% (Metro),
+and 2.33% (Taxi). The predefined spatial graph performed worst, increasing MAE by
+16.72% (Bus) and 5.62% (Taxi) relative to the full dynamic model. These results confirm
+that modeling temporally dynamic spatial dependencies is essential for enhancing pre­
+dictive accuracy.
+   Figure 5 provides a more intuitive demonstration of how the dynamic graph
+constructor captures the temporal evolution of spatial dependencies. During the late-
+night period (00:00), the learned adjacency matrix exhibits weak and diffuse connec­
+tions, suggesting limited travel interactions across TAZs. By the midday period (11:00),
+connectivity intensifies and several TAZs begin to form local hubs, indicating moderate
+urban mobility. The most pronounced transformation occurs during the morning
+
+Table 6. Performance comparison results obtained while considering different graph construction
+strategies.
+                                          Buses                          Metros                         Taxis
+                                                         2                             2
+Model Variant                   MAE #     RMSE #     R       "   MAE #   RMSE #    R       "   MAE #   RMSE #   R2"
+MM-DyGNN                      7.6768 16.8845 0.9338 18.7602 51.9242 0.9014 2.1673                      4.6263   0.9497
+Time-invariant adaptive graph 8.0605 18.1784 0.9233 19.4894 52.3267 0.8999 2.2190                      4.8960   0.9437
+Predefined spatial graph      8.9605 20.5423 0.9021 19.8713 53.5341 0.8952 2.2890                      4.9641   0.9421
+Notes: Bold values denote the best results. Arrows (#/") indicate whether lower or higher values are better.
+18     L. ZHU ET AL.
+
+
+
+
+Figure 5. Temporal evolution of interregional bus connectivity around TAZ 235 (Shenzhen Civic
+Center). The learned adjacency matrices illustrate weak and diffuse connections at 00:00 (late-
+night), moderate clustering at 11:00 (midday), and strong flow at 08:00 (morning peak).
+
+
+
+commuter peak (08:00), where connectivity values surge sharply around TAZ 235—the
+Shenzhen Civic Center—forming a strong bidirectional flow network that reflects the
+spatial concentration of commuting demand. Overall, the visualization reveals that the
+proposed dynamic graph constructor effectively captures both temporal transitions
+and spatial concentration patterns of urban flow, aligning well with real-world com­
+muting dynamics.
+
+
+5.5. Contribution of the sparse cross-modal interaction module
+The SCMI module captures interconnections among multiple transport modes across
+regions, enabling the model to extract key cross-modal dependencies. To evaluate its
+contribution, we conduct ablation studies using three MM-DyGNN variants:
+
+� w/o Top-k Selection Operation: In this variant, the top-k selection operation is
+  removed, eliminating the sparsity constraint. The model instead applies standard
+  full cross-attention, potentially introducing noise from irrelevant regions.
+� w/o Attention Interaction: In this variant, the cross-modal attention mechanism is
+  entirely removed and replaced by direct feature summation, simply adding exogen­
+  ous modal features to the target mode without attention-guided weighting.
+� w/o SCMI: In this most restrictive setting, the entire SCMI module is omitted. Each
+  transport mode is modeled independently, and features remain isolated without
+  exploiting intermodal complementarities or substitutions.
+
+   Table 7 shows that incorporating sparse cross-attention consistently improves per­
+formance across all modes. Relative to the full attention variant, MM-DyGNN reduces
+MAE by 4.4% and RMSE by 6.6% for buses, with similar but smaller gains for metros
+and taxis. Removing attention interaction further degrades performance (e.g., bus MAE
+þ7.3%), confirming the necessity of attention-guided weighting. The largest drop
+occurs when SCMI is fully excluded, especially for metros (þ33.4% MAE), highlighting
+the strong intermodal influence. Overall, the study demonstrates that cross-modal
+attention drives most of the gains, while top-k sparsification further enhances signal-
+to-noise ratio and prediction accuracy.
+                                      INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE                   19
+
+
+Table 7. Performance comparison results obtained while considering cross-modal interactions.
+                                           Buses                           Metros                      Taxis
+Model Variant                    MAE#     RMSE#          R2 "     MAE#      RMSE#     R2 "    MAE#    RMSE#     R2 "
+                  MM-DyGNN      7.6768 16.8845 0.9338 18.7602 51.9242 0.9014                 2.1673   4.6263   0.9497
+w/o Top-k Selection Operation   8.0306 18.0760 0.9242 19.4576 52.2071 0.9003                 2.2182   4.7337   0.9473
+    w/o Attention Interaction   8.2376 18.5060 0.9205 20.6751 54.6053 0.8910                 2.2792   5.0147   0.9409
+                    w/o SCMI    8.6353 19.8402 0.9086 25.0346 63.8986 0.8508                 2.4486   5.2960   0.9341
+Notes: Bold values denote the best results. Arrows (#/") indicate whether lower or higher values are better.
+
+
+
+Table 8. Performance comparison among variants with different loss functions.
+                                        Buses                             Metros                      Taxis
+                                                     2                                2
+Loss function                MAE#       RMSE#        R "         MAE#      RMSE#      R "    MAE#     RMSE#      R2 "
+Uncertainty-Weighted Loss    7.6768    16.8845     0.9338       18.7602   51.9242   0.9014   2.1673   4.6263   0.9497
+MAE Addition                 8.7306    18.9760     0.9164       18.7706   51.9371   0.9013   2.1821   4.6837   0.9485
+Notes: Bold values denote the best results. Arrows (#/") indicate whether lower or higher values are better.
+
+
+
+
+Figure 6. Spatial distribution of the attention weights learned over TAZ 235 (Shenzhen’s Civic
+Center) by the SCMI module. Rows: without top-k (top) vs. top-k (bottom); Columns: bus-metro-
+taxi. Darker shades indicate larger attention scores.
+
+
+   Figure 6 compares spatial attention maps from the SCMI module with and without
+top-k sparsification to illustrate how sparsity refines cross-modal dependencies.
+Focusing on TAZ 235 (Shenzhen Civic Center), the non-sparse setting (top row) produ­
+ces diffuse and noisy attention, with peripheral TAZs in western and northern
+Shenzhen receiving non-negligible weights. After applying top-k selection (bottom
+row), attention becomes sharply localized around key east–west transit corridors in
+southern Shenzhen, aligning with dense metro and bus routes, while taxis maintain
+broader spatial influence. This sparsification improves MAE by 2.3–4.4% over the full-
+attention variant (Table 7), confirming that the top-k mechanism effectively removes
+spurious long-range dependencies and enhances focus on functionally meaningful
+cross-modal relations.
+20     L. ZHU ET AL.
+
+
+5.6. Contribution of the uncertainty-weighted loss
+To evaluate whether uncertainty modeling can serve as an implicit task-weighting
+mechanism in our multimodal (buses-metros-taxis) forecasting network, we replace
+the uncertainty-weighted loss with a plain MAE summation-based variant:
+
+� MAE Addition: In this variant, the total loss is defined as the sum of MAE of each
+  transport mode: L ¼ Lbus þ Lmetro þ Ltaxi , where each Lm is computed as
+  the MAE for mode m, analogous to the weighted loss formulation.
+
+    As shown in Table 8, compared with plain MAE summation, the uncertainty-
+weighted loss achieves a notable 12.1% reduction in bus MAE (from 8.73 to7.68) and a
+slight improvement for taxis, while metro performance remains stable. This demon­
+strates that uncertainty weighting effectively balances task learning and enhances
+overall multimodal forecasting accuracy.
+
+
+6. Discussion
+6.1. Robustness under spatial occlusion
+We evaluate the robustness of MM-DyGNN by randomly masking 10%, 20%, and 30%
+of spatial nodes and measuring performance degradation. Two strong single-modal
+baselines, GWNET and DGCRN, are used for comparison. As shown in Figure 7, MM-
+DyGNN consistently exhibits the smallest performance drops across all modes and
+masking ratios. When 30% of nodes are masked, its MAE for bus flow increases by
+only 7.87, compared to 10.63 for GWNET and 11.21 for DGCRN, corresponding to 26–
+30% higher robustness. The advantage is more evident in metro prediction, where
+MM-DyGNN’s degradation (19.36%) is much lower than GWNET (47.30%) and DGCRN
+(30.12%), confirming the effectiveness of multimodal modeling in maintaining stability
+under missing data.
+   This resilience stems from the model’s ability to leverage cross-modal correlations
+to infer missing patterns. When data from one mode are partially unavailable (e.g.,
+bus sensors at a hub), MM-DyGNN references concurrent metro or taxi flows to
+
+
+
+
+Figure 7. Performance degradation under spatial node masking. Relative MAE increases of GWNET,
+DGCRN, and MM-DyGNN across masking ratios (10%, 20%, 30%) for bus, metro, and taxi
+prediction.
+                              INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE        21
+
+
+recover information. Such multimodal fusion enhances robustness by providing com­
+plementary contextual cues and acts as an implicit regularization mechanism against
+data corruption (Zhang et al. 2025). In contrast, single-modal models depend solely on
+within-mode correlations, making them more vulnerable to localized data loss. The
+integration of multimodal data thus improves both predictive accuracy and reliability
+in real-world intelligent transportation systems (Huang et al. 2022b).
+
+
+6.2. Hyperparameter analysis
+6.2.1. Sensitivity to the sparsity level
+We analyze the effect of sparsity in cross-modal attention by varying the top-k param­
+eter, which controls the number of retained connections in the SCMI module. As
+shown in Figure 8, smaller k values (high sparsity) may remove informative links and
+slightly increase MAE, whereas larger k values introduce redundant or noisy dependen­
+cies. MAE first decreases with increasing k, reaches an optimal level, and then rises as
+k approaches full connectivity. The optimal k differs by mode: k ¼ N4 for buses and
+metros, and k ¼ 2N  3 for taxis, indicating mode-specific interaction density. Bus and
+metro flows are more sensitive to k, while taxi performance remains relatively stable.
+Overall, these results highlight the importance of tuning k to balance expressiveness
+and sparsity. Properly chosen k values enhance both prediction accuracy and interpret­
+ability by filtering out weak cross-modal dependencies and emphasizing meaningful
+multimodal interactions.
+
+6.2.2. Sensitivity to diffusion steps
+We examine the effect of the diffusion step parameter K, which defines the spatial
+receptive field in the dynamic graph convolution layer (Equation 6). As shown in
+Figure 9, increasing K expands the range of spatial dependencies but can cause over-
+smoothing and higher computational costs (Li et al. 2018; Chen et al. 2020). When K ¼
+1; the model captures only immediate neighbors, yielding high RMSE (e.g., 60.74 for
+metro). Performance improves as K increases and reaches its best at K ¼ 2; achieving
+the lowest RMSE for all modes (bus 16.88, metro 51.92, taxi 4.63). Beyond this point,
+performance declines as redundant distant information dilutes local patterns. Thus,
+K ¼ 2 provides the optimal trade-off between local precision and global awareness
+across transport modes.
+
+
+
+
+Figure 8. Sensitivity of model performance (MAE) over sparsity level k on SZ dataset across modes.
+The parameter k is varied over fN8 , N4 , N2 , 2N
+                                                3 , Ng:
+22     L. ZHU ET AL.
+
+
+
+
+Figure 9. Sensitivity of model performance (RMSE) over diffusion steps K on SZ dataset across
+modes.
+
+7. Conclusion
+In this study, we present the MM-DyGNN, a robust predictive framework designed for
+complex multimodal traffic environments. The model jointly captures spatial, temporal,
+and cross-modal dependencies through three core innovations: a dynamic graph con­
+structor that models time-varying spatial relations, a sparse cross-modal interaction
+(SCMI) mechanism that strengthens intermodal information exchange, and an
+uncertainty-aware multitask loss that balances learning across heterogeneous transport
+modes. Comprehensive experiments in Shenzhen and New York City datasets demon­
+strate that MM-DyGNN consistently outperforms state-of-the-art baselines in bus,
+metro and taxi modes, achieving MAE reductions of 1.2–8.8% and exhibiting up to
+30% lower performance degradation under simulated sensor failures. These results
+highlight the model’s ability to deliver accurate and resilient multimodal flow forecast­
+ing, underscoring its potential to support data-driven and sustainable urban mobility
+management.
+     The main contributions of this study are summarized as follows: (i) We propose a
+novel multimodal time-varying dynamic graph learning module based on Tucker
+decomposition, which jointly captures temporal variations in intramodal spatial
+dependencies and the heterogeneity across different transportation modes. (ii) We
+develop a sparse cross-modal interaction (SCMI) mechanism that selectively identifies
+and exploits key cross-modal spatial correlations, thereby enhancing both the effi­
+ciency and interpretability of multimodal learning. (iii) We introduce an adaptive multi­
+task learning strategy with uncertainty weighting that dynamically balances the
+optimization of heterogeneous modal objectives, improving the overall forecasting
+accuracy and reliability of the model. (iv) We conduct comprehensive cross-city evalua­
+tions and visualization analyses using multimodal datasets from Shenzhen and New
+York City, demonstrating the model’s superior accuracy, robustness, and practical inter­
+pretability in distinct urban contexts.
+     Despite the strong performance of MM-DyGNN, several limitations warrant future
+investigation. (i) The model currently omits external contextual factors (e.g., weather,
+events) and domain priors such as road networks or land use, which could enhance
+accuracy and generalization. (ii) Although it captures key cross-modal interactions, it
+does not yet distinguish their semantic nature (e.g., competition or complementarity).
+(iii) The top-k sparsification (k ¼ N=4) remains heuristic, and future work will explore
+                               INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE       23
+
+
+adaptive or learnable selection mechanisms. (iv) Finally, while computationally feasible,
+inference efficiency on large-scale datasets is still constrained by the cost of dynamic
+graph learning and feature fusion.
+
+
+Notes
+1. https://data.ny.gov/Transportation/MTA-Bus-Hourly-Ridership-Beginning-February-2022.
+2. https://data.ny.gov/Transportation/MTA-Subway-Hourly-Ridership-2020-2024/wujg-7c2s/
+   about_data.
+3. https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page.
+
+
+Acknowledgements
+The authors thank the editors and the anonymous reviewers for their insightful comments and
+constructive suggestions.
+
+
+Disclosure statement
+No potential conflict of interest was reported by the author(s).
+
+
+Funding
+This research was supported by the National Natural Science Foundation of China
+(No.42401553); the Natural Science Foundation of Top Talent of SZTU (No.GDRC202415); the
+Shenzhen Science and Technology Program (No.JCYJ20240813113300001, 20231127180406001).
+
+
+Notes on contributors
+Lei Zhu is a Graduate student at Shenzhen Technology University. His research interests include
+spatiotemporal forecasting. He developed the idea, developed the methodology, implemented
+the experiments and wrote the manuscript.
+Tianhong Zhao is an Assistant Professor at Shenzhen Technology University. His research inter­
+ests include geospatial intelligence,spatio-temporal big data mining,intelligent transportation
+systems. He developed the methodology, and wrote the manuscript and provided constructive
+comments.
+Jinzhou Cao is an Assistant Professor at Shenzhen Technology University. His research interests
+include urban big data mining, multimodal fusion, representation learning in urban computing
+and geospatial intelligence. He collected the research data and helped perform the analysis
+with constructive discussions.
+Shengao Yi is a PhD student at the University of Pennsylvania. His research interests include
+environmental planning, urban analytics, and geospatial intelligence. He developed the method­
+ology and wrote the manuscript.
+Shizhen Liu is an Undergraduate student at Shenzhen Technology University. His research inter­
+ests include spatiotemporal forecasting. He collected the research data and reviewed the
+manuscript.
+Wei Tu is a Professor at Shenzhen University. His research interests include urban spatiotemporal
+data analysis, urban mobility, and geospatial intelligence. He developed the methodology and
+reviewed the manuscript.
+24      L. ZHU ET AL.
+
+
+
+Hongping Zhang is an Associate Professor at Shenzhen Technology University. Her research
+interests include shock dynamics, explosion mechanics, computational fluid dynamics, and
+numerical algorithms. She developed the methodology and reviewed the manuscript.
+
+
+ORCID
+Lei Zhu    http://orcid.org/0009-0007-0681-5955
+Tianhong Zhao      http://orcid.org/0000-0002-9290-2049
+Jinzhou Cao     http://orcid.org/0000-0001-6201-3251
+Shengao Yi     http://orcid.org/0009-0008-2377-155X
+Wei Tu    http://orcid.org/0000-0002-0255-4037
+Hongping Zhang       http://orcid.org/0009-0000-0268-853X
+
+
+Data availability statement
+The source data and codes supporting the findings of this study are available at https://doi.org/
+10.6084/m9.figshare.29476379.v1.
+
+
+References
+Cao, J., et al., 2025a. Disentangling the hourly dynamics of mixed urban function: a multimodal
+  fusion perspective using dynamic graphs. Information Fusion, 117, 102832.
+Cao, J., et al., 2025b. Urban representation learning for fine-grained economic mapping: a semi-
+  supervised graph-based approach. ISPRS Journal of Photogrammetry and Remote Sensing, 226,
+  317–331.
+Cao, Z., et al., 2023. Attention synchronous based spatial-temporal graph convolutional networks
+  for traffic flow prediction. In: Proceedings of the 3rd International Conference on Electronic
+  Information Technology and Smart Agriculture.
+Castiglione, M., et al., 2025. Multisource methodology for traffic analysis zone definition based
+  on the fusion of remote sensing, openstreetmap, and floating car data. Journal of Transport
+  Geography, 128, 104324.
+Chen, L., et al., 2020. Gdcrn: Global diffusion convolutional residual network for traffic flow pre­
+  diction. In: International conference on knowledge science, engineering and management. Cham:
+  Springer. pp. 438–449.
+Cui, H., et al., 2024. Network-level short-term traffic state prediction incorporating critical nodes:
+  A knowledge-based deep fusion approach. Information Sciences, 662, 120215.
+Dai, G., et al., 2024. Tucker decomposition enhanced dynamic graph convolutional networks for
+  crowd flows prediction. ACM Transactions on Intelligent Systems and Technology, 16 (1).
+Dai, R., et al., 2020. Hybrid spatio-temporal graph convolutional network: Improving traffic pre­
+  diction with navigation data. In: Proceedings of the 26th ACM SIGKDD International Conference
+  on Knowledge Discovery Data Mining.
+Gammelli, D., et al., 2021. Graph neural network reinforcement learning for autonomous mobil­
+  ity-on-demand systems. In: 2021 60th IEEE Conference on Decision and Control (CDC), 2996–
+  3003.
+Gong, T., et al., 2019. A comparison of loss weighting strategies for multi task learning in deep
+  neural networks. IEEE Access, 7, 141627–141632.
+Guo, J., et al., 2021. Gps-based citywide traffic congestion forecasting using cnn-rnn and c3d
+  hybrid model. Transportmetrica A: Transport Science, 17 (2), 190–211.
+Guo, S., et al., 2019. Attention based spatial-temporal graph convolutional networks for traffic
+  flow forecasting. In: Proceedings of the AAAI conference on artificial intelligence. Vol. 33. pp.
+  922–929.
+                                INTERNATIONAL JOURNAL OF GEOGRAPHICAL INFORMATION SCIENCE          25
+
+
+Hu, N., et al., 2022. Graph learning-based spatial-temporal graph convolutional neural networks
+    for traffic forecasting. Connection Science, 34 (1), 429–448.
+Huang, J., et al., 2022a. Learning multiaspect traffic couplings by multirelational graph attention
+    networks for traffic prediction. IEEE Transactions on Intelligent Transportation Systems, 23 (11),
+    20681–20695.
+Huang, X., et al., 2022b. Multi-mode dynamic residual graph convolution network for traffic flow
+    prediction. Information Sciences, 609, 548–564.
+Jiang, R., et al., 2022. Spatio-temporal meta-graph learning for traffic forecasting. ArXiv Abs/
+    2211.14701,
+Jin, T., et al., 2022. Nonlinear effects of the built environment on metro-integrated ridesourcing
+    usage. Transportation Research Part D: Transport and Environment, 110, 103426.
+Ke, J., et al., 2021. Joint predictions of multi-modal ride-hailing demands: A deep multi-task
+    multi-graph learning-based approach. Transportation Research Part C: Emerging Technologies,
+    127, 103063.
+Kendall, A., Gal, Y., and Cipolla, R., 2018. Multi-task learning using uncertainty to weigh losses
+    for scene geometry and semantics. In: Proceedings of the IEEE conference on computer vision
+    and pattern recognition. pp. 7482–7491.
+Lee, D., Lee, J., and Choi, J., 2023. Cast: cross-attention in space and time for video action recog­
+    nition. Advances in Neural Information Processing Systems, 36, 79399–79425.
+Li, C., et al., 2021a. A multi-task memory network with knowledge adaptation for multimodal
+    demand forecasting. Transportation Research Part C: Emerging Technologies, 131, 103352.
+Li, F., et al., 2021b. Dynamic graph convolutional recurrent network for traffic prediction: Benchmark
+    and solution. ACM Transactions on Knowledge Discovery from Data, 17 (1), 1–21. 21.
+Li, R., et al., 2024. A study of the application and impact of artificial intelligence in intelligent
+    transport systems. Journal of Simulation, 12 (1), 33.
+Li, Y., et al., 2018. Diffusion convolutional recurrent neural network: data-driven traffic forecast­
+    ing. In: International Conference on Learning Representations (ICLR), Vancouver, BC, Canada.
+    https://openreview.net/forum?id=SJiHXGWAZ
+Li, Z., et al., 2025. MTS-mixers: Multivariate time series forecasting via factorized temporal and
+    channel mixing. In: 2025 International Joint Conference on Neural Networks (IJCNN), Rome, Italy.
+    IEEE. pp. 1–8.
+Li, Z., et al., 2022. A multi-stream feature fusion approach for traffic prediction. IEEE Transactions
+    on Intelligent Transportation Systems, 23 (2), 1456–1466.
+Liang, J., et al., 2022a. On region-level travel demand forecasting using multi-task adaptive
+    graph attention network. Information Sciences, 622, 161–177.
+Liang, Y., Huang, G., and Zhao, Z., 2022b. Joint demand prediction for multimodal systems: A
+    multi-task multi-relational spatiotemporal graph neural network approach. Transportation
+    Research Part C: Emerging Technologies, 140, 103731.
+Liang, Y., et al., 2023. Basicts: An open source fair multivariate time series prediction benchmark.
+    In: International Symposium on Benchmarking, Measuring and Optimization. Lecture Notes in
+    Computer Science. Cham: Springer, pp. 87–101.
+Liu, H., et al., 2021. Community-aware multi-task transportation demand prediction. Proceedings
+    of the AAAI Conference on Artificial Intelligence, 35 (1), 320–327.
+Liu, Y., et al., 2024. iTransformer: Inverted transformers are effective for time series forecasting.
+    In: International Conference on Learning Representations (ICLR), Vienna, Austria. https://openre­
+    view.net/forum?id=JePfAI8fah
+Lv, Y., et al., 2018. Generative adversarial networks for parallel transportation systems. IEEE
+    Intelligent Transportation Systems Magazine, 10 (3), 4–10.
+Ma, H., et al., 2022. Forecasting regional multimodal transportation demand with graph neural
+    networks: An open dataset. In: 2022 IEEE 25th International Conference on Intelligent
+    Transportation Systems (ITSC), 3263–3268.
+Mi, J.-W., 2023. Spatio-temporal traffic data recovery via latent factorization of tensors based on
+    tucker decomposition. In: 2023 IEEE International Conference on Systems, Man, and Cybernetics
+    (SMC), Honolulu, HI. IEEE. pp. 1512–1517.
+26      L. ZHU ET AL.
+
+
+Miller, J.A., et al., 2024. A survey of deep learning and foundation models for time series fore­
+   casting. arXiv Preprint, arXiv:2401.13912.
+Shao, Z., et al., 2022. Spatial-temporal identity: A simple yet effective baseline for multivariate
+   time series forecasting. In: Proceedings of the 31st ACM international conference on information
+   & knowledge management. pp. 4454–4458.
+Tao, X., et al., 2023. Towards green innovation in smart cities: Leveraging traffic flow prediction with
+   machine learning algorithms for sustainable transportation systems. Sustainability, 16 (1), 251.
+Tu, W., et al., 2018. Spatial variations in urban public ridership derived from gps trajectories and
+   smart card data. Journal of Transport Geography, 69, 45–57.
+Wang, N., et al., 2024. Dynamic personalized graph neural ordinary differential equation network
+   for multivariate time series prediction of chemical processes. In: 2024 IEEE 13th Data Driven
+   Control and Learning Systems Conference (DDCLS), 2044–2049.
+Wang, S., et al., 2022. A multitask learning-based network traffic prediction approach for sdn-enabled
+   industrial internet of things. IEEE Transactions on Industrial Informatics, 18 (11), 7475–7483.
+Wu, G., Xu, T., and Zhang, J., 2024. Sparse graph matching network for temporal language local­
+   ization in videos. Computer Vision and Image Understanding, 240, 103908.
+Wu, Y., et al., 2025. Spatiotemporal analysis of urban vitality and its drivers from a human mobil­
+   ity perspective. ISPRS International Journal of Geo-Information, 14 (4), 167.
+Wu, Z., et al., 2019. Graph wavenet for deep spatial-temporal graph modeling. arXiv Preprint
+   arXiv, 1906.00121.
+Xu, A., et al., 2022. Than: Multimodal transportation recommendation with heterogeneous graph
+   attention networks. IEEE Transactions on Intelligent Transportation Systems, 24, 1–11.
+Yang, S., et al., 2019. Revealing heterogeneous spatiotemporal traffic flow patterns of urban
+   road network via tensor decomposition-based clustering approach. Physica A: Statistical
+   Mechanics and its Applications, 526, 120688.
+Yang, X., et al., 2025. Cross-modality and equity-aware graph pooling fusion: A bike mobility pre­
+   diction study. IEEE Transactions on Big Data, 11 (1), 286–302.
+Yang, Y., et al., 2024. Network-wide short-term inflow prediction of the multi-traffic modes sys­
+   tem: An adaptive multi-graph convolution and attention mechanism based multitask-learning
+   model. Transportation Research Part C: Emerging Technologies, 158, 104428.
+Yin, Y., Wang, H., and Deng, X., 2024. Real-time logistics transport emission monitoring-integrat­
+   ing artificial intelligence and internet of things. Transportation Research Part D: Transport and
+   Environment, 136, 104426.
+Yu, B., Yin, H., and Zhu, Z., 2018. Spatio-temporal graph convolutional networks: a deep learning
+   framework for traffic forecasting. In: Proceedings of the 27th International Joint Conference on
+   Artificial Intelligence (IJCAI), Stockholm, Sweden. pp. 3634–3640.
+Zhang, D., et al., 2024. Multimodal joint prediction of traffic spatial-temporal data with graph
+   sparse attention mechanism and bidirectional temporal convolutional network. Advanced
+   Engineering Informatics, 62, 102533.
+Zhang, J., et al., 2025. Mixture of spatial–temporal graph transformer networks for urban congestion
+   prediction using multimodal transportation data. Expert Systems with Applications, 268, 126108.
+Zhang, Y., et al., 2023. Incorporating multimodal context information into traffic speed forecast­
+   ing through graph deep learning. International Journal of Geographical Information Science, 37
+   (9), 1909–1935.
+Zhao, T., et al., 2023. Developing a multiview spatiotemporal model based on deep graph neural
+   networks to predict the travel demand by bus. International Journal of Geographical
+   Information Science, 37 (7), 1555–1581.
+Zhao, T., et al., 2022. Coupling graph deep learning and spatial-temporal influence of built envi­
+   ronment for short-term bus travel demand prediction. Computers, Environment and Urban
+   Systems, 94, 101776.
+Zhou, H., et al., 2021. Informer: Beyond efficient transformer for long sequence time-series forecast­
+   ing. In: Proceedings of the AAAI conference on artificial intelligence. Vol. 35. pp. 11106–11115.
+

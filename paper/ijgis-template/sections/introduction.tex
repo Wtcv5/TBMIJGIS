@@ -1,9 +1,12 @@
-TBM excavation is a moving spatial interaction process, not a fixed-site
+TBM excavation is a moving spatial relation problem, not only a fixed-site
 monitoring problem. As the cutterhead and shield advance, geological units
 enter, approach, and leave the machine's potential interaction zone. Changes
 in thrust, torque, penetration, advance rate, and shield pressure therefore
 reflect both operational control and the evolving spatial configuration between
-geological anomalies and machine components.
+geological anomalies and machine components. The GIScience problem is therefore
+not only TBM diagnosis, but also the representation of dynamic spatial
+relations between a moving engineered object and heterogeneous subsurface
+voxel supports.
 
 Monitoring-based TBM response models are useful because short-horizon
 excavation responses often have strong temporal persistence. Tabular and
@@ -25,16 +28,26 @@ partner at a particular excavation step. A component-indexed field
 representation must therefore link geological spatial support to machine
 surface geometry and excavation state.
 
+This representation problem is not resolved by a moving buffer or a
+linear-referenced overlay alone. A voxel buffer can summarise the mean anomaly
+inside an active zone, but it does not retain which rock voxel is related to
+which TBM component, which relation attributes were used to screen the pair,
+or whether the pair persists or disappears as the machine advances. The graph
+representation used here keeps the heterogeneous entities, component labels,
+edge attributes, and edge lifecycle explicit. The component $\times$
+excavation-step readout is therefore a relation aggregation over a screened
+candidate-edge set, not a simple raster or voxel-field average.
+
 To address this gap, the paper treats rock--TBM interpretation as a spatial
 entity--relation modelling problem. The input consists of a TSP-derived rock
 voxel field, an advancing parameterized TBM surface, and
 excavation-step-aligned monitoring records. Two graph entity types are defined:
 rock voxels and TBM surface nodes. Monitoring responses are aligned to
 excavation steps but are not graph entities. The method then constructs a
-geometry-constrained sparse rock--TBM interaction graph at each excavation step
+dynamic rock--TBM spatial relation graph at each excavation step
 using active-zone, distance, normal-compatibility, and excavation-state
 constraints. Weighted rock--machine edges are aggregated by TBM component to
-compute a component $\times$ excavation-step anomalous interaction field. The
+compute a component $\times$ excavation-step geological anomaly readout field. The
 field contains $I_c(t)$ and $\Delta I_c(t)$, can be aligned with monitoring
 responses, and remains traceable back to individual rock--machine edges. The
 graph is introduced first as a spatial data model and graph computation
@@ -45,10 +58,10 @@ excavation-step-indexed spatial graph computation, rather than in claiming a
 new high-accuracy predictor. The paper contributes: (i) a rock--TBM spatial entity model that
 places TSP-derived rock voxels and TBM surface components in a common
 excavation coordinate while keeping monitoring responses as aligned records;
-(ii) a per-step geometry-constrained sparse rock--machine interaction graph
+(ii) a per-step rock--machine spatial relation graph
 built from active-zone membership, distance decay, surface-normal
 compatibility, and excavation-state constraints; and (iii) a component
-$\times$ excavation-step anomalous interaction field that aggregates
+$\times$ excavation-step geological anomaly readout field that aggregates
 fixed-reference geological anomaly scores over screened candidate relations per
 TBM component and tracks $I_c(t)$ and $\Delta I_c(t)$ over excavation steps.
 The empirical evidence is used to support representation, traceability, and

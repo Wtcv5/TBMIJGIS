@@ -1,0 +1,2023 @@
+      International Journal of Digital Earth
+
+
+
+
+      ISSN: 1753-8947 (Print) 1753-8955 (Online) Journal homepage: www.tandfonline.com/journals/tjde20
+
+
+
+
+Development and application of knowledge
+graph-based spatiotemporal data model for
+urban physical examination
+
+Sijia Wang, Jun Chen, Dongyang Hou, Xiaoguang Zhou, Bingliang Cui,
+Xiaoyang Zhang, Yu Wang, Dongyuan Li, Junyu Cui, Silong Luo & Qiankun
+Kang
+
+To cite this article: Sijia Wang, Jun Chen, Dongyang Hou, Xiaoguang Zhou, Bingliang Cui,
+Xiaoyang Zhang, Yu Wang, Dongyuan Li, Junyu Cui, Silong Luo & Qiankun Kang (2025)
+Development and application of knowledge graph-based spatiotemporal data model for
+urban physical examination, International Journal of Digital Earth, 18:1, 2512060, DOI:
+10.1080/17538947.2025.2512060
+
+To link to this article: https://doi.org/10.1080/17538947.2025.2512060
+
+
+
+
+       © 2025 The Author(s). Published by Informa            Published online: 03 Jun 2025.
+       UK Limited, trading as Taylor & Francis
+       Group
+
+       Submit your article to this journal                   Article views: 1967
+
+
+
+       View related articles                                 View Crossmark data
+
+
+
+       Citing articles: 3 View citing articles
+
+
+
+
+                      Full Terms & Conditions of access and use can be found at
+             https://www.tandfonline.com/action/journalInformation?journalCode=tjde20
+INTERNATIONAL JOURNAL OF DIGITAL EARTH
+2025, VOL. 18, NO. 1, 2512060
+https://doi.org/10.1080/17538947.2025.2512060
+
+
+
+
+Development and application of knowledge graph-based
+spatiotemporal data model for urban physical examination
+Sijia Wang a,b,d, Jun Chenc, Dongyang Houa,b, Xiaoguang Zhoua,b, Bingliang Cuid,
+Xiaoyang Zhangd, Yu Wangd, Dongyuan Lie, Junyu Cuid, Silong Luoa,b and
+Qiankun Kanga,b
+a
+ School of Geosciences and Info-Physics, Central South University, Changsha, People’s Republic of China;
+b
+ Key Laboratory of Metallogenic Prediction of Nonferrous Metals and Geological Environment Monitoring
+Ministry (Central South University), Ministry of Education, Changsha, People’s Republic of China; cNational
+Geomatics Center of China, Beijing, People’s Republic of China; dGuangzhou Alpha Software Information
+Technology Co. Ltd, Guangzhou, People’s Republic of China; eInstitute of Interdisciplinary Research for
+Mathematics and Applied Science, Huazhong University of Science and Technology, Wuhan, People’s
+Republic of China
+
+
+    ABSTRACT                                                                                            ARTICLE HISTORY
+    The urban physical examination is pivotal in diagnosing and                                         Received 29 December 2024
+    resolving ‘urban diseases’. However, it encounters challenges                                       Accepted 16 May 2025
+    including the intricate interconnections among heterogeneous
+                                                                                                        KEYWORDS
+    data, the spatiotemporal differences in urban pathologies, and the                                  Urban physical examination;
+    multi-dimensional scenario-oriented representation. A knowledge                                     knowledge graph;
+    graph is a potent technical instrument capable of depicting data                                    knowledge service;
+    replete with relational details and capturing the dependency ties                                   spatiotemporal data model;
+    among entities. In view of the above, this paper proposes a                                         ontology
+    knowledge graph-based spatiotemporal data model for the urban
+    physical examination. The model focuses on application scenarios,
+    and builds a conceptual model with a three-layer architecture of
+    ‘semantics-data-scenario’ and an ontology logic model structured
+    as a hypergraph. This is intended to facilitate the management of
+    spatiotemporal data throughout the process, while also enabling
+    scenario-based spatiotemporal expression. Furthermore, this paper
+    presents an in-depth analysis of the urban greenway construction
+    case. The results show that the model organizes and expresses
+    urban data and knowledge, covering multiple levels (such as
+    themes, connotations, knowledge points, and indicators) and
+    multiple granularities (macro-city, meso-region, micro-street),
+    helping to understand urban physical examination from multiple
+    dimensions. This not only provides a scientific basis for urban
+    planners to make decisions but also sets an example for the
+    practice of urban physical examination knowledge service.
+
+
+
+
+CONTACT Jun Chen        chenjun@ngcc.cn      National Geomatics Center of China, Beijing 100039, People’s Republic of
+China; Dongyang Hou       houdongyang1986@cumt.edu.cn        School of Geosciences and Info-Physics, Central South
+University, Changsha 410083, People’s Republic of China
+© 2025 The Author(s). Published by Informa UK Limited, trading as Taylor & Francis Group
+This is an Open Access article distributed under the terms of the Creative Commons Attribution-NonCommercial License (http://
+creativecommons.org/licenses/by-nc/4.0/), which permits unrestricted non-commercial use, distribution, and reproduction in any
+medium, provided the original work is properly cited. The terms on which this article has been published allow the posting of the Accepted
+Manuscript in a repository by the author(s) or with their consent.
+2      S. WANG ET AL.
+
+
+1. Introduction
+The principal objective of urban physical examination, alternatively termed urban health
+assessments, is to quantify and analyze the city’s spatial configuration, demographic dis­
+tribution, resource allocation, and environmental quality. These factors are collectively
+referred to as ‘vital signs’ and are used to ascertain the health status and developmental
+trajectories of urban systems (Barton and Grant 2013; Friel et al. 2011; Galea and Vlahov
+2005; Harpham 2009; Vardoulakis, Dear, and Wilkinson 2016). This process is data-
+driven, relying on a spectrum of quantified indicators that reflect these urban vital
+signs for the monitoring, diagnosis, early warning, and maintenance of urban develop­
+ment (Allen et al. 2017; Andries et al. 2019; Pineo et al. 2018).
+    Internationally, urban physical examination predominantly entails the establishment
+of a comprehensive evaluation indicator system of urban physical signs (Corburn 2004;
+Sharifi and Murayama 2014). Specifically, by collecting data on urban infrastructure,
+public services, social economy, ecological environment, cultural features and other
+aspects, combined with empirical materials such as questionnaires and social feedback,
+and applying methods like structural decomposition, inventory statistics, model calcu­
+lation, standard setting, health status classification, and comprehensive measurement,
+a multi-dimensional comparative analysis and evaluation are conducted on all aspects
+of the urban ‘living organism’ (Biswas et al. 2021; Dempsey et al. 2011; He et al. 2018).
+Since the 1990s, the international scientific community has consistently placed significant
+emphasis on pre-implementation appraisal, process monitoring, and post-implemen­
+tation evaluation within the scene of urban development planning (Naess 2001; Yigitcan­
+lar and Teriman 2015). It not only gauges the degree of congruence between the
+implementation outcomes and the planning objectives but also accords greater attention
+to sundry urban health issues that impinge upon the implementation process. The
+United Kingdom, Japan and the United States have all formulated strategic planning
+objectives, constructed quantifiable indicators and thus formed the core content of moni­
+toring and evaluation (Sharifi and Murayama 2014). Then, centering around these indi­
+cators, they have aggregated multi-source spatio-temporal data that are dynamic and
+timely to build a monitoring and evaluation database. Eventually, by combining quanti­
+tative and qualitative indicator evaluation methods, they have provided strong support
+for the implementation of planning and the action plans of local governments (Geneletti
+et al. 2017). Nevertheless, this process also faces the challenges of width of data sources,
+the depth of indicator diagnosis, and the efficacy of comprehensive data application
+(Childers et al. 2014). In February 2017, the Chinese government proposed the establish­
+ment of an assessment mechanism for urban physical examination, and since then many
+cities in China have carried out related work (Zhang, He, and Chen 2021). Among them,
+as one of the assessment items of urban physical examination, urban greenways can
+promote green travel and reduce carbon emissions, so their construction and develop­
+ment have received much attention (Semeraro et al. 2021; Van Oijstaeijen, Van Passel,
+and Cools 2020). In general, urban physical examination rely on strategic planning orien­
+tation, evaluation index, and spatiotemporal data collection (Cui et al. 2024; Ren et al.
+2024). However, the strategic planning objectives of urban physical examination are
+different, which makes it difficult to make horizontal comparisons of assessment indi­
+cators and carry out multi-level vertical analyses between ‘objectives-indicators-data’
+                                                 INTERNATIONAL JOURNAL OF DIGITAL EARTH      3
+
+
+(He et al. 2023). Furthermore, in practice, too much attention is paid to the urban phys­
+ical examination indicators themselves, ignoring the semantic association between the
+indicators and data, which in turn makes it difficult to explore the intrinsic connection
+and potential value of urban physical signs (Chen et al. 2022). In addition, the current
+urban physical examination lacks a spatiotemporal data model based on application
+scenarios, which makes it difficult to reflect its spatiotemporal characteristics and
+changes (Cook and Karvonen 2024). Therefore, high-quality urban physical examination
+not only needs to consider the complex interactions between planning objectives and
+assessment indicators, but also needs to address the differences in dimensionality and
+granularity of different spatiotemporal data.
+   In recent years, there has been a gradual shift in the urban physical examination meth­
+odology from the utilization of socio-economic statistical data to the incorporation of
+multi-source spatial and temporal data, such as remotely sensed imagery, points of inter­
+est, human tracks, and street view images (Giles-Corti, Lowe, and Arundel 2020; Masó
+et al. 2019; Stokes and Seto 2019). It is not sufficient to store these voluminous multidi­
+mensional data sets, but it is also imperative to guarantee the correlation and semantic
+consistency between the data, to facilitate the intricate analysis and decision-making pro­
+cesses. However, current research mostly relies on traditional relational or non-relational
+databases, such as files, key-value pairs, attribute tables, etc., which are only suitable for
+dealing with structured data and simple relational queries, and lack the organization and
+management of spatiotemporal data (Codd 1970). And the current spatiotemporal data
+model of urban physical examination has not yet been developed, which makes it difficult
+to represent highly interconnected data and complex semantic relationship networks.
+This restricts the deep integration and analysis capabilities at the level of urban
+medical examination spatiotemporal data, and it is difficult to meet the data organization
+and management needs. It is mainly reflected in the following three aspects: (1) Variable
+Application Scenarios: The urban physical examination encompasses multiple stake­
+holders and variables, presenting challenges in designing and executing effective proto­
+cols (Wirth et al. 2014); (2) Insufficient Knowledge Articulation: The assessments involve
+knowledge covering numerous themes, connotations, knowledge points, and indicators.
+This renders the expression, understanding, and visualization of such knowledge a
+complex task (Sajjad, Chan, and Chopra 2021); (3) Intricate Data Associations: The
+data dealt with in assessments have spatiotemporal and semantic linkages and are charac­
+terized by high-dimensional dynamics. This complicates tasks like data analysis, mining,
+reasoning, updating, and traceability (Hamdi et al. 2022). Consequently, the effective
+integration of the semantic and logical representation of urban vital signs, the manage­
+ment of the entire lifecycle of spatiotemporal data, and the provision of scenario-specific
+presentations to amplify the application efficacy of data and knowledge have emerged as
+pivotal issues in contemporary research.
+   The Knowledge Graph (KG), an advanced information organization technology, uti­
+lizes graph databases to interconnect multi-source data via entities (nodes) and relation­
+ships (edges), thereby constructing a unified data view conducive to complex data
+analysis and knowledge discovery (Abu-Salih 2021; Ji et al. 2021). It links dispersed
+data points into a network, which not only facilitates comprehensive assessment of
+urban vital signs but also uncovers implicit knowledge from massive data through
+reasoning and analysis, providing deeper insights and decision-making support
+4      S. WANG ET AL.
+
+
+(Chadzynski et al. 2021; Janowicz et al. 2022). Preliminary progress has been achieved in
+the application of KG for to urban spatiotemporal data. For example, WorldKG has
+linked OpenStreetMap’s geospatial data with knowledge from various fields by aligning
+with other KGs like Wikidata and DBpedia, enhancing data interoperability (Dsouza
+et al. 2021). The UK’s National Digital Twin (NDT) unifies disparate data sources
+through a semantic model, integrating real-time data streams and computational
+agents to form a knowledge network for supporting sophisticated analyses (Akroyd
+et al. 2021). Moreover, the CityGML-KG framework transforms 3D urban model data
+into a KG, integrating with sources such as OpenStreetMap and enhancing data semantic
+expression (Ding et al. 2024). Domestically, researchers are actively applying KG in urban
+planning and management. For instance, the UrbanKG system combines street view
+imagery, satellite imagery, and user behavior data to construct a knowledge graph that
+facilitates the integration of multimodal datasets, encompassing text, images, and
+sequences (Liu et al. 2023). UrbanGPT integrates large language models (LLMs) into
+spatiotemporal data analysis, enabling the model to handle not only natural language
+but also understand and predict complex spatiotemporal dynamics (Li et al. 2024). Fur­
+thermore, some scholars have introduced KG technology into urban physical examin­
+ation and developed KG-driven collaborative methods for multi-inspection tasks,
+realizing the synergy of ‘data-indicator-calculation’ among multiple types of urban phys­
+ical examinations (Wang et al. 2022). This has brought new tools and demonstrated great
+application potential. For example, the utilization of RDF triple stores and native graph
+database storage, such as Jena, RDF4J, Neo4j, etc., has enhanced the integration and
+analysis capabilities at the data level (Fernandes and Bernardino 2018; Wang et al.
+2019). It should be noted that although current research can support RDF graphs and
+attribute maps to achieve spatiotemporal data management based on knowledge
+graphs, however, these studies are still insufficient to support the demand for in-depth
+integration and analysis applications of urban physical signs (Chen, Liu, and Tian
+2022; Krishnan, Dziedzic, and Elmore 2018; Liu et al. 2021a; 2021b). Specifically, when
+dealing with spatiotemporal data, the integration of multi-source data is often incom­
+plete, resulting in data fragmentation and making it difficult to comprehensively and
+accurately reflect the complex situation of urban physical examination. In terms of
+knowledge mining, most studies fail to construct an effective conceptual model to
+deeply explore the potential relationships among data, leading to a lack of in-depth scien­
+tific basis for planning decisions (Akroyd et al. 2021) Additionally, with respect to result
+presentation and visualization, current studies have difficulty in intuitively and effectively
+conveying key information to urban planners and decision-makers, which is not condu­
+cive to multi-departmental collaboration and public participation (Chen et al. 2023).
+    In view of the above, this paper proposes a knowledge graph-based spatiotemporal
+data model for the urban physical examination. Initiating from application scenarios,
+it aims to integrate multi-source heterogeneous spatiotemporal data more effectively
+through knowledge graph and explore the complex relationships among spatiotemporal
+data, to optimize the organization and management of spatiotemporal data for urban
+physical examination knowledge services. The model adopts a three-layer architecture
+of ‘semantics-data-scenario’, which constructs the urban physical examination knowl­
+edge system, manages the whole process spatiotemporal data of urban physical examin­
+ation and provides scenario-based spatiotemporal expression. This paper presents the
+                                              INTERNATIONAL JOURNAL OF DIGITAL EARTH    5
+
+
+conceptual and logical models of the proposed model, and provides relevant example and
+explanations by taking the urban greenway construction as an instance.
+
+(1) Currently, most urban physical examination spatiotemporal data models concen­
+    trate on the design of new indicators and conceptual discussions. Although progress
+    has been made in the organization and association of data and semantics in urban
+    physical examination knowledge graphs, the requirements of urban physical exam­
+    ination application scenarios have not been fully considered. This paper proposes a
+    knowledge graph-based spatiotemporal data model for urban physical examination.
+    The model integrates the knowledge in the semantic layer and the data in the data
+    layer according to the requirements of application scenarios. Then, it presents
+    them in an intuitive and highly interactive visual manner through the scenario
+    layer to obtain customized knowledge services.
+(2) Design a logical model integrating UML diagrams and hypergraph ontology. This
+    logical model represents high-order relations as hyperedges, simplifies the structure
+    of UML models, and enhances the accuracy of expressing multi-dimensional
+    relations.
+(3) Conduct model validation with the example of Guangzhou greenway construc­
+    tion. Based on the model, the example identifies and diagnoses the problems
+    in the construction of Guangzhou greenways, puts forward targeted strategies,
+    and improves decision-making efficiency by means of visualization, thus provid­
+    ing a visual knowledge service example for the management of urban greenway
+    construction.
+
+
+2. General framework
+Within the urban physical examination spatiotemporal data management, conventional
+Entity-Relationship (ER) modeling approaches encounter limitations in scalability. They
+struggle to capture the interconnections between urban physical examination spatiotem­
+poral data and associated knowledge domains or application scenarios (Malinowski and
+Zimányi 2008; Sharifi 2021; Teorey, Yang, and Fry 1986; Zhou et al. 2021). Thus, to
+enhance the efficient organization and management of urban physical examination
+spatiotemporal data, this study introduces a knowledge graph-based spatiotemporal
+data model for urban physical examination, as shown in Figure 1. Starting from appli­
+cation scenarios, this model builds a comprehensive urban physical examination knowl­
+edge framework, manages the entire spatiotemporal data lifecycle, and provides scenario-
+specific spatiotemporal expressions. It integrates various spatiotemporal data types and
+relational structures into the unified framework.
+   Firstly, this paper proposes a three-layer framework conceptual model of ‘semantics-
+data-scenario’ around the application scenario requirements. Within this framework, the
+semantics layer abstracts and defines the spatiotemporal semantics of urban vital signs.
+The data layer is responsible for integrating and managing the spatiotemporal data
+across the whole process. The scenario layer enables the conversion of abstract data
+and knowledge into perceptible and visual representations of urban development narra­
+tives via scenario-specific spatiotemporal presentations.
+6       S. WANG ET AL.
+
+
+
+
+Figure 1. General framework for knowledge graph-based spatiotemporal data model for urban phys­
+ical examination. This framework consists of a three-layer architecture of ‘semantics-data-scenario’,
+aiming to integrate multi-source spatiotemporal data and providing knowledge service for urban
+physical examination.
+
+
+
+   Secondly, this paper centers around application scenarios and constructs a logical
+model encompassing scenario identifiers, knowledge systems, and evidence data, and
+integrating logical relationships such as inclusion, inheritance, and extension. The
+logical model utilizes Unified Modeling Language (UML) diagrams to depict the
+logical structures of data, knowledge, and scenarios along with their spatiotemporal attri­
+butes. Concurrently, to enhance the expression of complex associations among spatio­
+temporal data, an ontology model based on a hypergraph structure is introduced. It
+represents higher-order relationships through hypernodes and hyperedges to optimize
+the expression of complex associations between spatiotemporal data.
+   Finally, this paper employs urban greenway construction as a case study for knowl­
+edge visualization and expression to demonstrate the application efficacy of the model.
+The case offers descriptive, diagnostic, predictive, and programmatic greenway knowl­
+edge services by gathering, integrating, and analyzing relevant data to comprehensively
+assess the state of urban greenway construction.
+
+
+3. Conceptual modeling
+Urban physical examination spatiotemporal data is multi-faceted, covering multiple
+types, time periods, and media. It encompasses natural background, population
+dynamics, environmental quality, etc. The forms include image, text, table, and video
+data, laying a solid foundation for in-depth urban physical examination analyses.
+                                                   INTERNATIONAL JOURNAL OF DIGITAL EARTH       7
+
+
+   This paper differentiates between data and knowledge. Urban physical examination
+data refers to the spatiotemporal data collected from all aspects and stages of a city,
+such as basic attributes, functional structure, development status, and potential risks.
+It involves the city’s monitoring, diagnosis, early warning, and maintenance stages
+(Wu et al. 2024). Urban physical examination knowledge is the result of processing
+and analyzing such data, including descriptive, diagnostic, predictive, and scenario-
+based knowledge about the city, as well as knowledge about its strengths, weaknesses,
+problems, suggestions, and countermeasures (Chen et al. 2020; 2021; Chen, Liu, and
+Tian 2022). The data and knowledge of urban physical examination are closely inter­
+twined and mutually interactive. Data serves as the basis for knowledge, provides data
+support for scenario-based applications, while knowledge represents the distillation
+and application of data and guides scenario-based applications.
+   Firstly, this paper presents a triple conceptual model consisting of semantic, data, and
+scenario aspects to guide the development of a knowledge graph-based spatiotemporal
+data model. As shown in Figure 2, these layers correspond respectively to the knowledge,
+data, and application aspects of urban physical examination.
+   In detail, the semantic layer proposes a hierarchical structure for urban physical exam­
+ination, including themes, connotations, knowledge points, and indicators. It constructs
+a comprehensive four-tier urban physical examination knowledge system, integrating
+both semantic and data entities into a unified framework. This aims to enhance the
+knowledge density and logical coherence of the data, strengthens the expression of
+data significance and interconnections, and provides a solid knowledge foundation for
+the scenario layer. The data layer organizes and refines relevant data knowledge accord­
+ing to the four key stages of urban physical examination: monitoring, diagnosis, warning,
+and maintenance. It aims to support the calculation of evaluation metrics, comprehen­
+sive diagnosis, causal analysis, and the improvement of irregularities in urban physical
+examination, thereby providing substantial data support for the scenario layer. The scen­
+ario layer instantiates the knowledge and data from the semantic and data layers, and rea­
+lizes the visual representation of knowledge services in specific scenarios, facilitating the
+provision of urban physical examination knowledge services.
+
+
+
+
+Figure 2. The conceptual model for knowledge graph-based spatiotemporal data model for urban
+physical examination. The model includes three layers: the semantic layer, the data layer, and the
+scenario layer, which are responsible for defining the knowledge of urban physical examination,
+managing spatiotemporal data, and providing scene-specific knowledge services, respectively.
+8      S. WANG ET AL.
+
+
+
+
+Figure 3. The four tiers of urban physical examination knowledge system: theme, connotation, knowl­
+edge point and indicator.
+
+
+3.1. Semantic layer
+This paper formulates a hierarchical urban physical examination knowledge system that
+consists of four levels: ‘theme-connotation-knowledge point-indicator’, as shown in
+Figure 3. The urban semantic and data entities are abstracted into a structured model,
+which facilitates the semantic modeling of urban physical examination concepts, their
+interrelations, and their spatiotemporal characteristics. This methodological improve­
+ment enhances data interpretability and relationship-expression capacity, ensuring align­
+ment with the diverse knowledge demands of different urban physical examination
+scenarios. The formal representation of the semantic layer is described as follows.
+
+
+                                      S = (ST , SC , SK , SI )                                 (1)
+
+
+In the equation, the term S with subscripted quotations (T, C, K, I) refers to a semantic
+set. ST indicates the theme node, SC represents the connotation node, SK , stands for the
+knowledge node, and SI denotes the indicator node. The specific details of these four
+levels of nodes are presented below.
+                                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH                        9
+
+
+Table 1. Classification and definition samples of urban physical examination themes.
+Urban physical examination
+theme                                                               Theme definition
+Ecological livability        This theme emphasizes the sustainability of the urban environment and the quality of life
+                               of its residents. It covers various aspects such as urban greening, air quality, and water
+                               resource management, aiming to create a green, healthy, and harmonious living
+                               environment.
+Innovative vitality          This theme focuses on the city’s capacity for innovation and economic dynamism. It
+                               includes elements such as technological innovation, industrial development, and
+                               business incubation, with the aim of promoting sustainable economic growth and
+                               enhancing the city’s competitiveness.
+Health comfort               This theme is concerned with the health and well-being of the city’s residents. It covers
+                               areas such as medical services, leisure and entertainment, and community services to
+                               ensure that residents have access to high quality living services.
+Convenient transportation    This theme looks at the city’s transport systems and travel efficiency. It includes the
+                               optimization of transport networks, the development of public transport, and
+                               innovative traffic management, aiming to achieve fast, convenient, and safe urban
+                               travel.
+Historical features          This theme is dedicated to the preservation and development of the city’s historical and
+                               cultural characteristics. It pays attention to the city’s historical sites, cultural activities,
+                               and architectural styles, with the intention of shaping the city’s unique cultural identity
+                               and image.
+
+
+
+3.1.1. Theme
+The theme layer is the highest level of the knowledge system of urban physical examin­
+ation, which provides a macro perspective and framework for urban physical examin­
+ation. This paper takes Guangzhou city as an example, and selects the themes of
+Ecological Livability, innovation dynamism and health and comfort, etc., as delineated
+in Table 1. Based on the analysis of the relevant policies, plans and indicator index of
+urban physical examination, this paper explores the city’s development goals and value
+orientation, and then adopts the form of ontology to define the classification, hierarchical
+structure, attributes and relationships of the themes of urban physical examination. The
+formal representation of the theme is presented as follows:
+
+                                               T = (TH , TA , TR )                                                        (2)
+
+Where, T represents the set of themes. TH refers to the theme’s structure, TA indicates the
+theme’s attributes, and TR signifies the theme’s relationships. Specifically, TH is defined as
+a tree data structure to represent the hierarchical relationships among themes. Each node
+within this structure represents a theme, and the edges between nodes indicate the
+parent-child relationships between themes. For example, the theme of Ecological Livabil­
+ity could contain sub-themes such as Ecological Environmental Protection and living
+Space. These sub-themes are manifested as nodes within TH and are linked to the Eco­
+logical Livability theme node by edges. TA is dictionary data in the form of key-value
+pairs, where the key is the name of the attribute related to the topic and the value is
+the descriptive information or quantitative value of the corresponding attribute, e.g.
+{’Eco-livability’: {’Topic definition’: … , ‘Resident satisfaction’: 0.8}}. TR represents the
+types of relationships or the intensity of associations among themes. For example, if
+there is a positive correlation between ‘Environmental Livability’ and ‘Convenient Trans­
+port’, the value of the corresponding element in TR would be 0.7, indicating the degree of
+relationship between the two.
+10        S. WANG ET AL.
+
+
+Table 2. Fundamental connotations of urban physical examination.
+                                   Connotations of urban physical examination
+Ecological and environmental protection                                         Network connectivity
+Green and low-carbon development                                                Open development
+living space                                                                    Public service provision
+Green and efficient transportation                                              Innovation and development
+Urban environmental maintenance                                                 Urban vitality
+Disaster prevention and mitigation                                              Care for vulnerable groups
+Basic safety                                                                    Coordinated development
+Comprehensive transportation services                                           Housing security
+Historical and cultural identity                                                Urban-rural integration
+Urban character                                                                 Community service guarantee
+
+
+
+3.1.2. Connotation
+Connotation is the second level, which provides in-depth understanding and analysis for
+the physical examination of the city, reflecting the connotation and relationship of the
+city’s development. This paper analyses the points of concern according to the theme
+and indicators, and combines relevant literature and cases to condense the basic conno­
+tations of urban physical examination, as shown in Table 2. The connotations are related
+to each other. For example, the residential space connotation under the Ecological Liva­
+bility theme is closely linked to the community service connotation under the Health and
+Comfort theme. The connotation is formally expressed as:
+                                    CT = (T, Cj ), j = 1, 2, 3 . . . , n                               (3)
+Where, CT denotes the connotations related to theme T, while Cj indicates the different
+connotative features subsumed under a particular theme, covering three dimensions:
+environment, society, and economy. Specifically, Cj assumes the form of dictionary
+data in key-value pairs. The key corresponds to the name of the connotation character­
+istic dimension, and the value embodies the dimensional information of the correspond­
+ing attribute, covering three dimensions of the urban ecological environment (such as
+green and low-carbon development paradigm, ecological environmental conservation),
+social livelihood (such as living space, community service guarantee), and economic
+development (such as open development, innovative development).
+
+3.1.3. Knowledge point
+The Knowledge Point represents the third level of the urban physical examination knowl­
+edge system, providing specific contents and dimensions for urban physical examin­
+ations, reflecting the current state of development and existing issues in cities. Based
+on the focal points of attention and knowledge analysis in the scene of urban physical
+examination, the classification, hierarchical structure, concepts, attributes, and relation­
+ships of knowledge points are defined in the ontological form, thereby delineating
+specific knowledge contents and dimensions. A part of urban physical examination
+knowledge points is presented in Table 3.
+   Urban physical examination knowledge points can be categorized according to their
+thematic domains. Taking the theme of Ecological Livability as an example, its knowl­
+edge points are further divided into three subcategories: Ecological and Environmental
+Protection, Green and Low-Carbon Development, and Living Space. Each subcategory
+includes specific knowledge points, forming a multi-layered structure. This hierarchical
+                                                      INTERNATIONAL JOURNAL OF DIGITAL EARTH                11
+
+
+Table 3. Knowledge points of urban physical examination.
+Fundamental
+connotations          Knowledge points         Attributes                    Knowledge content
+Ecological and       Ecological          Ecosystem service       Describes the various direct and indirect
+  environmental        protection and      functions               benefits that ecosystems provide to the city
+  protection           restoration       Ecological Risk         Conducts regular assessments of ecologically
+                                           Assessment              sensitive areas such as nature reserves,
+                                                                   parks, and wetlands
+                                         Restoration             Introduces current advanced ecological
+                                           Techniques and          restoration technologies
+                                           Methods
+                                         Policy and Regulatory   Outlines relevant policies and regulations
+                                           Support                 that promote ecological protection and
+                                                                   restoration
+                     River and wetland   Ecosystem service       Describes the multiple ecosystem services
+                       conservation        functions               provided by river and wetland areas
+                                         Water resource          Evaluates the role and impact of river and
+                                           management              wetland ecosystems on urban water
+                                                                   security and water quality
+                                         Biodiversity            Highlights the irreplaceable function of river
+                                           conservation            and wetland ecosystems in maintaining
+                                                                   biodiversity
+                                         Public participation    Outlines measures to raise public awareness
+                                           and education           of the importance of protecting river and
+                                                                   wetland areas
+                     Green open spaces   Functional Diversity    Describes the multiple functions of green
+                                                                   open spaces
+                                         Accessibility           Assesses the vehicular and pedestrian
+                                                                   accessibility to green open spaces from
+                                                                   residential areas
+                                         Continuity              Evaluates the continuity and network of
+                                                                   green open spaces
+                                         Network                 Outlines the social, economic, and cultural
+                                                                   value of green open spaces as ecological
+                                                                   corridors
+                     Water resource      Resource                Evaluates the baseline conditions and long-
+                      utilization          sustainability          term supply capacity of water resources
+                                         Efficiency and          Assesses the efficiency of water resource use
+                                           Conservation            and promotes water-saving technologies
+                                                                   and equipment
+                                         Pollution Prevention    Strengthens water quality monitoring and
+                                           and Control             wastewater treatment
+                                         Policy and Regulatory   Outlines relevant policies and regulations
+                                           Support                 that promote water resource management
+                     Urban pollution     Pollution Source        Accurately identifies urban pollution sources,
+                       control             Identification          determining their type, distribution, and
+                                                                   emission volumes
+                                         Pollutant               Analyzes the impact of different pollutants on
+                                           Characteristics         human health and environmental quality
+                                         Pollution Control       Introduces corresponding pollution control
+                                           Technologies            technologies and methods
+                                         Policy and Regulatory   Outlines relevant policies and regulations
+                                           Support                 that promote urban pollution control
+
+
+
+classification method helps to systematic understand and analyze various aspects of the
+city. Each knowledge point represents a specific assessment dimension in the urban
+health evaluation. Attributes are detailed descriptions of knowledge points, offering
+four types of knowledge: descriptive, diagnostic, predictive, and solution. For example,
+the knowledge point of Ecological Protection and Restoration includes concepts such
+as biodiversity, ecosystem services, and the establishment and management of nature
+reserves, which form the basis for understanding and assessing urban ecological
+12      S. WANG ET AL.
+
+
+health. Its attributes include ecosystem service functions, ecological risk assessment, res­
+toration techniques and methods, and relevant policies. The relationships between
+knowledge points are categorized into four types: complementary, causal, correlational,
+and hierarchical. For instance, Green Open Spaces have a complementary relationship
+with Ecological Protection and Restoration, providing the spatial basis for the latter,
+which in turn ensures the sustainability and effectiveness of these services; Energy Con­
+servation and Emission Reduction have a causal relationship with Ecological Protection
+and Restoration, with the implementation of the former promoting the effectiveness of
+the latter; Road Traffic has a correlational relationship with Efficient Commuting, with
+the improvement and expansion of the former effectively facilitating the latter; Urban
+Management has a hierarchical relationship with Urban Appearance, with the effective­
+ness of the former directly impacting the maintenance of the latter. The knowledge points
+are formally expressed as:
+                         KC = (C, Kj , KA , KR ), j = 1, 2, 3 . . . , n                 (4)
+In the formula, KC refers to the knowledge points associated with the connotation C, Kj
+denotes a specific knowledge point within this connotation, expressed in textual form as a
+particular assessment dimension in the urban physical examination. KA represents the
+attributes of this knowledge point and the corresponding detailed knowledge content,
+which requires a dictionary-structured data format. The key is the attribute name
+(textual in nature), and the value is the corresponding detailed knowledge content (com­
+prising multiple data types such as text, numerical values, and lists. For example, under
+the ecological risk assessment attribute may contain specific risk numerical values and
+corresponding risk description texts), which is used to comprehensively describe the
+various characteristics of knowledge points and provide a basis for in-depth analysis.
+KR represents the relationships between knowledge points, which represents the type
+of relationship between different knowledge points in the form of a text list, and is
+used to analyze the interactions and dependencies between knowledge points.
+
+3.1.4. Indicator
+The indicator layer represents the fourth level of the urban physical examination knowl­
+edge system, providing the assessment elements and their calculation methods for urban
+physical examination. Assessment elements are entities or things that reflect the assess­
+ment objects of the urban examination, such as residential neighborhoods, hospitals,
+higher education institutions, etc., and also include some actions in the physical
+world, such as ecological restoration, unauthorized use of land and sea, regional devel­
+opment, etc., as shown in Table 4. In Figure 3, under the knowledge point of Water
+Resource Utilization, indicators such as Water Resource Development and Utilization
+Rate, Water Consumption per Ten Thousand Yuan of GDP, etc., form the indicator
+model of water resource utilization. Table 5 presents examples of the definitions and cal­
+culation formulas of Water Resource Utilization indicators. Through the aggregation of
+indicators for urban physical examination and the construction of indicator models,
+quantitative evaluations for urban physical examinations are facilitated. The expression
+of indicators is as follows:
+                          IK = (K, Ij , IA , IR ), j = 1, 2, 3 . . . , n                (5)
+                                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH                    13
+
+
+Table 4. Assessment elements of urban physical examination.
+Elements of MOHURD                                                                               Elements of MONR
+Regional development                                                                       High-standard agricultural land
+Air quality                                                                                Basic agricultural land
+Carbon dioxide emissions                                                                   Land use efficiency
+Population density                                                                         Water resources
+Green building                                                                             River and lake ecosystems
+Parks and green spaces                                                                     Urban vitality
+Greenways                                                                                  Care for vulnerable groups
+Construction land                                                                          Coordinated development
+Ecological corridors                                                                       Housing security
+Surface water quality                                                                      Urban-rural integration
+Reclaimed water                                                                            Community service guarantee
+Residential solid waste                                                                    Water use efficiency
+Residential communities                                                                    Energy infrastructure
+Housing security                                                                           Energy use efficiency
+Cultural buildings                                                                         Wetland conservation
+Urban waterlogging                                                                         Groundwater resources
+Traffic accidents                                                                          Reclaimed water utilization
+Emergency shelters                                                                         Water consumption
+Hospitals                                                                                  Emergency refuges
+Parking spaces                                                                             Fire and rescue services
+
+
+In the formula, IK refers to the indicators related to the knowledge point K, Ij refers to a
+specific indicator within this knowledge point, presented in textual form and indicating
+the name of a specific quantifiable assessment element. IA embodies the attributes of this
+indicator, which is a constitute composite data, containing indicator elements (mainly
+text-based) and the corresponding indicator-related attributes (such as the formula, cal­
+culation method and description of the data source, units, and other relevant text or
+numerical type information), which are employed to precisely define the specific conno­
+tations and computational rules of the indicators. And IR represents the relationships
+between indicators, which helps to analyze the synergistic effects between indicators
+and other relevant circumstances in textual form.
+    In the comprehensive analysis of the urban physical examinations of the city, Equation
+1 is first used to construct a complete semantic set and build a knowledge framework cov­
+ering all aspects of the city, which integrates different levels of knowledge at the macro
+level and provides a basis for subsequent in-depth analysis. Focusing next on the
+
+
+Table 5. Definitions and calculation formulas for water resource utilization indicators.
+Indicator name                         Definition                          Calculation formula             Remarks(unit)
+Total water           The total amount of water resources            = (total precipitation-                     m3
+  resources             available for use in a city annually.          evaporation)
+Water resource        The proportion of actual water usage to        = (total population of the city/             %
+  utilization rate      the total available resources                  total water resources)
+                                                                                                            3
+Per capita water      The annual available water resources per       = (total population of the city/    m / person
+  usage                 person                                         total water resources)
+Reclaimed water       The proportion of reclaimed water usage        = (actual water usage/reclaimed              %
+  reuse rate            in the total water consumption                 water usage)
+                                                                                                            3
+Industrial water      The amount of water consumed per unit          = (total industrial output value    m / ten
+  efficiency            of industrial output in industrial             total industrial water usage)      thousand yuan
+                        production
+*Notes:
+(a) This table provides basic indicators and methods for assessing the status of urban water resource utilization.
+(b) The calculation of indicators is based on data from the city’s statistical yearbook and the water affairs bureau.
+(c) The calculation formulas in the table are for reference only and could be adjusted according to the actual applications.
+14      S. WANG ET AL.
+
+
+theme level, the structure, attributes of different themes and their interrelationships are
+analyzed through Equation 2 to understand the main direction of urban development
+and the synergies or constraints between themes, such as judging the strength of associ­
+ation between the theme of Ecological and Livable and the theme of Convenient Trans­
+port on the overall layout of the city. Equation 3 is then used to delve into the
+connotation level under the theme. to analyze the specific connotation characteristics
+of each theme, and to interpret the essence of the city’s development in terms of the
+theme from multiple dimensions, such as the environment, society, economy. With
+the help of Equation 4, we could further refine to the knowledge point level. Based on
+the knowledge points corresponding to the connotations, their attributes and relation­
+ships, to explore the current situation and problems of the city in specific assessment
+dimensions and the interactions between the knowledge points. Finally, Equation 5 is
+implemented at the level of indicators, through specific indicators and their calculation
+methods and relationships, to achieve a quantitative evaluation of all aspects of the phys­
+ical examination of the city, to provide a precise data base for evaluating the effectiveness
+of urban development and diagnosing problems, and, based on the results of these
+different levels of analysis, to make a comprehensive judgement of the overall state of
+health of the city, to identify existing problems, and to make targeted development
+proposals.
+
+3.2. Data layer
+The data layer is based on the concretization of concepts and relationships of the urban
+vital signs. These are the ontologies and instances within the semantic layer. The data
+layer is used for data collection, analysis, evaluation, and optimization. It includes spatio­
+temporal data for the monitoring, diagnosis, early warning, and maintenance stages of
+urban physical examination. The data layer provides the meaning, attributes, and relation­
+ships of spatiotemporal data for each stage of the urban physical examination, thereby
+facilitating the understanding and exchange of data. Among these, the data source and
+spatiotemporal attributes are crucial semantic content for spatiotemporal data. The data
+source describes the acquisition modalities and origin channels of urban physical examin­
+ation data, including government departments, enterprise institutions, social media, and
+Internet of Things devices. The spatiotemporal attributes of the data describe the spatio­
+temporal dimensions and features of urban physical examination data, including elements
+such as data timestamp, spatial scope, spatial resolution, and temporal granularity. The
+formalized expression of the data layer is presented as follows:
+                                           p   p    p   p
+                                   E = (DT , DS , DA , DR )                               (6)
+In the formula, E represents the collection of data elements, p denotes the stage depth of the
+data element in the urban physical examination process, DT indicates the data type, DS
+signifies the data source, DA represents the data attributes, and DR denotes the relation­
+ships between the data.
+
+3.2.1. Monitoring phase
+Spatiotemporal data will be collected and integrated from multiple data sources during
+the monitoring phase of the physical examination of the city, which cover indicators
+                                                          INTERNATIONAL JOURNAL OF DIGITAL EARTH                     15
+
+
+Table 6. Data content at four stages of the data layer.
+Stage         Data type        Data content              Data source         Data attributes      Relationship type
+Monitoring   image         urban surface,           acquired through         image              spatial location,
+                             architecture,            satellite remote         resolution,        temporal sequence,
+                             transportation,          sensing, drone           color,             content similarity,
+                             greening, etc., such     photography,             contrast, etc.     and other
+                             as remote sensing        ground cameras,                             relationships of
+                             images, traffic          etc.                                        images
+                             photos, greening
+                             photos, etc.
+             text          public opinion,          obtained through         publication        relationships among
+                             sentiment, policy,       social media, news      time, title,        texts such as theme
+                             etc., in the city        media,                  organization,       ownership,
+                                                      government              etc.                authorship, citation,
+                                                      announcements,                              etc.
+                                                      etc.
+             table         population,              acquired through         number of          relationships
+                             economy,                 government              rows,               expressed through
+                             environment, etc.,       statistics,             columns,            primary keys,
+                             in the form of           corporate reports,      field names,        foreign keys, joins,
+                             tables, such as          expert research,        etc.                etc.
+                             census data, GDP         etc.
+                             statistics, air
+                             quality, etc.
+             video         activities, events,      utilizing live           video duration,    time sequence,
+                             phenomena, etc.,         streaming,               resolution,        content similarity,
+                             in the city, such as     surveillance             frame rate,        and other
+                             traffic congestion,      cameras, mobile          etc.               relationships of
+                             public safety,           devices, etc.                               videos
+                             urban culture, etc.
+Diagnosis    numerical     values of various        calculated through       size, range,       relationship
+              values         indicators of urban      mathematical             precision,         operations such as
+                             physical                 formulas,                etc., of           addition,
+                             examination, such        statistical              numerical          subtraction,
+                             as development           methods, machine         values             multiplication,
+                             level, speed,            learning, etc.                              division,
+                             direction, etc.                                                      comparison, sorting,
+                                                                                                  etc.
+             conditional   tags attached to         attached through         tag name,          relationship judgment
+               labels        various indicators       classification,          category,          such as
+                             of urban physical        clustering,              quantity, etc.     containment,
+                             examination, such        annotation, etc.                            parallelism, mutual
+                             as development                                                       exclusivity, etc.
+                             types, stages,
+                             features, etc.
+             diagnostic    graphics of various      generated through        graphic type,      relationship analysis
+               graphics      indicators of urban      visualization,           color, size,       such as similarity,
+                             physical                 graph theory,            etc.               comparison,
+                             examination, such        network analysis,                           mapping, etc.
+                             as development           etc.
+                             trends,
+                             distribution,
+                             relationships, etc.
+Early        exceptional   detection of             analyzed through         event name,        relationship analysis
+  Warning      events        exceptional events       anomaly                  time,              such as causality,
+                             in urban                 detection,               location, etc.     sequence,
+                             development              identification,                             concurrency, etc.
+                                                      classification, etc.
+             cause         identification of        analyzed through         cause name,        relationship analysis
+               tracing       causes of abnormal       association              weight,            such as correlation,
+                             events in urban          analysis, causal         confidence         independence,
+                             development              analysis, impact         level, etc.        conflict, etc.
+                                                      analysis, etc.
+
+                                                                                                           (Continued )
+16       S. WANG ET AL.
+
+
+Table 6. Continued.
+Stage          Data type         Data content             Data source         Data attributes      Relationship type
+              offer          proposals for            referenced and          proposal name,     relationship analysis
+                proposals      exceptional events       supplemented            content,           such as applicability,
+                               and causes               with data from the      effect, etc.       optimization,
+                                                        maintenance stage                          supplementation,
+                                                                                                   etc.
+Maintenance   case studies   successful or failed     acquired through        case name,         similarity, comparison,
+                               cases of                 case collection,        time,              reference, etc.,
+                               comprehensive            case analysis, etc.     location, etc.     among cases
+                               governance for
+                               abnormal
+                               indicators in urban
+                               development, such
+                               as typical cases,
+                               lessons learned,
+                               reference value,
+                               etc.
+              compile        comprehensive            formulated through      strategy name,     prioritization,
+                strategy       governance               optimization            content,           coordination,
+                               strategies for           models, decision        effect, etc.       supplementation,
+                               abnormal                 support, multi-                            etc., among
+                               indicators in urban      objective                                  strategies
+                               development, such        planning, etc.
+                               as adjustment
+                               plans,
+                               improvement
+                               measures,
+                               optimization goals,
+                               etc.
+              action         comprehensive            generated through       action name,       execution measures,
+                measures       governance action        execution               content,           summary, updates,
+                               reports for              supervision, effect     executing          etc., among actions
+                               abnormal                 assessment,             unit, etc.
+                               indicators in urban      feedback
+                               development, such        adjustment, etc.
+                               as execution status,
+                               effect evaluation,
+                               feedback, etc.
+
+
+under multiple perspectives, such as spatial planning and human settlements, and
+provide a solid foundation for the assessment of the physical examination of the city.
+As shown in Table 6, these indicator data cover different types, formats and qualities
+of data sources, such as satellite remote sensing, Internet of Things, social media,
+official statistics, etc., and they are characterized by multi-scale and multi-granularity
+in both space and time.
+   Processing spatiotemporal data from different sources involves categorizing and
+handling each type accordingly. Specifically, for remote sensing data, necessary prepro­
+cessing steps such as geometric correction, and radiometric calibration are performed
+and then standardized to the GeoTIFF format and the WGS84 coordinate system to
+meet the needs of subsequent analysis (Sharma et al. 2024). For social media data, text
+cleaning and standardization is performed to unify the encoding to UTF-8 to ensure
+data quality (Schmitt et al. 2019). The processing of government statistical data includes
+format conversion, missing value handling, unit conversion and standardization of indi­
+cators to ensure consistency, completeness and comparability. For online video data, key
+elements such as events, times, and locations are extracted and transformed into struc­
+tured attribute data to ensure accuracy and completeness (Khan et al. 2024).
+                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH      17
+
+
+   The attributes of these data include type, format, and quality, etc. The integration
+relationships among them ensure the consistency and reliability of the data. At the
+same time attributes reveal the granularity, scope and distribution of the data with
+spatial and temporal transformation relationships. For example, the data are divided
+according to spatial (national to province, city, district, street) and temporal (year to
+month, day, hour, minute, second) scales. Or divide it from different perspectives,
+such as spatial planning, human settlement environment, and other perspectives. Attri­
+butes clarify the themes, indicators and criteria of the data, as well as the analytical
+relationships between the data, facilitating flexible analyses based on different concerns
+and evaluation criteria.
+
+3.2.2. Diagnosis phase
+The diagnostic phase of the physical examination of the city uses spatiotemporal analysis
+and mathematical and statistical methods to measure and evaluate the level of indicators
+for various aspects of urban development. The data in this phase are based on the indi­
+cator results of the data from the monitoring phase and involve three data types: numeri­
+cal, labeled and graphical.
+   Diagnostic numerical data are dynamically updated and reflect real-time changes in
+urban development. The attributes include the diagnostic name, the target value, and
+the relationships used for data updating, such as data sources, computational procedures,
+and evaluation metrics. Diagnostic labels, on the other hand, reveal urban conditions and
+regional characteristics, showing the horizontal and vertical hierarchical differentiation of
+the data. The attributes of the labels detail the hierarchical structure and categorical
+characteristics of the data, along with the data aggregation operations through relation­
+ships such as summarization, averaging, and sorting. Then the diagnostic graphics
+present the city’s strengths, problems, and potentials in the form of intuitive charts. Its
+attributes describe the type and evaluation criteria of the graphs, as well as the complex
+influencing, facilitating and constraining relationships between the data. Ultimately,
+through diagnosis, it is possible to more accurately grasp the dynamic trend of urban devel­
+opment and identify the level of development and characteristics of each region, thereby
+providing scientific decision support for the warning and decision-making stages.
+
+3.2.3. Early warning phase
+The early warning stage is based on the resultant data of the diagnostic stage and uses
+data mining and reasoning methods to further analyze the abnormal indicators
+present in the city physical examination. The data in this stage are the early warning
+results of the physical examination of the city and contain three data types: events,
+causes and recommendations.
+   Event data reveal key issues in urban development, such as diseases, pitfalls and
+opportunities, through the analysis of anomalous indicators, with attributes that
+include the risk and value of the event, as well as relationships between the data, includ­
+ing early warning, intervention, and improvement measures.
+   Cause data, on the other hand, identifies the root causes of anomalous events through
+correlation and causal analyses, with attributes describing the characteristics and predic­
+tions of the causes, as well as the relationships between the data, such as triggering,
+propagation, and blocking.
+18      S. WANG ET AL.
+
+
+   Suggested data make appropriate suggestions for abnormal events and causes, with
+hierarchical interaction and stage adjustment characteristics, while attributes relate to
+the stages, assessment and optimization of suggestions, as well as feedback and adjust­
+ment relationships between data, such as input, output and update. By further investi­
+gating data mining and predictive reasoning, the warning phase could identify and
+respond to potential risks in urban development in a timely manner, and provide tar­
+geted recommendations to provide a scientific basis for strategies in the maintenance
+phase.
+
+3.2.4. Maintenance phase
+The maintenance phase is based on the resultant data from the early warning phase to
+optimize and manage the anomalous indicators and to form a comprehensive manage­
+ment strategy and corresponding action plan to promote urban development. The types
+of data in this phase include case studies, strategies and actions. The case studies include
+both successful and unsuccessful comprehensive governance cases, which have been col­
+lected and analyzed in the context of urban development. They serve to highlight typical
+cases, lessons learned, and the significance of these cases for future reference. The strat­
+egy represents the comprehensive urban governance strategies developed for abnormal
+indicators through optimization models, decision support, and multi-objective planning,
+such as urban improvement measures and optimization targets. The action measures
+reflect the comprehensive governance action reports for urban development. These are
+generated through the processes of execution supervision, effectiveness evaluation, and
+feedback adjustment. They include details on the city’s implementation status, perform­
+ance assessment, and feedback received.
+   These maintenance outcome data not only reflect the city’s physiological condition in
+aspects such as ecology, economy, and society but also demonstrate the level of develop­
+ment in terms of efficiency, quality, and equity. They support and facilitate the city’s
+achievement of sustainable and high-quality development goals. The attributes encom­
+pass aspects such as maintenance data types, improvement measures, and potential
+stimulation, as well as supervisory and evaluative relationships like execution, inspection,
+feedback, improvement, and stimulation, providing a solid data foundation for urban
+management and decision-making.
+
+
+3.3. Scenario layer
+The scenario layer is responsible for the organization of knowledge and data from the
+semantic and data layers into specific application instances. This is done in accordance
+with the diverse needs of urban physical examination monitoring, diagnostics, warnings
+and maintenance. It provides spatiotemporal representation of the scenarios and objects
+pertaining to urban vital signs. The objective is to develop a knowledge service for urban
+health scenarios, providing scenario-specific knowledge services aligned with diverse
+application domains, including data services, analysis services, prediction services, evalu­
+ation services, and optimization services for urban physical examination.
+   In conclusion, the scenario knowledge is visually expressed in applications through
+the utilization of appropriate visualization techniques, in accordance with the specific
+forms of application, such as charts, maps, reports, and narratives derived from urban
+                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH      19
+
+
+physical examination. The above visual representation facilitates the intuitive and vivid
+presentation of scenario knowledge, thereby enhancing the effectiveness of information
+communication and the accuracy of decision-making. The formal expression of the scen­
+ario layer is as follows:
+                              Scene = (SceneT , S, E, RScene )                           (7)
+In the formula, Scene represents the set of application scenarios, SceneT denotes the type
+of application scenario, S signifies the semantic set, E indicates the set of data elements,
+and , RScene represents the scenario relationships.
+   This section begins with three key aspects of scenario construction: pre-definition
+scenario, object-instantiated, and spatiotemporal presentation of scenarios. Utilizing
+technologies such as data mining, knowledge graphs, and visualization, it extracts and
+integrates data and knowledge related to scenarios, providing users with scenario knowl­
+edge services.
+
+
+3.3.1. Pre-defined scenario
+This paper defines the various types of scenarios and their respective spatiotemporal
+scopes through the pre-definition of scenarios, thereby facilitating the accommodation
+of a multitude of diverse application scenarios. For example, the spatiotemporal scope
+of a scenario can be selected and adjusted according to the specific analytical require­
+ments of the user, allowing for the consideration of different levels of granularity and per­
+spectives. A scenario template is a customizable and easily expandable approach to
+structuring scenarios. It encompasses semantic and data objects pertinent to the scenario,
+such as domain, objectives, content, and form, as well as their interrelationships, includ­
+ing causality, influence, and optimization.
+    The term ‘semantic objects’ is used to describe the various semantic concepts that are
+embedded within the urban physical examination knowledge graph. These include
+themes, connotations, and knowledge points, which possess specific semantic meanings
+and attribute characteristics. Such descriptions can be employed to delineate the multi­
+farious aspects and levels of knowledge pertaining to urban physical examination. In con­
+trast, data objects refer to the data elements that quantify and assess each stage and level
+within the urban physical examination knowledge graph. These include indicators and
+data, which are characterized by their numerical values and units of measurement. To
+illustrate, scenario templates make direct use of themes, connotations, knowledge
+points, indicators and data from the semantic layer for the purpose of pre-defining
+knowledge content. They employ a variety of data forms, including textual, cartographic,
+tabular, and pictorial, to express the logical and numerical connections between knowl­
+edge and data. This allows for the presentation of the status and characteristics of a
+specific aspect or level of urban physical examination.
+
+
+3.3.2. Object-integrated
+This paper employs the semantic and data objects integrated by the scenario knowledge
+template to retrieve and extract relevant entities from the semantic and data layers. The
+above semantic and data objects are instantiated as entities within the urban physical
+examination knowledge graph, with edges representing relationships such as belonging,
+20      S. WANG ET AL.
+
+
+containment, and influence. This serves to articulate the logical structure and internal
+connections of urban physical examination knowledge.
+   The process of object instantiation is a pivotal step in the construction of the urban
+physical examination knowledge graph, enabling a detailed and nuanced representation
+of the city’s health status. By meticulously mapping out the relationships between various
+entities, the knowledge graph provides a comprehensive framework that facilitates the
+analysis of complex urban health issues.
+
+3.3.3. Presentation of scenario spatiotemporal data
+This paper maps and transforms entities of spatiotemporal data from urban physical
+examination knowledge graphs, such as text, maps, charts, images, and videos, into
+spatiotemporal expressions of scenarios. It generates scenario objects, attributes, and
+relationships that describe and display the application scenarios of urban physical exam­
+ination knowledge services. The term ‘scenario objects’ is used to describe elements
+representing various aspects and levels of urban physical examination knowledge ser­
+vices. These may include knowledge systems and evidence data, which possess both
+spatiotemporal and formal characteristics. The visual features of urban physical examin­
+ation knowledge presentation, including color, shape, size, and other visual elements, are
+referred to as scenario attributes. These attributes possess visual and effect characteristics
+and can be used to represent urban physical examination. The relationships between
+scenario objects express the spatiotemporal structure and external manifestations of
+urban physical examination scenarios, including positions, dynamics, and statics in
+visual layouts.
+   Based on the generated scenario objects, attributes, and relationships, the paper estab­
+lishes rules and methods for mapping and transforming spatiotemporal presentations.
+Utilizing technologies such as data mining, knowledge graphs, and visualization, it rea­
+lizes the spatiotemporal expression of urban physical examination scenarios, exemplified
+by the greenway network map on maps, greenway indicator analysis in charts, greenway
+appearance display in images, and greenway benefit demonstration in videos.
+
+
+4. Logical model and ontology
+This paper focuses on application scenarios and employs Unified Modeling Language
+(UML) diagrams to articulate the logical model of these scenarios, as shown in
+Figure 4. It describes the logical structure and relationships of data, knowledge, and scen­
+arios, as well as their spatiotemporal attributes. The urban physical examination knowl­
+edge service encompasses multiple application sets, including monitoring, diagnostics,
+warnings, maintenance, evaluation, and knowledge. Each application set has its own
+expression of application scenarios, which is composed of attributes such as scenario
+identifiers, knowledge systems, and evidence data, and possesses relationships of
+inclusion, inheritance, and extension.
+   To facilitate the expression and management of the spatiotemporal dimensions of
+data, knowledge, and scenarios, this paper introduces three elements into each UML
+class diagram: spatiotemporal tags, spatiotemporal indexes, and spatiotemporal versions.
+Spatiotemporal tags are labels used to describe the spatiotemporal characteristics of data,
+knowledge, and scenarios. They encompass features including time, location, scope, and
+                                                 INTERNATIONAL JOURNAL OF DIGITAL EARTH       21
+
+
+
+
+Figure 4. The logical model of knowledge graph-based spatiotemporal data model for urban physical
+examination in UML. The relationships among data, knowledge, and scene are described using UML
+diagram.
+
+
+distribution. Each tag feature is characterized by attributes like type, value, precision, and
+unit, as well as relationships such as sequence, position, distance, and direction.
+   Spatiotemporal indexes are indexing structures used to retrieve spatiotemporal infor­
+mation of data and knowledge applications. The above index types include spatiotem­
+poral coding, spatiotemporal hashing, and spatiotemporal trees, each of which
+possesses attributes such as type, value, length, and hierarchy. Moreover, these index
+types exhibit relationships such as adjacency, containment, and intersection. Spatiotem­
+poral versions represent a category of version types utilized for the documentation of
+spatiotemporal alterations pertaining to data, knowledge, and applications. Such
+version types include those pertaining to the creation time, update time, historical ver­
+sions, and the latest version. Each of these is characterized by attributes such as type,
+value, status, and operation. Additionally, they display relationships such as predecessor,
+successor, branch, and merge.
+   The logical model presented in this paper constitutes a meticulous framework that
+offers a structured means of comprehending the intricacies of urban physical examin­
+ation knowledge services. The employment of UML diagrams guarantees a lucid and
+accurate portrayal of the interrelationships among data, knowledge, and the various
+application scenarios. The incorporation of spatiotemporal elements augments the
+model’s capability to cope with the dynamic nature of urban physical examination
+data, thereby enabling more effective monitoring, analysis, and decision-making
+processes.
+   To address the complex spatiotemporal data and application requirements of urban
+physical examination, this paper proposes a hypergraph-based knowledge graph ontol­
+ogy model that efficiently supports analysis and decision-making in urban physical exam­
+ination. As shown in Figure 5, the model leverages the high-order relationship
+representation of hypergraphs, directly connecting multiple nodes via hyperedges. In
+22      S. WANG ET AL.
+
+
+the ontology design, the hypergraph consists of hypernodes and hyperedges. Each node
+and edge are tagged with spatiotemporal labels, indexes, and version information. The
+model uses hyperedges to represent high-order relationships, enhancing the expression
+and management of data across spatiotemporal dimensions and complex associations
+(Zhang et al. 2025). Each node and edge is accompanied by spatiotemporal tags, spatio­
+temporal indexes, and spatiotemporal versions. Moreover, a hypergraph is introduced to
+represent high-order relationships, thereby better realizing the expression and manage­
+ment of the spatiotemporal dimensions and complex associations of data. Among them,
+a subgraph is a part of the graph model, representing a group of nodes and edges of data,
+such as a subgraph of a theme, a subgraph of knowledge, etc. A subgraph can contain
+other subgraphs, forming a hierarchical graph structure, such as a monitoring subgraph,
+a diagnosis subgraph, a warning subgraph, a maintenance subgraph, etc. The formal
+expression of the graph model is as follows:
+                                   GE = (GH , Gsub , RH )                               (8)
+In the formula, GE represents the graph model of data element E, GH denotes the
+
+
+
+
+Figure 5. The ontology of knowledge graph-based spatiotemporal data model for urban physical
+examination. It uses hypergraphs to simplify the expression of complex relationships.
+                                                 INTERNATIONAL JOURNAL OF DIGITAL EARTH     23
+
+
+hierarchical structure of data elements in the urban health process, reflecting spatiotem­
+poral scale, health assessment stage depth, and differentiation characteristics; Gsub indi­
+cates a data subgraph composed of a set of nodes and edges, embodying semantic
+features; RH signifies the higher-order relationships within the data hypergraph.
+
+                                  GH = (Sscale , Tscale , P, F)                            (9)
+
+Here, Sscale represents the spatial scale, Tscale represents the temporal scale, P denotes the
+depth of the urban physical examination stage, and F indicates the differentiation charac­
+teristics of the urban physical examination. Among them, Sscale and Tscale are typically
+numerical data or enumeration data with specific encodings. They are utilized to
+clarify the spatial and temporal scopes or hierarchies involved in urban physical exam­
+inations. For instance, the spatial scale can be represented by geographical area codes
+(such as urban district codes, block codes, etc.) or specific numerical values of spatial
+ranges (such as area size values). The time scale can be in the form of timestamps or
+time-period codes (such as years, quarters, etc.). P and F are either numerical values
+denoting depth levels or text-based encodings with specific semantics. They are
+employed to describe the stage at which the urban physical examination is conducted
+(such as the monitoring stage, the diagnostic analysis stage, etc.) as well as the specific
+characteristics of the physical examination (such as by functional areas, by knowledge
+types, etc.).
+
+                                      Gsub = (GD , gA )                                   (10)
+
+In the formula, GD represents the subgraph dimensional features, and gA denotes the
+attributes of the subgraph. Here, GD is a collection data type that combines numerical
+and text types, used to represent the set of characteristic identifiers of the subgraph in
+different dimensions (such as theme dimension, knowledge dimension, indicator dimen­
+sion, etc.). It is a dictionary-type data. The keys are various attribute names of the sub­
+graph (such as the name of the subgraph, creation time, associated data object type, etc.),
+and the values are the specific contents of the corresponding attributes (text, numerical
+values or other data types), which are used to describe the characteristics of the subgraph
+in detail. gA is a dictionary data. The keys are various attribute names of the subgraph
+(such as the name of the subgraph, creation time, associated data object type, etc.),
+and the values are the specific contents of the corresponding attributes (text, numerical
+values or other data types), which are used to describe the characteristics of the subgraph
+in detail.
+
+                                RH = (RS , RT , RP , RF , RD )                            (11)
+
+Here, RS signifies the spatial relationships between hierarchical structures, RT represents
+the temporal relationships, RP denotes the connection relationships between physical
+examination stages, RF indicates the differentiation relationships between vital sign fea­
+tures, and RD represents the feature relationships between subgraph dimensions. Among
+them, the relationships are associative dictionary-type data structures, in which the
+elements or values represent attribute information such as the type and intensity of
+the relationship.
+24      S. WANG ET AL.
+
+
+   Specifically, hypernodes can represent data objects, semantic objects, and scenario
+objects in urban physical examination, such as indicators, results, events, themes, conno­
+tations, knowledge points, monitoring objects, diagnostic objects, warning objects, etc.
+Hyperedges can represent data relationships, knowledge relationships, and application
+relationships in urban physical examination, such as calculation, evaluation, association,
+influence, invocation, etc. In addition, there are also some relationships between hyper­
+nodes and hyperedges, such as hierarchy, combination, decomposition, parallelism,
+exclusivity, conflict, etc., which can express the structure and logic of data, knowledge,
+and applications.
+   In the mechanisms for maintaining the timeliness and ensuring the quality of knowl­
+edge graph, consistency verification during the update process is a critical technical link.
+When a knowledge graph is updated, each newly added relationship and entity is system­
+atically checked against the existing knowledge corpus. For example, it checks whether
+new relationships conflict with pre-existing semantic constraints or inference rules,
+and whether the attributes of new entities conform to ontology definitions. If conflicts
+are detected, adjustments are made either manually or through specific algorithms to
+ensure the logical coherence and semantic accuracy of the knowledge graph. By system­
+atically validating new information against established ontological frameworks and
+logical axioms, knowledge graph can dynamically incorporate new knowledge while
+maintaining structural integrity.
+
+
+5. Application case
+To validate the effectiveness and practicality of the knowledge graph-based spatiotem­
+poral data model for urban physical examination proposed in this paper, the construc­
+tion of urban greenway in Guangzhou City was selected as an application case for in-
+depth study. A prototype system was developed on the Python platform, using the
+Django framework and the Neo4j graph database to implement the specific application
+of the model. As an essential component of the urban ecological network, greenways not
+only enhance the ecological quality of the city but also improve the living environment
+for residents, making them an ideal subject for this experimental validation (Semeraro
+et al. 2021; Van Oijstaeijen, Van Passel, and Cools 2020). Taking the construction scen­
+ario of urban greenways in Guangzhou as an example, through the collection, inte­
+gration, and analysis of relevant data related to greenway construction, the system
+identifies the problems and risks in greenway construction and provides scientific
+decision support.
+
+
+5.1. Spatiotemporal data processing and storage
+The processing and storage of spatiotemporal data for the urban greenway construction
+in Guangzhou includes requirements analysis, data collection and collation, node con­
+nection and index establishment, as well as hierarchical storage.
+   Firstly, to effectively integrate and store spatiotemporal data related to urban greenway
+construction, the system begins with a needs analysis to clarify the requirements for con­
+solidating data and knowledge on urban greenways. Urban greenways, as a type of
+nature-based urban green infrastructure, primarily rely on non-motorized transport
+                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH      25
+
+
+and walking. They aim to meet residents’ needs for leisure, fitness, and tourism. The
+spatiotemporal data involved cover multiple aspects, including ecology, landscape, trans­
+portation, and society. These data should reflect the impact of greenways on residents’
+lives, such as greenway density, greenway walking accessibility rate, and greenway
+driving accessibility rate.
+   Next, according to the data type requirements of each node in Formulas (1–7), spatio­
+temporal data related to greenway construction is collected from different channels and
+collated into data forms suitable for scene nodes, theme nodes, connotation nodes,
+knowledge nodes, indicator nodes, etc. For example, spatial data of greenways is
+extracted from the Geographic Information System, and after calculating indicator
+data such as greenway density, it is stored in the indicator node and a correlation
+relationship with the theme node Ecological Livability is established, indicating that
+this indicator is an important basis for measuring the greenway construction situation
+under the theme of Ecological Livability. Then, using the spatiotemporal data model
+of urban physical examination based on knowledge graph, connections and indexes
+between nodes are established to organize and express the relevant data and knowledge
+of greenway construction. These scattered node data are integrated into a scene set
+‘Scene’, which provides a basic data framework for the subsequent analysis and appli­
+cation of the relevant data and knowledge of greenway construction, as shown in
+Figure 6. Adopting a hierarchical storage architecture, the system stores the semantic
+layer data of the knowledge graph, the raw data of the data layer, and the application
+data of the scenario layer separately. A close association among these spatiotemporal
+data is established through unique identifiers and index mechanisms.
+
+5.1.1. Semantic layer
+In the semantic layer, various semantic entities within the spatiotemporal data of urban
+greenway construction are stored as nodes in the knowledge graph. Each node is assigned
+a unique identifier within the neo4j graph database and stores the attribute information
+related to the entity. For instance, an urban greenway density indicator node may possess
+attributes such as the indicator name (urban greenway density), the calculation method
+(e.g. a specific formula), and the unit (kilometers per square kilometer). Semantic
+relationships between nodes are represented by edges. For example, an urban greenway
+density indicator node and a diagnostic assessment knowledge point node are connected
+by an edge labeled used for calculation, and the edge can also have attributes, such as the
+weight of the relationship (indicating the strength of the relationship, e.g. the importance
+weight of this indicator in certain calculations).
+
+5.1.2. Data layer
+The original data in the data layer is stored in appropriate file systems or key-value stores
+based on its data type and source. Concurrently, data nodes are created in the knowledge
+graph, and reference links pointing to the storage locations of the original data are estab­
+lished in neo4j. This enables accurate retrieval and processing of the original data when
+required. For example, for knowledge points, geographic information data, and online
+video resources related to greenway construction nodes, a common indexing key
+(such as the unique identifier of the greenway and the geographical area code) is estab­
+lished in neo4j to quickly associate and retrieve the original data.
+26      S. WANG ET AL.
+
+
+
+
+Figure 6. Diagram of spatiotemporal data processing and storage in knowledge graph-based spatio­
+temporal data model for urban physical examination.
+
+
+5.1.3. Scenario layer
+For the scenario layer data, in combination with application requirements, the configur­
+ation information related to the scene (such as the scene type and spatiotemporal range
+predefined in the scene) and the user interaction data (such as the operation records of
+the user in the scene visualization) are stored in the form of attribute tables in either the
+file system or a relational database. Simultaneously, scene nodes are created in neo4j, and
+the data and knowledge in the attribute tables are associated with these scene nodes. For
+example, in the case of a Guangzhou urban greenway construction scene node, the initial
+setting parameters of the scene (such as the theme, region, and time span) are retrieved
+through the associated attribute table, and the semantic knowledge and data required for
+the application scene are obtained through these nodes.
+
+5.1.4. Relationships and indexing in neo4j
+Neo4j stores a variety of relationships. These relationships encompass spatial relation­
+ships (such as adjacency, containment, intersection, etc.), temporal relationships (such
+as sequential order, contemporaneity, etc.), causal relationships (such as the impact of
+greenway construction on wetlands, the promotion of the integration of urban
+                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH      27
+
+
+ecology, recreation, and industry by greenway construction, etc.), and semantic relation­
+ships (such as hierarchical relationships between concepts, synonymous relationships,
+etc.). The relationship attribute records information including the type of relationship,
+the identifiers of the starting and ending nodes, and the weight of the relationship (indi­
+cating the strength of the relationship).
+   To enhance the efficiency of data querying and retrieval, multiple indexing mechan­
+isms are established. For example, a spatial index based on geographical location is
+implemented to expedite the querying of urban physical examination data within
+specific regions. A temporal index based on timestamps is utilized for retrieving data
+in chronological order. Indexes based on the key entity types and attributes of the knowl­
+edge graph, such as crucial concepts like themes, connotations, knowledge points, and
+indicators, are also created to facilitate knowledge querying.
+
+
+5.2. Spatiotemporal data analysis based on knowledge graph
+The spatiotemporal data analysis of urban greenway construction in Guangzhou based
+on knowledge graph involves ontology and knowledge graph construction, and analysis
+of greenway construction achievements.
+
+5.2.1. Ontology and knowledge graph of greenway construction
+The ontology of the urban greenway construction knowledge graph is designed in
+accordance with Formulas (8–11). Firstly, by clarifying the hierarchical structure infor­
+mation of the spatiotemporal data of urban greenway construction in terms of spatiotem­
+poral scale (in 2020, Guangzhou/City District), urban physical examination stage
+(diagnosis, warning, and maintenance stage), and differentiation characteristics (city/dis­
+trict regional differentiation), GH is constructed. Then, by using the urban greenway
+density indicator to analyze and evaluate the overall situation of urban greenway con­
+struction, and analyzing and warning the connectivity of the urban greenway network
+through the walkability and drivability rates of greenways, and further providing main­
+tenance strategies in combination with the differentiation characteristics of urban green­
+ways, the ‘Greenway Diagnosis- Warning-Maintenance Subgraph’ is formed, and Gsub is
+constructed. Moreover, the connection relationships between GH and Gsub are analyzed.
+For example, indicator values, statistical tables, and their indicator graphic data drive the
+calculation of indicators such as urban greenway density, marked as ‘Data Driven-Indi­
+cator Calculation’; the results of these indicator calculations obtain the knowledge
+content of greenway diagnosis, warning, and maintenance, marked as ‘Indicator Calcu­
+lation-Diagnosis, Warning, and Maintenance Knowledge Generation’; the obtained
+knowledge points further require evidence factual data such as online videos, govern­
+ment announcements, and typical cases for support, marked as ‘Diagnosis, Warning,
+and Maintenance Knowledge Generation-Data Support’. These high-order relationships
+in the hypergraph comprehensively describing the urban greenway construction data are
+used to construct RH . Finally, GH , Gsub , and RH are combined into GE , forming a knowl­
+edge graph GE of urban greenway construction, thereby comprehensively presenting the
+achievements and characteristics of greenway construction in Guangzhou, as shown in
+Figure 7. Among them, the node types can be divided into knowledge point nodes
+(such as the current situation, diagnostic evaluation, warning analysis, and maintenance
+28      S. WANG ET AL.
+
+
+
+
+Figure 7. The Guangzhou greenway construction scenario knowledge graph. Key nodes (scenario,
+knowledge point, indicator, and data) and their relationships are highlighted.
+
+
+strategy of greenway construction), indicator nodes (such as the walkability coverage rate
+of greenways, urban greenway density, and drivability coverage rate of greenways), and
+data nodes (such as specific geographical entities such as greenways, built-up areas, and
+road networks; indicator graphics such as statistical charts and distribution maps; gov­
+ernance strategies such as planning and construction, ecological restoration, and func­
+tional value, etc.). The edge types represent various relationships between nodes, such
+as subclass relationships (such as the urban greenway density indicator node is a subclass
+of the indicator node), calculation relationships (such as the urban greenway density
+indicator node is used to calculate the diagnostic evaluation knowledge point node of
+greenway construction), and expression relationships (such as the urban greenway con­
+struction scene node expresses descriptive, diagnostic, predictive, and schematic knowl­
+edge points of greenway construction).
+   As depicted in Figure 8, a spatiotemporal data analysis comprehensive analysis of the
+greenway construction outcomes in Guangzhou based on knowledge graph is presented
+as follows.
+
+5.2.2. Theme
+The greenway construction in Guangzhou is centered around the theme of Ecological
+Livability, with the overarching objective of enhancing the ecological environment
+                                                  INTERNATIONAL JOURNAL OF DIGITAL EARTH       29
+
+
+
+
+Figure 8. Spatiotemporal data analysis of Guangzhou greenway construction. It shows the status quo
+of greenway construction, development trend and the relationship between various elements.
+
+quality of the city and improving the living standards of its residents. This theme serves
+as the guiding principle for all aspects of greenway planning and development, aiming to
+create a harmonious coexistence between urban development and natural ecosystems.
+
+5.2.3. Connotation
+The connotation of Green and Low-Carbon Development is well manifested in greenway
+construction. The construction of greenways has effectively promoted the connectivity of
+urban green spaces, providing increased opportunities for residents to engage in green
+travel. This, in turn, contributes to the reduction of carbon emissions and propels the
+city towards a healthy and sustainable green development path. By integrating greenways
+into the urban fabric, the city can enhance its ecological resilience and reduce its ecologi­
+cal footprint.
+
+5.2.4. Indicator
+The urban greenway density in Guangzhou is measured at 1.51 kilometers per square
+kilometer, with a per capita greenway length of 0.2 meters. The average 1-hour
+walking accessibility coverage rate of greenways is 34.42%, and the average 5-minute
+driving accessibility coverage rate is 59.86%. However, it is notable that in the Zengcheng
+District, Nansha District, Huadu District, and Conghua District, these indicators fall
+below the average levels of the entire city. This disparity indicates a relatively significant
+variation in the distribution of greenways within the urban area, suggesting potential
+areas for improvement and optimization.
+
+5.2.5. Knowledge point
+The construction of greenways in Guangzhou is comprehensively analyzed from various
+knowledge dimensions such as the current situation, assessment, early warning, and
+coping strategies, as described below:
+   Current Status: The greenway construction in Guangzhou has achieved remarkable
+progress in terms of the current. By 2020, the total length of completed greenways in
+30      S. WANG ET AL.
+
+
+the city had reached 3,800 kilometers, forming a relatively comprehensive greenway
+network. This extensive network provides a valuable recreational and ecological resource
+for the city’s residents.
+   Diagnostic Evaluation: The overall evaluation of the greenway construction effect is
+rated as excellent. This assessment is based on a comprehensive analysis of various
+factors, including the physical infrastructure, ecological functions, and social benefits
+of the greenways.
+   Warning Analysis: By identifying spatial differences in regional greenways, the
+warning analysis has identified several potential problems. In particular, the walking
+and cycling coverage of greenways is relatively low in some areas. Projections indicate
+that with the continued urban expansion and population migration to areas such as
+Zengcheng District and Nansha District, if the current pace of greenway construction
+remains unchanged over the next five years, the accessibility coverage rates in these
+regions are expected to decline further. The estimated average 1-hour walk accessibility
+coverage rate may fall to 25%, and the average 5-minute drive accessibility coverage rate
+may fall to 45%. This projected decline is mainly due to fact that the rate of urban expan­
+sion far exceeds the rate of greenway construction, and existing greenways often exist as
+isolated segments or are predominantly oriented in an east-west direction, limiting the
+connectivity and coverage of the greenway system and adversely affecting the user
+experience.
+   Maintenance Strategy: In response to these challenges, a series of maintenance strat­
+egies are proposed.
+
+(1) Planning recommendations: In the process of developing new urban areas and reno­
+    vating old districts, the planning and construction of greenways should be synchro­
+    nized, and special land should be reserved for greenway construction. Taking
+    advantage of the natural geographical resources in these regions, such as the water
+    systems in Zengcheng District and the mountain ranges in Conghua District, new
+    greenway routes should be strategically planned and integrated with the existing
+    network.
+(2) Optimize connectivity: Special attention should be given to urban fringe areas and
+    densely populated regions to enhance the overall accessibility of the greenway
+    system. For existing greenway segments that remain unconnected, efforts should
+    be made to link them with other greenways to improve the connectivity of the
+    network and expand its service coverage. At the breakpoints and areas with weak
+    connectivity in the greenway network, the construction or renovation of connectivity
+    facilities is essential. For example, where greenways are interrupted by rivers, motor­
+    ways or other obstacles, bridges, tunnels and footbridges can be built to provide
+    seamless connections.
+(3) Financial support: It is recommended that the government set up special greenway
+    construction funds for new construction, maintenance and upgrading of greenways.
+    At the same time, introduce policies to encourage social capital to participate in
+    greenway construction, such as granting tax incentives and naming rights. Collect
+    residents’ needs and suggestions for greenway construction through community
+    research and public feedback, and improve greenway usage and satisfaction.
+                                                   INTERNATIONAL JOURNAL OF DIGITAL EARTH        31
+
+
+
+
+Figure 9. Visual expression of scene knowledge in urban greenway construction helps users to quickly
+understand relevant knowledge.
+
+
+
+
+5.3. Scene knowledge visualization
+The system provides urban greenway construction knowledge services by leveraging the
+urban greenway construction knowledge graph to visually demonstrate the character­
+istics and achievements of the urban greenway construction. The urban greenway con­
+struction scene knowledge visualization is presented in Figure 9.
+
+
+5.3.1. Integration of spatiotemporal data
+The spatiotemporal data model of urban physical examination based on knowledge
+graph integrates spatiotemporal data from multiple data sources, such as the built-up
+area scope, road network, and greenway distribution in Geographic Information
+System (GIS), population data from statistical departments, action reports, governance
+strategies, and typical case data from government departments, as well as multimodal
+data like online videos. Through the hierarchical storage architecture and unique iden­
+tifier and indexing mechanisms within the model, these data are organically integrated
+to form a complete basic data of urban greenway scenes.
+
+
+5.3.2. Structured-knowledge mining
+Furthermore, the model defines the hierarchical structure information of urban green­
+way construction spatiotemporal data in terms of spatiotemporal scales (e.g. 2020,
+Guangzhou City/District), physical examination stages (diagnosis, early warning, and
+maintenance stages), and differentiation characteristics (city/district regional differen­
+tiation). This assists planners in understanding the progress of greenway construction
+in different time periods and the distribution differences of greenways in different
+regions, as depicted in Figure 9. Additionally, multi-dimensional knowledge of urban
+greenways is mined, covering aspects from the connotation level of ‘Green and Low-
+carbon Development’ to various coverage indicators at the indicator level and
+32       S. WANG ET AL.
+
+
+
+
+Figure 10. Problem diagnosis and maintenance measures in urban greenway construction scenarios.
+At the macro-city scale, the focus is on diagnosing the overall layout and planning issues of urban
+greenways. At the meso-region scale, the emphasis is on diagnosing the connectivity, balance, and
+building issues of greenways between different regions. At the micro-street scale, the diagnosis
+targets the actual usage experience and facility details of greenways at the street level.
+
+maintenance strategies at the knowledge point level. The correlation analysis of this
+multi-dimensional knowledge provides a comprehensive decision-making basis for
+urban planning.
+
+5.3.3. Interactive scene visualization
+The spatiotemporal data of the urban greenway construction scene is visualized through
+interactive visualization technology, providing users with intuitive and vivid urban phys­
+ical examination knowledge services. As shown in Figure 10, the distribution map of
+greenways in built-up areas of Guangzhou can clearly show the location and orientation
+of greenways in the city. This enables urban planners and decision-makers to clearly
+understand the current spatial layout of urban greenways. Besides, through street-view
+images of greenways at macro-level city, meso-level region, and micro-level street
+spatial scales, the regional differences in greenway construction are intuitively analyzed.
+Meanwhile, combined with greenway construction planning measures and supporting
+images, the utilization and ecological effects of the greenway, such as residents’ leisure
+activities on the greenway and the growth and change of vegetation around the greenway,
+are dynamically displayed. Thus, the function and value of the greenway are more com­
+prehensively demonstrated.
+   In summary, the knowledge graph-based spatiotemporal data model for urban phys­
+ical examination deeply analyzes the current situation and existing problems of greenway
+construction in Guangzhou, and puts forward targeted decision-making suggestions. In
+the data layer, by integrating multi-source spatiotemporal data, it provides a solid foun­
+dation for diagnosing problems in greenway construction. In the semantic layer, through
+constructing a knowledge system of ‘theme-connotation-knowledge point-indicator’, it
+                                                INTERNATIONAL JOURNAL OF DIGITAL EARTH      33
+
+
+delves into the problems in greenway construction and offers decision-making knowl­
+edge. In the scenario layer, through visualization, it clearly presents the current situation,
+problems and optimization strategies of greenway construction, providing a scientific
+basis for urban planners and decision-makers. This model transcends the limitations
+of conventional models and facilitates a systematic understanding of urban green
+space construction through its comprehensive, systematic and in-depth organization
+and expression capabilities. The application of this model marks an important transform­
+ation of urban physical examination work from individual data analysis and indicator
+diagnosis to systematic knowledge services.
+
+
+6. Discussion
+It was found that the successful development for knowledge graph-based spatiotemporal
+data model for urban physical examination is largely contingent upon numerous favor­
+able conditions. These include the adoption of a ‘semantics-data-scenario’ three-layer
+architecture for modeling, securing innovative interdisciplinary collaboration, and
+achieving deep user engagement and feedback.
+
+
+6.1. Applicability and localization of the model
+In this study, a knowledge graph-based spatiotemporal data model for urban physical
+examination with applicability and localization was successfully constructed through
+structured semantic modeling, associative data integration, and scenario-oriented knowl­
+edge representation. The model is not only capable of addressing the diversity and com­
+plexity of urban physical examination data but also allows for customization according to
+the unique needs of individual cities, accommodating various scales and localized urban
+physical examination.
+   Initially, to ensure that the knowledge graph comprehensively reflects all dimensions
+of urban physical examination while avoiding excessive complexity, the model adopts a
+four-tier structure: ‘theme-connotation-knowledge point-indicator’. This structure
+divides the knowledge into logical layers, covering all necessary aspects of urban physical
+examination and ensuring the model’s representativeness. Secondly, to maintain the
+integrity of knowledge points while reducing redundant connections, the model uses a
+hypergraph structure to simplify grouped or clustered knowledge. By representing
+closely related knowledge as hypernodes and hyperedges, the model eliminates nodes
+of redundant and weakly connected knowledge. This reduces model complexity and
+improves computational efficiency. Thirdly, to provide customized knowledge based
+on different application needs, the model converts abstract data and knowledge into
+intuitive charts, maps, and reports through scenario-oriented knowledge representation.
+This enhances the model’s interpretability.
+   In the case of Guangzhou’s greenway construction, the model identified two key
+issues: insufficient connectivity and uneven coverage of greenways. To address the con­
+nectivity issue, it is recommended to prioritize greenway layout in new urban planning.
+Natural geographical resources, such as water systems in Zengcheng District and moun­
+tain ranges in Conghua District, should be fully utilized to plan new greenway routes.
+When greenways are interrupted by rivers, highways, or other obstacles, bridge,
+34      S. WANG ET AL.
+
+
+tunnel, and pedestrian overpass projects should be actively implemented to ensure the
+continuity of greenways. To address the issue of uneven coverage, community partici­
+pation is recommended to gather residents’ needs and suggestions for greenway con­
+struction. This will improve greenway usage and satisfaction. Additionally, a regular
+evaluation mechanism for greenway maintenance should be established, and social
+capital should be involved in maintenance efforts.
+    In the above-mentioned case, the spatiotemporal data comes from multiple channels,
+including remote sensing imagery, social media feedback, government statistics, and
+online videos. While these data sources provided rich information, they also had limit­
+ations and potential biases. First, remote sensing data had limited spatial resolution,
+leading to inaccuracies in measuring greenways precisely. Government statistics,
+though authoritative, were often not updated promptly, resulting in a lag between the
+data and the actual state of greenway construction. Social media and online video data
+could offer real-time feedback but lacked representativeness. For example, the voices
+of the elderly or those from remote areas might be overlooked. Second, the absence of
+detailed data and the presence of data biases made it difficult to conduct thorough quan­
+titative analyses. Third, when assessing the model’s applicability across different cities
+and regions, we found that urban physical examination goals and priorities are closely
+tied to a city’s geographical location, economic structure, and socio-cultural background.
+Therefore, the model’s customizable design allows urban planners and decision-makers
+to select the most suitable evaluation indicators and knowledge nodes based on local con­
+ditions, enabling localized application of the model.
+
+
+6.2. Comparison with existing spatiotemporal data models
+In recent years, research on spatiotemporal data models has continued to evolve, includ­
+ing relational database models (Capris et al. 2022), spatiotemporal data warehouse
+models (Reddy 2021), and spatiotemporal object models (Santhanavanich et al. 2022).
+Each model has its own strengths and limitations in terms of spatiotemporal data proces­
+sing capabilities, applicable scenarios, and constraints. As shown in Table 7, a compara­
+tive analysis of the strengths, limitations, and applicable scenarios of existing models is
+provided.
+   Traditional relational databases, such as MySQL and PostgreSQL, excel at handling
+structured data but struggle with complex spatiotemporal relationships. In contrast,
+spatiotemporal data warehouse models, like the star and snowflake schemas, are advan­
+tageous for data analysis and reporting but lack flexibility in updates and struggle to meet
+the needs of real-time data analysis. Spatiotemporal object models, such as those
+based on OGC (Open Geospatial Consortium) standards, perform well in spatial data
+processing but fall short in semantic association and knowledge mining capabilities.
+   The model proposed in this paper has several advantages. First, it can effectively inte­
+grate heterogeneous data from different sources and supports multidimensional spatio­
+temporal data analysis. Second, through the structure of knowledge graphs, it can capture
+complex entity relationships and semantic information, enhancing data interpretability
+and application value. Finally, intuitive scene visualization helps decision-makers
+better understand the data and promote collaboration and communication across
+departments. However, the model also has some limitations. For example, its
+                                                           INTERNATIONAL JOURNAL OF DIGITAL EARTH                   35
+
+
+Table 7. Comparison of spatiotemporal data models.
+Data model                           Strengths                           Limitations           Applicable scenarios
+Relational database     Efficient for processing structured     Struggles with                 Traditional data
+  model                   data and supporting complex             spatiotemporal data and        storage and
+                          queries                                 complex relationships          management
+Spatiotemporal Data     Suitable for data analysis and          Inflexible for updates, poor   Data analysis and
+  Warehouse Model         reporting, supports historical data     real-time performance          decision support
+                          queries
+Spatiotemporal Object   Strong spatial data processing          Insufficient semantic          Spatial data analysis
+  Model                   capabilities, compliant with            association, limited           and applications
+                          geographic information standards        knowledge mining
+                                                                  capabilities
+Knowledge Graph-        Integrates multi-source                 Dependent on the quality of    Urban physical
+ Based                    heterogeneous spatiotemporal            spatiotemporal data, high      examination, smart
+ Spatiotemporal Data      data, supports complex                  complexity in construction     city management
+ Model                    relationships and semantic mining,
+                          strong dynamic updating
+                          capabilities
+
+
+
+effectiveness depends on the quality of the input spatiotemporal data, and building a
+knowledge graph requires significant technical expertise and resource investment.
+
+
+6.3. Innovative interdisciplinary collaboration
+The research and development for knowledge graph-based spatiotemporal data model
+for urban physical examination is a complex and multifaceted process that inherently
+involves a confluence of disciplines, including geographic information science, data
+science, and urban planning. The successful execution of this study unequivocally
+emphasizes the crucial and indispensable nature of close-knit collaboration and seamless
+knowledge sharing within interdisciplinary teams (Frantzeskaki et al. 2020). In addition,
+the establishment of effective mechanisms for interdisciplinary cooperation is essential to
+taking research in this field to new heights.
+   In the construction and practice application of the urban physical examination knowl­
+edge graph, a diversified collaborative platform has been established, leveraging the
+Guangzhou workstation of academicians as a catalyst. This platform is designed to
+foster synergistic cooperation among the realms of urban planning, geographic infor­
+mation science, data science, and artificial intelligence. By congregating experts and scho­
+lars from diverse fields, it effectively dismantles traditional disciplinary boundaries and
+barriers, thereby enabling a concerted effort to jointly grapple with the key issues and for­
+midable challenges endemic to urban physical examination. To illustrate, urban planning
+experts proffer a macroscopic perspective and furnish specific case studies, geographic
+information scientists are entrusted with the task of data collection and processing,
+data scientists deploy advanced analytical techniques to unearth latent patterns and
+trends, and artificial intelligence specialists embark on the exploration of intelligent sol­
+utions with the aim of augmenting the model’s predictive and decision-making capabili­
+ties. Through the implementation of astute team management and communication
+strategies, such as the establishment of a common language framework, the regular con­
+vening of interdisciplinary workshops, and the creation of platforms dedicated to the
+exchange of shared databases and research findings, the seamless flow of information
+and the harmonious integration of knowledge among team members are facilitated.
+36      S. WANG ET AL.
+
+
+Consequently, this augments the overall work efficiency and efficacy of the team, thereby
+laying a solid foundation for the successful realization of the research objectives.
+
+
+
+
+6.4. Deep user engagement and feedback
+User engagement and feedback play a crucial role in the development and application
+process for the knowledge graph-based spatiotemporal data model for urban physical
+examination (Metzler et al. 2003). This intricate process mandates not only the forging
+of a close collaborative alliance between technical personnel and urban physical examin­
+ation practitioners but also the extensive assimilation of perspectives and suggestions
+proffered by residents and other stakeholders. The profundity and expanse of user
+engagement exert a direct and profound impact on the model’s practical utility and
+user contentment.
+    In the initial instance, direct user participation endows the model with invaluable
+firsthand data and real-world application scenarios. Urban physical examination pro­
+fessionals, drawing on their expertise and experience, can identify potential strengths
+and weaknesses of the model in the analysis of urban physical examination. Residents,
+as direct experiencers of urban life, furnish feedback that is instrumental in enabling
+the model to more precisely capture and mirror the exigencies and predilections of
+the populace. Other stakeholders, such as environmental organizations and business
+enterprises, are likewise capable of contributing sagacious insights into the model
+from their respective vantage points. This diverse feedback is indispensable for improv­
+ing the model’s functionality and optimizing its interface. In return, the urban physical
+examination knowledge services based on this model offer several benefits. For urban
+planners, it provides a scientific basis for planning and helps develop strategies that
+better meet the city’s needs. For city decision-makers, it offers comprehensive and accu­
+rate data and knowledge support to enhance digital urban management. For the public, it
+provides a clear picture of urban development, increasing their sense of participation and
+identification with urban growth and environmental protection. Ultimately, this pro­
+motes sustainable social development.
+    In addition, to ensure the effective utilization of user feedback, the implementation of
+perpetual and robust mechanisms for user engagement is of the utmost exigency, as this
+serves as the linchpin for the model’s long-term and sustainable development. To galva­
+nize active feedback and user participation in the iterative amelioration process of the
+model, a repertoire of measures has been instituted, including regular user surveys, feed­
+back systems for knowledge services, and public forums. Through such initiatives, users
+are not relegated to the status of passive recipients of the model; rather, they are actively
+enlisted as stakeholders in its evolutionary journey. This approach not only expedites the
+continuous enhancement of the model’s capabilities but also engenders a sense of user
+ownership and satisfaction, thereby augmenting the model’s effectiveness and societal
+acclaim. A model that garners widespread acceptance and active utilization by its users
+is more predisposed to catalyze the democratization and transparency of urban planning
+and management, thereby amplifying its value and conferring greater benefits upon
+society.
+                                               INTERNATIONAL JOURNAL OF DIGITAL EARTH      37
+
+
+7. Conclusions
+Facing the demands for integrating multi-source heterogeneous spatiotemporal data and
+providing customized knowledge services in urban physical examination, this paper pro­
+poses a knowledge graph-based spatiotemporal data model for urban physical examin­
+ation. The model not only enriches the theoretical framework of spatiotemporal data
+organization and management in urban physical examination but also clarifies the tran­
+sition path from theoretical models to technical applications. It innovatively adopts a
+three-layer architecture of ‘semantics-data-scenario’. From the perspectives of the
+semantic layer, data layer, and scenario layer, it constructs an urban physical examination
+knowledge system, manages the entire process of spatiotemporal data in urban physical
+examination, and provides scenario-oriented spatiotemporal representation. First,
+addressing the issue that current urban physical examination spatiotemporal data
+models focus on new indicator design and conceptual discussions without fully consid­
+ering the application needs of urban physical examination, the ‘semantics-data-scenario’
+conceptual model is proposed. It integrates knowledge from the semantic layer and data
+from the data layer based on application needs and presents them through the scenario
+layer in an intuitive and interactive visual manner to provide customized knowledge ser­
+vices to users. Second, to solve the problem of traditional UML diagrams that use
+complex nesting and associations to represent and process complex relationships, result­
+ing in high complexity and poor readability, the ‘semantics-data-scenario’ logical model
+is proposed. It uses a logical model combining UML diagrams and hypergraph ontology,
+representing higher-order relationships as hyperedges to simplify the model structure
+and improve the accuracy of multidimensional relationship expression. Finally, taking
+the greenway construction in Guangzhou as a case study, the model demonstrates an
+innovative application mode of urban physical examination knowledge service.
+    The model transforms the traditional urban physical examination approach, which
+relies on experience and single indicators. It comprehensively organizes and expresses
+urban data and knowledge through knowledge graph, analyzing and mining the intrinsic
+connections between greenway construction and urban ecology, transportation, and
+population at multiple levels (themes, connotations, knowledge points, and indicators)
+and granularities (macro-level cities, meso-level regions, and micro-level streets). This
+helps understand urban greenways from multiple dimensions. Additionally, the
+model’s scenario-oriented spatiotemporal representation presents abstract knowledge
+and data in intuitive forms such as greenway distribution maps and indicator analysis
+charts. This clearly shows the current situation, issues, and development trends of green­
+way construction, making it easier for urban planners, decision-makers, and the public to
+understand and promoting multi-department collaboration and public participation.
+    Subsequent research can delve into performance testing and exploration at three
+levels: data, semantics, and application scenarios, with the aim of further enhancing
+the model’s universality and practicality. Specifically, the research can focus on extracting
+richer and more profound information and knowledge from data, thereby strengthening
+the model’s analytical depth and intellectual content. Additionally, the scope of the
+model’s application should be expanded to explore its potential role in key areas such
+as urban disease prediction and environmental risk assessment. Furthermore, we will
+38      S. WANG ET AL.
+
+
+place emphasis on how to integrate this model with other technologies in smart cities to
+construct more efficient and sustainable urban management strategies.
+
+Acknowledgements
+We thank the editors and all the anonymous reviewers for their insightful comments and sugges­
+tions. We thank the Guangzhou Municipal Forestry and Landscaping Bureau for providing valu­
+able data on greenway construction and the Guangzhou Alpha Software Information Technology
+Co., Ltd. for technical support in spatiotemporal data processing.
+
+
+Disclosure statement
+No potential conflict of interest was reported by the author(s).
+
+
+Funding
+This research is funded by the National Key Research and Development Program of China [grant
+number 2022YFB390420501].
+
+
+Data available statement
+The authors confirm that the data supporting the findings of this study are available
+within the article and its supplementary materials.
+
+ORCID
+Sijia Wang    http://orcid.org/0000-0002-6598-072X
+
+
+References
+Abu-Salih, B. 2021. “Domain-specific Knowledge Graphs: A Survey.” Journal of Network and
+   Computer Applications 185:103076. https://doi.org/10.1016/j.jnca.2021.103076.
+Akroyd, J., S. Mosbach, A. Bhave, and M. Kraft. 2021. “Universal Digital Twin-A Dynamic
+   Knowledge Graph.” Data-Centric Engineering 2:e14. https://doi.org/10.1017/dce.2021.10.
+Allen, C., R. Nejdawi, J. El-Baba, K. Hamati, G. Metternicht, and T. Wiedmann. 2017. “Indicator-
+   based Assessments of Progress towards the Sustainable Development Goals (SDGs): A Case
+   Study from the Arab Region.” Sustainability Science 12 (6): 975–989. https://doi.org/10.1007/
+   s11625-017-0437-1.
+Andries, A., S. Morse, R. Murphy, J. Lynch, E. Woolliams, and J. Fonweban. 2019. “Translation of
+   Earth Observation Data into Sustainable Development Indicators: An Analytical Framework.”
+   Sustainable Development 27 (3): 366–376. https://doi.org/10.1002/sd.1908.
+Barton, H., and M. Grant. 2013. “Urban Planning for Healthy Cities: A Review of the Progress of
+   the European Healthy Cities Programme.” Journal of Urban Health 90 (S1): 129–141. https://
+   doi.org/10.1007/s11524-011-9649-3.
+Biswas, B., Z. Sultana, C. Priovashini, M. N. Ahsan, and B. Mallick. 2021. “The Emergence of
+   Residential Satisfaction Studies in Social Research: A Bibliometric Analysis.” Habitat
+   International 109:102336. https://doi.org/10.1016/j.habitatint.2021.102336.
+Capris, T., P. Melo, N. M. Garcia, I. M. Pires, and E. Zdravevski. 2022. “Comparison of SQL and
+   NoSQL Databases with Different Workloads: MongoDB vs MySQL Evaluation.” In 2022
+   International Conference on Data Analytics for Business and Industry (ICDABI), 214–218.
+   IEEE. https://doi.org/10.1109/ICDABI56818.2022.10041513.
+                                                INTERNATIONAL JOURNAL OF DIGITAL EARTH       39
+
+
+Chadzynski, A., N. Krdzavac, F. Farazi, M. Q. Lim, S. Li, A. Grisiute, P. Herthogs, A. von
+   Richthofen, S. Cairns, and M. Kraft. 2021. “Semantic 3D City Database — An Enabler for a
+   Dynamic Geospatial Knowledge Graph.” Energy and AI 6:100106. https://doi.org/10.1016/j.
+   egyai.2021.100106.
+Chen, J., J. Liu, and H. Tian. 2022. “Basic Directions and Technological Path for Building 3D
+   Realistic Geospatial Scene in China.” Geomatics and Information Science of Wuhan
+   University 47:1568–1575. https://doi.org/10.13203/j.whugis20220576.
+Chen, J., S. Peng, H. Chen, X. Zhao, Y. Ge, and Z. Li. 2020. “A Comprehensive Measurement of
+   Progress toward Local SDGs with Geospatial Information: Methodology and Lessons Learned.”
+   ISPRS International Journal of Geo-Information 9:522. https://doi.org/10.3390/ijgi9090522.
+Chen, Y., W. Tian, Q. Zhou, and T. Shi. 2021. “Spatiotemporal and Driving Forces of Ecological
+   Carrying Capacity for High-quality Development of 286 Cities in China.” Journal of Cleaner
+   Production 293:126186. https://doi.org/10.1016/j.jclepro.2021.126186.
+Chen, W., Y. Wang, Y. Ren, H. Yan, and C. Shen. 2022. “A Novel Methodology (WM-TCM) for
+   Urban Health Examination: A Case Study of Wuhan in China.” Ecological Indicators
+   136:108602. https://doi.org/10.1016/j.ecolind.2022.108602.
+Chen, J., Y. Wang, H. Wu, and W. Liu. 2023. “Basic Issues and Development Directions of High-
+   Quality Development Empowered by Spatio-temporal Information.” J. Spatio-Temporal
+   Information 30:1–11. https://doi.org/10.20117/j.jsti.202301001.
+Childers, D. L., S. T. Pickett, J. M. Grove, L. Ogden, and A. Whitmer. 2014. “Advancing Urban
+   Sustainability Theory and Action: Challenges and Opportunities.” Landscape and Urban
+   Planning 125:320–328. https://doi.org/10.1016/j.landurbplan.2014.01.022.
+Codd, E. F. 1970. “A Relational Model of Data for Large Shared Data Banks.” Communications of
+   the ACM 13 (6): 377–387. https://doi.org/10.1145/362384.362685.
+Cook, M., and A. Karvonen. 2024. “Urban Planning and the Knowledge Politics of the Smart City.”
+   Urban Studies 61 (2): 370–382. https://doi.org/10.1177/00420980231177688.
+Corburn, J. 2004. “Confronting the Challenges in Reconnecting Urban Planning and Public
+   Health.” American Journal of Public Health 94 (4): 541–546. https://doi.org/10.2105/ajph.94.
+   4.541.
+Cui, Y., M. Yin, X. Cheng, J. Tang, and B. J. He. 2024. “Towards Cool Cities and Communities:
+   Preparing for an Increasingly Hot Future by the Development of Heat-resilient Infrastructure
+   and Urban Heat Management Plan.” Environmental Technology & Innovation 34:103568.
+   https://doi.org/10.1016/j.eti.2024.103568.
+Dempsey, N., G. Bramley, S. Power, and C. Brown. 2011. “The Social Dimension of Sustainable
+   Development: Defining Urban Social Sustainability.” Sustainable Development 19 (5): 289–
+   300. https://doi.org/10.1002/sd.417.
+Ding, L., G. Xiao, A. Pano, M. Fumagalli, D. Chen, Y. Feng, D. Calvanese, H. Fan, and L. Meng.
+   2024. “Integrating 3D City Data through Knowledge Graphs.” Geo-Spatial Information Science
+   3: 1–20. https://doi.org/10.1080/10095020.2024.2337360.
+Dsouza, A., N. Tempelmeier, R. Yu, S. Gottschalk, and E. Demidova. 2021. “Worldkg: A World-
+   scale Geographic Knowledge Graph.” In Proceedings of the 30th ACM International Conference
+   on Information & Knowledge Management, 4475–4484. https://doi.org/10.1145/3459637.
+   3482023.
+Fernandes, D., and J. Bernardino. 2018. “Graph Databases Comparison: Allegrograph, Arangodb,
+   Infinitegraph, Neo4j, and OrientDB.” Data 18:373–380. https://doi.org/10.5220/
+   0006910203730380.
+Frantzeskaki, N., P. Vandergert, S. Connop, K. Schipper, I. Zwierzchowska, M. Collier, and M.
+   Lodder. 2020. “Examining the Policy Needs for Implementing Nature-based Solutions in
+   Cities: Findings from City-wide Transdisciplinary Experiences in Glasgow (UK), Genk
+   (Belgium) and Pozna n    ́ (Poland).” Land Use Policy 96:104688. https://doi.org/10.1016/j.
+   landusepol.2020.104688.
+Friel, S., M. Akerman, T. Hancock, J. Kumaresan, M. Marmot, T. Melin, D. Vlahov, and G.
+   members. 2011. “Addressing the Social and Environmental Determinants of Urban Health
+40      S. WANG ET AL.
+
+
+    Equity: Evidence for Action and a Research Agenda.” Journal of Urban Health 88 (5): 860–874.
+    https://doi.org/10.1007/s11524-011-9606-1.
+Galea, S., and D. Vlahov. 2005. “Urban Health: Evidence, Challenges, and Directions.” Annual
+    Review of Public Health 26 (1): 341–365. https://doi.org/10.1146/annurev.publhealth.26.
+    021304.144708.
+Geneletti, D., D. La Rosa, M. Spyra, and C. Cortinovis. 2017. “A Review of Approaches and
+    Challenges for Sustainable Planning in Urban Peripheries.” Landscape and Urban Planning
+    165:231–243. https://doi.org/10.1016/j.landurbplan.2017.01.013.
+Giles-Corti, B., M. Lowe, and J. Arundel. 2020. “Achieving the SDGs: Evaluating Indicators to Be
+    Used to Benchmark and Monitor Progress towards Creating Healthy and Sustainable Cities.”
+    Health Policy 124 (6): 581–590. https://doi.org/10.1016/j.healthpol.2019.03.001.
+Hamdi, A., K. Shaban, A. Erradi, A. Mohamed, S. K. Rumi, and F. D. Salim. 2022. “Spatiotemporal
+    Data Mining: A Survey on Challenges and Open Problems.” Artificial Intelligence Review 55 (2):
+    1–48. https://doi.org/10.1007/s10462-021-09994-y.
+Harpham, T. 2009. “Urban Health in Developing Countries: What Do We Know and Where Do
+    We Go?” Health & Place 15 (1): 107–116. https://doi.org/10.1016/j.healthplace.2008.03.004.
+He, H., Y. Ren, L. Shen, J. Xiao, Y. Lai, Y. Yang, and L. Zhang. 2023. “A Guiding Methodology for
+    ‘Urban Physical Examination’: Indicator Checklist, Benchmark Setting and Empirical Study.”
+    Sustainable Cities and Society 98:104835. https://doi.org/10.1016/j.scs.2023.104835.
+He, B. J., D. X. Zhao, J. Zhu, A. Darko, and Z. H. Gou. 2018. “Promoting and Implementing Urban
+    Sustainability in China: An Integration of Sustainable Initiatives at Different Urban Scales.”
+    Habitat International 82:83–93. https://doi.org/10.1016/j.habitatint.2018.10.001.
+Janowicz, K., P. Hitzler, W. Li, D. Rehberger, M. Schildhauer, R. Zhu, C. Shimizu, et al. 2022.
+    “Know, Know Where, Knowwheregraph: A Densely Connected, Cross-domain Knowledge
+    Graph and Geo-enrichment Service Stack for Applications in Environmental Intelligence.” AI
+    Magazine 43:30–39. https://doi.org/10.1002/aaai.12043.
+Ji, S., S. Pan, E. Cambria, P. Marttinen, and S. Y. Philip. 2021. “A Survey on Knowledge Graphs:
+    Representation, Acquisition, and Applications.” IEEE Transactions on Neural Networks and
+    Learning Systems 33:494–514. https://doi.org/10.1109/TNNLS.2021.3070843.
+Khan, H., T. Hussain, S. U. Khan, Z. A. Khan, and S. W. Baik. 2024. “Deep Multi-scale Pyramidal
+    Features Network for Supervised Video Summarization.” Expert Systems with Applications
+    237:121288. https://doi.org/10.1016/j.eswa.2023.121288.
+Krishnan, S., A. Dziedzic, and A. J. Elmore. 2018. “Deeplens: Towards a Visual Data Management
+    System.” ArXiv Preprint ArXiv:1812.07607. https://doi.org/10.48550/arXiv.1812.07607.
+Li, Z., L. Xia, J. Tang, Y. Xu, L. Shi, L. Xia, D. Yin, and C. Huang. 2024. “UrbanGPT: Spatio-tem­
+    poral Large Language Models.” ArXiv Preprint ArXiv:2403.00813. https://doi.org/10.48550/
+    arXiv.2403.00813.
+Liu, Y., J. Ding, Y. Fu, and Y. Li. 2023. “UrbanKG: An Urban Knowledge Graph System.” ACM
+    Transactions on Intelligent Systems and Technology 14:1–25. https://doi.org/10.1145/3588577.
+Liu, B., X. Wang, P. Liu, S. Li, Q. Fu, and Y. Chai. 2021a. “UniKG: A Unified Interoperable
+    Knowledge Graph Database System.” In 2021 IEEE 37th International Conference on Data
+    Engineering (ICDE), 2681–2684. https://doi.org/10.1109/ICDE51399.2021.00303.
+Liu, B., X. Wang, P. Liu, S. Li, X. Zhang, and Y. Yang. 2021b. “KGDB: Knowledge Graph Database
+    System with Unified Model and Query Language.” International Journal of Software and
+    Informatics 11:91–116. https://doi.org/10.21655/ijsi.1673-7288.00243.
+Malinowski, E., and E. Zimányi. 2008. “A Conceptual Model for Temporal Data Warehouses and
+    Its Transformation to the ER and the Object-relational Models.” Data & Knowledge Engineering
+    64 (1): 101–133. https://doi.org/10.1016/j.datak.2007.06.020.
+Masó, J., I. Serral, C. Domingo-Marimon, and A. Zabala. 2019. “Earth Observations for Sustainable
+    Development Goals Monitoring Based on Essential Variables and Driver-pressure-state-
+    impact-response Indicators.” International Journal of Digital Earth 13:217–235. https://doi.
+    org/10.1080/17538947.2019.1576787.
+Metzler, M. M., D. L. Higgins, C. G. Beeker, N. Freudenberg, P. M. Lantz, K. D. Senturia, A. A.
+    Eisinger, et al. 2003. “Addressing Urban Health in Detroit, New York City, and Seattle
+                                                  INTERNATIONAL JOURNAL OF DIGITAL EARTH        41
+
+
+   through Community-based Participatory Research Partnerships.” American Journal of Public
+   Health 93 (5): 803–811. https://doi.org/10.2105/ajph.93.5.803.
+Naess, P. 2001. “Urban Planning and Sustainable Development.” European Planning Studies 9 (4):
+   503–524. https://doi.org/10.1080/09654310120049871.
+Pineo, H., K. Glonti, H. Rutter, N. Zimmermann, P. Wilkinson, and M. Davies. 2018. “Urban
+   Health Indicator Tools of the Physical Environment: A Systematic Review.” Journal of Urban
+   Health 95 (5): 613–646. https://doi.org/10.1007/s11524-018-0228-8.
+Reddy, G. S. 2021. “A Review of Data Warehouses Multidimensional Model and Data Mining.”
+   Information Technology in Industry 9:310–320.
+Ren, S., Y. Li, Z. Peng, M. Yin, and X. Liu. 2024. “Developing an Urban Environment Examination
+   System by Incorporating Construction, Economic, Environmental, Cultural and Development
+   Dimensions.” Sustainability 16:3065. https://doi.org/10.3390/su16073065.
+Sajjad, M., J. C. Chan, and S. S. Chopra. 2021. “Rethinking Disaster Resilience in High-Density
+   Cities: Towards an Urban Resilience Knowledge System.” Sustainable Cities and Society
+   69:102850. https://doi.org/10.1016/j.scs.2021.102850.
+Santhanavanich, T., R. Padsala, P. Würstle, and V. Coors. 2022. “The Spatial Data Infrastructure of
+   an Urban Digital Twin in the Building Energy Domain Using OGC Standards.” ISPRS Annals of
+   the Photogrammetry, Remote Sensing and Spatial Information Sciences 10:249–256. https://doi.
+   org/10.5194/isprs-annals-X-4-W2-2022-249-2022.
+Schmitt, X., S. Kubler, J. Robert, M. Papadakis, and Y. LeTraon. 2019. “A Replicable Comparison
+   Study of NER Software: StanfordNLP, NLTK, OpenNLP, SpaCy, Gate.” In 2019 Sixth
+   International Conference on Social Networks Analysis, Management and Security (SNAMS),
+   338–343. https://doi.org/10.1109/SNAMS.2019.8931850.
+Semeraro, T., A. Scarano, R. Buccolieri, A. Santino, and E. Aarrevaara. 2021. “Planning of Urban
+   Green Spaces: An Ecological Perspective on Human Benefits.” Land 10:105. https://doi.org/10.
+   3390/land10020105.
+Sharifi, A. 2021. “Urban Sustainability Assessment: An Overview and Bibliometric Analysis.”
+   Ecological Indicators 121:107102. https://doi.org/10.1016/j.ecolind.2020.107102.
+Sharifi, A., and A. Murayama. 2014. “Neighborhood Sustainability Assessment in Action: Cross-
+   evaluation of Three Assessment Systems and Their Cases from the US, the UK, and Japan.”
+   Building and Environment 72:243–258. https://doi.org/10.1016/j.buildenv.2013.11.006.
+Sharma, S., J. O. Beslity, L. Rustad, L. J. Shelby, P. T. Manos, P. Khanal, A. B. Reinmann, and C.
+   Khanal. 2024. “Remote Sensing and GIS in Natural Resource Management: Comparing Tools
+   and Emphasizing the Importance of In-situ Data.” Remote Sensing 16:4161. https://doi.org/
+   10.3390/rs16224161.
+Stokes, E. C., and K. C. Seto. 2019. “Characterizing Urban Infrastructural Transitions for the
+   Sustainable Development Goals Using Multi-temporal Land, Population, and Nighttime Light
+   Data.” Remote Sensing of Environment 234:111430. https://doi.org/10.1016/j.rse.2019.111430.
+Teorey, T. J., D. Yang, and J. P. Fry. 1986. “A Logical Design Methodology for Relational Databases
+   Using the Extended Entity-relationship Model.” ACM Computing Surveys 18 (2): 197–222.
+   https://doi.org/10.1145/7474.7475.
+Van Oijstaeijen, W., S. Van Passel, and J. Cools. 2020. “Urban Green Infrastructure: A Review on
+   Valuation Toolkits from an Urban Planning Perspective.” Journal of Environmental
+   Management 267:110603. https://doi.org/10.1016/j.jenvman.2020.110603.
+Vardoulakis, S., K. Dear, and P. Wilkinson. 2016. “Challenges and Opportunities for Urban
+   Environmental Health and Sustainability: The HEALTHY-POLIS Initiative.” Environmental
+   Health 15 (S1): 1–4. https://doi.org/10.1186/s12940-016-0096-1.
+Wang, T., Z. Song, D. Jiang, B. Cui, and M. Mao. 2022. “Research on Collaborative Approach of
+   Multi-type Urban Physical Examination Driven by Knowledge Graph.” Shanghai City Planning
+   Review 1:25–31. https://doi.org/10.11982/j.supr.20220104.
+Wang, X., L. Zhou, C. Wang, P. Peng, and Z. Feng. 2019. “Research on Knowledge Graph Data
+   Management: A Survey.” Journal of Software 30:2139–2174. https://doi.org/10.13328/j.cnki.jos.
+   005841.
+42      S. WANG ET AL.
+
+
+Wirth, T., U. W. Hayek, A. Kunze, N. Neuenschwander, M. Stauffacher, and R. W. Scholz. 2014.
+  “Identifying Urban Transformation Dynamics: Functional Use of Scenario Techniques to
+  Integrate Knowledge from Science and Practice.” Technological Forecasting and Social
+  Change 89:115–130. https://doi.org/10.1016/j.techfore.2013.08.030.
+Wu, J. H., Y. Wang, S. J. Wang, P. Wang, W. Y. Chen, and J. Y. Cui. 2024. “Knowledge Model of
+  Comprehensive Evaluation of Urban Physical Examination: A Case Study of Guangzhou.”
+  Journal of Spatio-Temporal Information 31:02009. https://doi.org/10.20117/j.jsti.202402009.
+Yigitcanlar, T., and S. Teriman. 2015. “Rethinking Sustainable Urban Development: Towards an
+  Integrated Planning and Development Process.” International Journal of Environmental Science
+  and Technology 12 (1): 341–352. https://doi.org/10.1007/s13762-013-0491-x.
+Zhang, W. Z., J. He, and L. Chen. 2021. “Method System of Urban Physical Examination for High
+  Quality Development in China.” Scientia Geographica Sinica 41:1–12. https://doi.org/10.13249/
+  j.cnki.sgs.2021.01.001.
+Zhang, C., B. Xu, C. Chu, P. Ye, X. Zhang, K. Zhou, and W. Liu. 2025. “Landslide Knowledge
+  Representation Based on Hypergraph Theory.” Transactions in GIS 29 (1): e13276. https://
+  doi.org/10.1111/tgis.13276.
+Zhou, C., H. Wang, C. Wang, Z. Hou, Z. Zheng, S. Shen, Q. Cheng, et al. 2021. “Geoscience
+  Knowledge Graph in the Big Data Era.” Science China Earth Sciences 64 (7): 1105–1114.
+  https://doi.org/10.1007/s11430-020-9750-4.
+
