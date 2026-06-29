@@ -1,0 +1,4 @@
+variable,reference_window_mean,event_window_mean,event_minus_reference,event_to_reference_ratio_abs
+global_active_zone_anomaly,0.13008,0.39047,0.26039,3.00185
+pooled_tbm_readout,0.10601,0.73281,0.6268,6.91246
+shield_group_readout,0.10529,0.73656,0.63128,6.99579

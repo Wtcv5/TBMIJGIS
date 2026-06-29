@@ -1,0 +1,7 @@
+Data group,Required fields,Role in the experiment,Source files
+Event log,"confirmed stuck time, event chainage, event window, engineering description",Defines the shield-sticking event and evaluation window,event_metadata.csv
+TSP geological data,"voxel coordinates, Vp, Vs, geological anomaly score q_i",Provides rock voxels and geological anomaly scores,tsp_voxels.csv
+TBM monitoring,"shield pressure, shield displacement, thrust, advance rate, RPM, timestamp, chainage",Describes machine response during the event,tbm_monitoring.csv
+TBM geometry,"component-labelled cutterhead, front shield, middle shield and tail shield surface nodes",Provides component-labelled TBM surface nodes,tbm_surface_nodes.csv
+Alignment data,"timestamp-chainage mapping, TSP local coordinate, event chainage","Links geological field, monitoring records and graph snapshots",alignment_map.csv
+Graph provenance,"rock voxel id, TBM node id, component label, distance, normal compatibility, edge weight",Traces component-level interpretation back to specific rock-TBM edges,graph_edges_event_sample_top500.csv; edge_provenance_top50.csv

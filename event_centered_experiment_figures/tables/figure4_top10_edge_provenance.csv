@@ -1,0 +1,11 @@
+rank,component,x_rel_m,distance_m,normal_compatibility,anomaly_score_q,edge_weight,weighted_contribution
+1,middle shield,-5.000,0.051,0.982,0.891,0.958,0.853
+2,middle shield,-4.000,0.051,0.982,0.829,0.958,0.794
+3,middle shield,-6.000,0.051,0.982,0.820,0.958,0.785
+4,front shield,-1.000,0.051,0.982,0.806,0.958,0.772
+5,front shield,-2.000,0.051,0.982,0.783,0.958,0.750
+6,front shield,-3.000,0.051,0.982,0.768,0.958,0.735
+7,middle shield,-4.000,0.051,0.982,0.734,0.958,0.703
+8,cutterhead,0.000,0.010,1.000,0.694,0.995,0.691
+9,tail shield,-7.000,0.051,0.982,0.701,0.958,0.671
+10,front shield,-1.000,0.580,0.887,1.000,0.664,0.664
