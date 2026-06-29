@@ -1,0 +1,11 @@
+﻿variable,reference_window_mean,event_window_mean,event_minus_reference,event_to_reference_ratio_abs
+global_active_zone_anomaly,0.13008,0.39047,0.26039,3.00185
+pooled_tbm_readout,0.10601,0.73281,0.6268,6.91246
+shield_group_readout,0.10529,0.73656,0.63128,6.99579
+front_shield,0.23045,0.78133,0.55088,3.3905
+middle_shield,0.07607,0.78297,0.7069,10.2928
+tail_shield,0.00935,0.64539,0.63605,69.05063
+shield_pressure_bar,86.11639,344.17907,258.06268,3.99667
+shield_displacement_mm,-15.11311,-68.24651,-53.1334,4.51571
+total_thrust_kN,19999.09836,43322.0,23322.90164,2.1662
+advance_rate_m_per_h,0.88789,0.03172,-0.85616,0.03573

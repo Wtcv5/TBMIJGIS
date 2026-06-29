@@ -1,0 +1,2 @@
+﻿n_voxels,n_surface_nodes,n_monitoring_records,peak_shield_pressure_bar,min_shield_displacement_mm,peak_total_thrust_kN,max_advance_rate_near_stuck_m_per_h,mean_rpm_near_stuck,critical_edge_top_component
+34272,799,235,362.0,-73.0,45000,0.081,4.308372093023256,middle_shield
