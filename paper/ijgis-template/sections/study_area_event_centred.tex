@@ -1,0 +1,63 @@
+\subsection{Shield-sticking event and aligned data}
+\label{sec:event-data}
+
+The evaluation uses a real shield-sticking event in the right line of the Boshulaling Tunnel. The event was confirmed at 16:30 on 3 August 2024 after a period of increasing shield pressure, converging shield displacement, increasing total thrust and nearly zero advance rate while the cutterhead continued rotating. The event occurred near chainage DyK1017+205, approximately 72 m before the mapped F37 fault influence zone. The engineering record therefore provides a confirmed shield-dominated abnormal episode, rather than a dense label for every geological voxel or every TBM component.
+
+This case is used as an event-centred spatial interpretation test. The objective is not to train a general failure-prediction model, estimate ground--machine contact force or derive a calibrated risk probability. Instead, the evaluation asks whether the proposed dynamic rock--TBM spatial relation graph can connect three forms of evidence in a common excavation coordinate system: (i) TSP-derived geological anomalies, (ii) component-labelled TBM geometry and (iii) monitoring responses during the shield-sticking process.
+
+\begin{table}[!ht]
+\centering
+\caption{Case event, input data and alignment used for event-centred evaluation.}
+\label{tab:case-data-alignment}
+\begin{tabular}{p{0.22\textwidth}p{0.34\textwidth}p{0.34\textwidth}}
+\toprule
+Data group & Main fields & Role in the evaluation \\
+\midrule
+Event log & Confirmed stuck time, event chainage, event-development window, engineering description & Defines the shield-sticking event and the event window \\
+TSP geological data & Rock voxel coordinates, $V_p$, $V_s$ where available, geological anomaly score $q_i$ & Provides rock voxels and TSP-derived geological anomaly scores \\
+TBM monitoring & Shield pressure, shield displacement, total thrust, advance rate, cutterhead RPM, timestamp and chainage & Describes machine response during the event \\
+TBM geometry & Cutterhead, front shield, middle shield and tail shield surface nodes & Provides component-labelled TBM surface nodes \\
+Alignment data & Timestamp--chainage mapping, TSP local coordinate and event chainage & Links geological field, monitoring records and graph snapshots \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure~\ref{fig:spatial-setting} summarizes the spatial setting and data alignment used by the evaluation. Panel A places the confirmed stuck location, TSP-derived anomaly scores and the F37 fault influence zone along the tunnel alignment. Panel B shows the local cross-section of shield, surrounding rock and low-velocity voxels near the event. Panel C aligns TBM face chainage, monitoring time and the event-development window in the common excavation coordinate system.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\textwidth]{fig1_spatial_setting_event_tsp_anomalies.png}
+\caption{Spatial setting and data alignment for the shield-sticking event. Panel A shows the longitudinal setting of the event location, TSP-derived anomaly scores and the F37 fault influence zone. Panel B illustrates the local cross-section of the shield, surrounding rock and low-velocity voxels near the event. Panel C aligns TBM face chainage, monitoring time and the event window.}
+\label{fig:spatial-setting}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Component-level geological anomaly index}
+\label{sec:index-case}
+
+For each excavation step $t$, TSP-derived rock voxels are linked to component-labelled TBM surface nodes through candidate rock--TBM spatial relations. A candidate relation is established only when the rock voxel and the TBM surface node satisfy the active-zone, distance, normal-compatibility and excavation-state constraints defined in Section~3. Each candidate relation is assigned a spatial relation weight $w_{ij}(t)$, which represents geometric plausibility. The weight is not interpreted as contact force, shield pressure or risk probability.
+
+Let $E_c(t)$ denote the set of candidate rock--TBM edges incident to component $c$ at excavation step $t$, and let $q_i$ be the geological anomaly score of rock voxel $i$. The component-level relation support is defined as
+\begin{equation}
+A_c(t)=\sum_{(i,j)\in E_c(t)}w_{ij}(t).
+\label{eq:relation-support-case}
+\end{equation}
+
+The component-level geological anomaly index is then defined as
+\begin{equation}
+I_c(t)=\frac{\sum_{(i,j)\in E_c(t)} w_{ij}(t)q_i}{\sum_{(i,j)\in E_c(t)}w_{ij}(t)+\epsilon},
+\label{eq:component-index-case}
+\end{equation}
+where $\epsilon$ is a small constant. Because the confirmed event is shield sticking, the front shield, middle shield and tail shield are examined both separately and as a shield group:
+\begin{equation}
+I_{\mathrm{shield}}(t)=\frac{1}{3}\left(I_{\mathrm{front}}(t)+I_{\mathrm{middle}}(t)+I_{\mathrm{tail}}(t)\right).
+\label{eq:shield-index-case}
+\end{equation}
+
+\subsection{Event-centred evaluation design}
+\label{sec:event-evaluation-design}
+
+The event-centred evaluation focuses on three questions. First, does the graph reconstruct a spatial relation process in which low-velocity rock voxels become associated with shield components as the TBM approaches the confirmed stuck location? Second, does the component-level geological anomaly index provide more specific information than simpler summaries, such as a global geological anomaly summary or a pooled TBM anomaly summary without component labels? Third, can the event interpretation be traced back to specific rock voxels, TBM surface nodes and candidate rock--TBM edges?
+
+Accordingly, the evaluation reports four outputs: (i) the spatial setting and data alignment of the event, (ii) dynamic rock--TBM spatial relation graph snapshots before and during shield sticking, (iii) space--time evolution of component-level geological anomaly indices and TBM monitoring responses, and (iv) edge-level provenance near the stuck state.

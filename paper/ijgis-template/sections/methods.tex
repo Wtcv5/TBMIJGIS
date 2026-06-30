@@ -7,7 +7,7 @@ constructs a dynamic rock--TBM spatial relation graph at each excavation step
 using active-zone, distance, normal-compatibility, and excavation-state
 constraints. Finally, weighted rock--machine edges are aggregated by TBM
 component to compute a component $\times$ excavation-step geological anomaly
-readout field. This field supports excavation anomaly readout,
+index. This field supports excavation anomaly indexing,
 component-indexed querying, and response-aligned interpretation while retaining
 traceable edge contributions.
 The graph is sparse because rock--machine edges are not fully connected; they
@@ -20,7 +20,7 @@ algorithmic operations. Section~\ref{sec:definition} defines the two graph
 entity types and the aligned monitoring records. Section~\ref{sec:construction}
 defines geometry-constrained sparse graph construction as relation-support
 construction, and Section~\ref{sec:interpretable_computation} defines
-component-indexed anomaly readout field computation from screened
+component-indexed geological anomaly index computation from screened
 rock--machine edges.
 
 The formulation estimates a queryable field rather than a direct
@@ -36,8 +36,8 @@ operator
 \mathcal{F}: (G_t,\phi(g_i),\rho_j)\mapsto
 \{I_c(t),\Delta I_c(t)\}_{c\in C,t=1,\ldots,T}
 \]
-aggregates those relations into a component-indexed geological anomaly readout
-field. The aligned monitoring records are used to read this field against
+aggregates those relations into a component-indexed geological anomaly
+index. The aligned monitoring records are used to read this field against
 excavation responses; they are not inputs to $\mathcal{G}$ and do not define
 graph edges.
 
@@ -50,7 +50,7 @@ voxels and component-labelled TBM surface nodes using active-zone, distance,
 normal-compatibility, and excavation-state constraints. (b) TSP-derived rock
 voxel field with geological attribute support. (c) Parameterized TBM surface
 components advanced along the excavation direction. (d) Component $\times$
-excavation-step geological anomaly readout field computed by aggregating weighted
+excavation-step geological anomaly index computed by aggregating weighted
 rock--machine edges by TBM component; the field can subsequently be aligned
 with monitoring responses and queried back to contributing edges.}
 \label{fig:pipeline}
@@ -62,7 +62,7 @@ The input data are organised into two graph entity types and aligned
 monitoring records: rock voxels, TBM surface nodes, and excavation monitoring
 responses aligned to excavation steps. Monitoring records are not graph nodes;
 they are used after graph computation to evaluate and interpret the
-component-indexed anomaly readout field.
+component-indexed geological anomaly index.
 
 \paragraph{Rock voxel.} The geological input is a TSP-derived voxel field
 $D_{\mathrm{geo}}=\{(c_i,g_i)\}$, where $c_i=(x_i,y_i,z_i)$ is the coordinate
@@ -115,11 +115,11 @@ entity--relation data model. The table makes explicit that the graph is a querya
 entity-relation representation rather than only a plotting device or a
 neural-network input tensor. Figure~\ref{fig:pipeline}(b--d) illustrates how
 the rock voxel field, TBM surface components, and component-indexed field
-readouts are formalised under the common excavation-step reference.
+indices are formalised under the common excavation-step reference.
 
 \begin{table}[htbp]
 \centering
-\caption{Entities, relations, and readouts in the geometry-constrained rock--TBM interaction
+\caption{Entities, relations, and indices in the geometry-constrained rock--TBM interaction
 graph computation.}
 \label{tab:spatial_entities_relations}
 \scriptsize
@@ -133,9 +133,9 @@ $V_t^m$ & Parameterized TBM surface samples & TBM component support \\
 $E_t^{rr}$ & Rock--rock voxel neighbourhoods & Geological contiguity context \\
 $E_t^{mm}$ & TBM surface neighbourhoods & Machine-surface topology context \\
 $E_t^{rm}$ & Screened rock--machine candidate relations & Candidate interaction support \\
-$A_c(t)$ & Sum of geometry weights for component $c$ & Auxiliary exposure readout \\
-$I_c(t)$ & Geometry-weighted anomaly intensity for component $c$ & Main field readout \\
-$e_{t+h}^{(k)}$ & Persistence residual of response $k$ & Aligned monitoring readout \\
+$A_c(t)$ & Sum of geometry weights for component $c$ & Auxiliary exposure metric \\
+$I_c(t)$ & Geometry-weighted anomaly intensity for component $c$ & Main component-level index \\
+$e_{t+h}^{(k)}$ & Persistence residual of response $k$ & Aligned monitoring residual \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -234,7 +234,7 @@ R_s \leq r_i \leq R_s+\tau_{\mathrm{zone}}\right\}.
 Table~\ref{tab:active_zone_parameters} lists the parameter values used in all
 formal case runs. The radii and shield length come from the parameterized TBM
 geometry. The edge-screening parameters $\tau_{\mathrm{edge}}$ and
-$\eta_{\min}$ are varied in Section~\ref{sec:sensitivity_settings}. The
+$\eta_{\min}$ are set as listed in Table~\ref{tab:active_zone_parameters}. The
 active-zone parameters $L_f$ and $\tau_{\mathrm{zone}}$ define the main
 spatial support and are fixed in the reported formal runs.
 
@@ -284,15 +284,15 @@ $E_t^{rm}$, and $w_{ij}^{rm}(t)$ defined, the graph entities of
 Section~\ref{sec:definition} have become a computable rock--TBM interaction
 graph.
 
-\subsection{Component-indexed anomaly readout field computation}
+\subsection{Component-indexed geological anomaly index computation}
 \label{sec:interpretable_computation}
 Once the graph is constructed, the central graph computation is to aggregate
-screened rock--machine edges into a component-indexed anomaly readout field.
-Response alignment and edge-level query are downstream readouts of this
+screened rock--machine edges into a component-indexed geological anomaly index.
+Response alignment and edge-level query are downstream uses of this
 field rather than separate method branches.
 
 \begin{algorithm}[htbp]
-\caption{Component-indexed anomaly readout field computation}
+\caption{Component-indexed geological anomaly index computation}
 \label{alg:interaction_field}
 \begin{algorithmic}[1]
 \REQUIRE Graph snapshots $G_t$, anomaly scores $q_i=\phi(g_i)$, component labels $\rho_j$
@@ -358,13 +358,13 @@ which reports the weighted geological anomaly intensity in the screened
 candidate relations incident to component $c$.
 $I_c(t)$ is defined for cutterhead, front shield, middle shield, and tail
 shield at each chainage step. Together with its step-level change
-$\Delta I_c(t)$, it forms the component $\times$ excavation-step anomaly
-readout field. $A_c(t)$ is retained as an auxiliary exposure readout, not as
-part of the anomaly readout field itself. In this paper, ``field'' refers to a
-discrete readout over the product domain of TBM components and excavation
+$\Delta I_c(t)$, it forms the component $\times$ excavation-step geological
+anomaly index. $A_c(t)$ is retained as an auxiliary exposure metric, not as
+part of the geological anomaly index itself. In this paper, ``field'' refers to a
+discrete index over the product domain of TBM components and excavation
 steps, rather than a continuous physical field in 3D space. The field denotes
 the component $\times$ excavation-step matrix of $I_c(t)$ and $\Delta I_c(t)$
-values, whereas a field readout denotes a downstream use of that matrix through
+values, whereas an index denotes a downstream use of that matrix through
 response alignment or edge-contribution query.
 
 \paragraph{Step-level tracking.} Beyond the instantaneous intensity
@@ -379,25 +379,25 @@ anomaly trajectory that indicates where and when the rock--machine
 interaction intensity rises or falls along the alignment.
 
 The computed field is subsequently aligned with monitoring residuals for
-response readout and can be queried back to edge contributions. For response
+response alignment and can be queried back to edge contributions. For response
 alignment, short-horizon TBM responses are evaluated through persistence
 residuals rather than raw responses:
 \[
 e_{t+h}^{(k)} = r_{t+h}^{(k)}-r_t^{(k)},
 \]
 where $h$ is the diagnostic horizon and $k$ indexes a response variable. The
-diagnostic question is whether component-indexed field readouts co-vary with
+diagnostic question is whether component-indexed indices co-vary with
 the response change left after persistence has been removed:
 \[
 I_c(t)\rightarrow e_{t+h}^{(k)} .
 \]
 The reported association statistic is the Spearman correlation between
 $I_c(t)$ and $e_{t+h}^{(k)}$ over the evaluated test chainage interval. This
-readout links the graph-computed field to TBM response change; it is
-interpreted as field--residual co-variation within the evaluated chainage
-interval, not as causal attribution. The choice of diagnostic pairs, null
-variants, detrending, and robustness checks is part of the case evaluation
-design and is specified in Section~\ref{sec:diagnostic_readout_variants}.
+association links the graph-computed index to TBM response change; it is
+interpreted as index--residual co-variation within the evaluated chainage
+interval, not as causal attribution. The choice of component-level indices, comparison summaries,
+and edge-level provenance analysis is part of the case evaluation
+design and is specified in Section~\ref{sec:event-evaluation-design}.
 For edge-level traceability, candidate edges for any fixed diagnostic sample
 are ranked by their contribution
 \[

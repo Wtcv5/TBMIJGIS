@@ -49,9 +49,9 @@
 \fi
 
 \usepackage{placeins}
-\graphicspath{{../../experiments/outputs/figures/}}
+\graphicspath{{./figures/}{./}{../../experiments/outputs/figures/}}
 
-\title{A dynamic rock--TBM spatial relation graph for component-indexed geological anomaly readouts during TBM excavation}
+\title{A dynamic rock--TBM spatial relation graph for component-level geological anomaly indexing during shield-sticking events}
 
 \author{
 \name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
@@ -76,13 +76,12 @@ Second Author\textsuperscript{b}} \\
 \maketitle
 
 \begin{abstract}
-The coupling between underground geological space and mobile engineering equipment is a typical spatiotemporal process in mechanized tunnelling. In TBM excavation, construction anomalies are difficult to interpret from monitoring responses alone because hazardous or weak ground affects the machine through specific spatial relations with the cutterhead, shields, and other components. Modern TBMs record dense streams of thrust, torque, penetration, pressure, and other responses, while tunnel seismic prediction (TSP) describes where anomalous ground may occur. However, these data do not directly answer the key spatial question: which geological units are geometrically related to which TBM components as excavation advances. This study proposes a dynamic rock–TBM spatial relation graph to provide this missing relation layer. The graph represents TSP-derived rock voxels and component-labelled TBM surface samples as two types of spatial entities, and connects them only when active-zone, distance, facing-direction, and excavation-state constraints indicate a plausible rock–machine relation. Rebuilding the graph at each excavation step converts static geological anomalies into component-specific geological anomaly trajectories along the tunnel alignment. These trajectories provide a spatial context for interpreting monitoring residuals and can be traced back to the rock voxels, surface samples, and relation attributes that produce them. Two tunnel cases demonstrate how the graph supports excavation anomaly interpretation beyond monitoring-only or geological-field-only summaries. In the SJLS case, the cutterhead-indexed trajectory remains strongly associated with shield-pressure residuals after detrending, whereas pooling all TBM surface components removes this relation pattern. Its stepwise trajectory is also consistent with shield-pressure residual changes, indicating that the graph captures not only where anomalous ground exists, but how its component-specific relation to the machine evolves during excavation. The BSLL case further verifies that the same graph construction supports component-level querying and edge-level traceability under 3D voxel support, although its compact intervals provide weaker residual evidence. The proposed graph is therefore a queryable spatial-relation layer for TBM excavation analysis and future safe-construction workflows, rather than a contact-force measurement, calibrated risk model, or universal response predictor.
+Mechanized tunnelling produces a moving spatial configuration in which geological anomalies do not affect the tunnel boring machine (TBM) as an undifferentiated object, but through their changing spatial relations with the cutterhead and shield components. Existing TBM monitoring records describe machine responses such as shield pressure, shield displacement, thrust and advance rate, while tunnel seismic prediction (TSP) data describe where weak or anomalous ground may occur. However, these two data sources do not directly represent which geological units are spatially related to which TBM components as excavation advances. This study proposes a dynamic rock--TBM spatial relation graph to represent candidate spatial relations between TSP-derived rock voxels and component-labelled TBM surface nodes. Candidate rock--TBM edges are generated under active-zone, distance, normal-compatibility and excavation-state constraints, and their spatial relation weights are used to compute a component-level geological anomaly index. The method is evaluated through an event-centred spatial interpretation of a real shield-sticking event in the Boshulaling Tunnel. The event was characterized by increasing shield pressure, converging shield displacement, increasing total thrust and nearly zero advance rate while the cutterhead continued rotating. The results show that the graph converts TSP-derived geological anomalies into component-level anomaly indices, reconstructs the dynamic association between low-velocity rock voxels and shield components, and supports edge-level provenance from the event interpretation back to specific rock voxels, TBM surface nodes and candidate rock--TBM edges. The proposed graph is therefore a spatial data representation for component-level interpretation of TBM excavation anomalies, rather than a contact-force estimator, calibrated risk model or general failure-prediction model.
 
 \end{abstract}
 
 \begin{keywords}
-spatial representation; rock--machine relation graph; anomaly readout field;
-candidate relation; persistence residual; TBM excavation
+dynamic spatial relation graph; TBM excavation; rock--TBM relation; geological anomaly index; shield sticking; edge-level provenance
 \end{keywords}
 
 \ifijgisclass\else
@@ -98,17 +97,17 @@ candidate relation; persistence residual; TBM excavation
 \section{Methodology}
 \input{sections/methods}
 
-\section{Case data and evaluation design}
-\input{sections/study_area}
+\section{Case data and event-centred evaluation}
+\input{sections/study_area_event_centred}
 
 \section{Results}
-\input{sections/results}
+\input{sections/results_event_centred}
 
 \section{Discussion}
-\input{sections/discussion}
+\input{sections/discussion_event_centred}
 
 \section{Conclusion}
-\input{sections/conclusion}
+\input{sections/conclusion_event_centred}
 
 \section*{Acknowledgements}
 \input{sections/acknowledgements}
@@ -128,18 +127,14 @@ that can be shared are the experiment configurations, analysis scripts, figure
 scripts, and derived result summaries used to reproduce the reported tables and
 figures. These materials are available from the corresponding author upon
 reasonable request, subject to project data-use permissions; the raw site data
-are not redistributed. To support reproducibility of the spatial graph
-construction without disclosing site data, the authors can also provide a
-synthetic demonstration package containing a small voxel field, TBM surface
-nodes, candidate edge lists, field-calculation scripts, and residual
-diagnostic scripts.
+are not redistributed. To support reproducibility of the spatial graph construction without disclosing site data, the authors can also provide a synthetic demonstration package containing a small voxel field, TBM surface nodes, candidate edge lists, component-level geological anomaly index scripts, and edge-level provenance examples.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
 
 \clearpage
 \appendix
-\section{Exploratory field--response matrix}
+\section{Supplementary diagnostics and robustness checks}
 \label{app:descriptor_matrix}
 \input{sections/appendix}
 

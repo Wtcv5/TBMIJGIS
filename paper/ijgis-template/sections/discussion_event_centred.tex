@@ -1,0 +1,20 @@
+\subsection{What the graph adds beyond TSP and monitoring}
+\label{sec:discussion-added-value}
+
+The results show that the proposed graph adds a spatial relation representation between two commonly separated data sources. TSP data describe anomalous geological conditions, but they do not specify which TBM components are geometrically related to the anomalous voxels during excavation. TBM monitoring records describe machine responses, but they do not identify the spatial source of the response in the surrounding geological field. The dynamic rock--TBM spatial relation graph connects these two perspectives by representing candidate spatial relations between rock voxels and component-labelled TBM surface nodes.
+
+This contribution is different from producing another monitoring indicator. The component-level geological anomaly index is derived from candidate rock--TBM edges and therefore preserves the component identity and edge provenance that are lost in global geological summaries or pooled TBM summaries. This is especially important for shield sticking, where the abnormal response is component-specific rather than a machine-wide phenomenon.
+
+\subsection{Interpretation boundaries}
+\label{sec:discussion-boundaries}
+
+The spatial relation weight should be interpreted only as a geometric relation weight. It is not a measurement of ground--machine contact force, shield pressure, friction or risk probability. Similarly, the component-level geological anomaly index is not a calibrated failure probability. It summarizes the geological anomaly scores associated with a TBM component through candidate spatial relations. Therefore, the evidence supports event-centred spatial interpretation, not causal proof of a unique failure component.
+
+The event-centred evaluation also differs from a general prediction benchmark. The confirmed shield-sticking event provides a strong engineering anchor, but one event cannot establish universal prediction ability. The main claim is that the proposed graph can reconstruct and trace a component-level spatial relation process consistent with the observed shield-sticking event.
+
+\subsection{Implications for spatial data modelling in TBM excavation}
+\label{sec:discussion-spatial-data-model}
+
+The proposed representation treats TBM excavation as a moving spatial relation problem. Rock voxels, TBM surface nodes, candidate rock--TBM edges, edge attributes and edge-level provenance form a graph-structured description of the excavation scene. This representation can support spatial queries such as which anomalous voxels are related to a given shield component, which candidate edges contribute most to a component-level index, and how the support of rock--TBM relations changes across excavation steps.
+
+Future work should test the same representation on additional shield-sticking and non-sticking intervals, incorporate uncertainty in TSP-derived voxel attributes and examine whether the component-level indices can be integrated with predictive models without losing their spatial provenance.

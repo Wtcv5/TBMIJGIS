@@ -1,0 +1,76 @@
+\subsection{Spatial setting of the shield-sticking event}
+\label{sec:result-spatial-setting}
+
+Figure~\ref{fig:spatial-setting} places the shield-sticking event in its geological and excavation context. The confirmed event location lies approximately 72 m before the F37 fault influence zone, while the TSP-derived geological anomaly score indicates weak ground both near the stuck location and further ahead toward the fault influence zone. The local cross-section shows that low-velocity voxels are distributed around the shield boundary, indicating that the event cannot be interpreted only from a one-dimensional geological profile. The aligned time--chainage panel further shows that the TBM face approached the confirmed event chainage during the monitoring period while shield pressure increased toward the event window.
+
+This setting establishes the spatial problem addressed by the graph. TSP data indicate anomalous ground, and monitoring data indicate shield sticking, but neither directly represents which rock voxels are spatially related to which TBM components during excavation.
+
+\subsection{Dynamic rock--TBM spatial relation snapshots}
+\label{sec:result-snapshots}
+
+Figure~\ref{fig:dynamic-snapshots} shows three graph snapshots before and during the shield-sticking process. Before event development, the TBM is still separated from the strongest shield-related anomaly zone, and only a limited number of candidate rock--TBM spatial relations are formed. At the beginning of the near-stuck window, more low-velocity voxels become connected to the front and middle shield components. Near the confirmed stuck state, candidate relations concentrate around the shield components, indicating that anomalous rock voxels are spatially associated with the shield rather than only with the cutterhead or the TBM as a whole.
+
+These snapshots demonstrate the main function of the dynamic graph. It does not merely summarize the geological anomaly field along the tunnel axis. Instead, it represents the moving spatial relations between rock voxels and component-labelled TBM surface nodes as excavation advances. The changing candidate-edge support also indicates that the graph represents edge lifecycle rather than a static buffer around the TBM.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\textwidth]{fig2_dynamic_rock_tbm_spatial_relation_snapshots.png}
+\caption{Dynamic rock--TBM spatial relation graph snapshots before and during shield sticking. The panels show candidate rock--TBM spatial relations before event development, at the beginning of the near-stuck window and near the confirmed stuck state. The graph snapshots emphasize how low-velocity rock voxels become spatially associated with shield components as excavation advances.}
+\label{fig:dynamic-snapshots}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Space--time evolution of component-level geological anomaly indices}
+\label{sec:result-spacetime}
+
+Figure~\ref{fig:spacetime-indices} summarizes the same process in a space--time form. The upper panel shows the TSP anomaly band along the TBM face distance to the confirmed event chainage. The middle panel shows the component-level geological anomaly index for the cutterhead, front shield, middle shield and tail shield. The shield components exhibit increasing anomaly indices as the TBM approaches the confirmed stuck location. The monitoring strips show the corresponding machine response: shield pressure and thrust increase, shield displacement converges, and the advance rate drops during the near-stuck window while cutterhead rotation remains non-zero.
+
+The purpose of this comparison is not to claim deterministic prediction of shield sticking. Rather, the result shows spatial consistency among three elements: anomalous geological voxels, shield-related component-level indices and the observed shield-sticking response. This supports the interpretation that the event can be represented as an increase in candidate spatial relations between anomalous rock voxels and shield components.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\textwidth]{fig3_space_time_component_indices_monitoring.png}
+\caption{Space--time evolution of component-level geological anomaly indices and TBM monitoring responses. The figure aligns the TSP anomaly band, component-level geological anomaly indices and normalized monitoring response strips in the same excavation coordinate system.}
+\label{fig:spacetime-indices}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Value of component-level indexing}
+\label{sec:result-component-indexing}
+
+The component-level index provides information that is not available from simpler summaries. A global geological anomaly summary can indicate that weak ground exists near the tunnel, but it does not identify which TBM component is spatially associated with the anomaly. A pooled TBM anomaly summary can indicate that the machine is near anomalous ground, but it removes the distinction among cutterhead, front shield, middle shield and tail shield. In contrast, the component-level geological anomaly index preserves the component labels of TBM surface nodes and therefore supports a shield-specific interpretation of the event. This distinction is essential in the present case because the confirmed abnormal response is shield sticking rather than a generic TBM response.
+
+\begin{table}[!ht]
+\centering
+\caption{Interpretation capability of different geological anomaly summaries.}
+\label{tab:summary-comparison}
+\begin{tabular}{p{0.28\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.28\textwidth}}
+\toprule
+Summary type & Component label & Edge provenance & Interpretation \\
+\midrule
+Global geological anomaly summary & No & No & Weak ground exists near the tunnel \\
+Pooled TBM anomaly summary & No & Partial & The TBM is near anomalous ground \\
+Component-level geological anomaly index & Yes & Yes & Anomalous ground is spatially related to shield components \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
+\subsection{Edge-level provenance of the shield-sticking interpretation}
+\label{sec:result-provenance}
+
+Figure~\ref{fig:edge-provenance} provides edge-level provenance near the stuck state. The local 3D graph view shows low-velocity voxels, shield surface nodes and top contributing candidate rock--TBM edges. The longitudinal section further shows that the dominant edge contributions are located near the shield components immediately before the confirmed event chainage. The provenance table records the component label, relative chainage, distance, normal compatibility, geological anomaly score, spatial relation weight and edge contribution for the top candidate edges.
+
+This result shows that the component-level geological anomaly index is not an opaque aggregate. It can be traced back to specific anomalous rock voxels, shield surface nodes and candidate spatial relations. This traceability is the key advantage of representing the TBM excavation process as a dynamic rock--TBM spatial relation graph.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\textwidth]{fig4_edge_level_spatial_provenance.png}
+\caption{Edge-level provenance of the component-level geological anomaly index near the stuck state. Panel A shows local 3D rock--shield edge provenance. Panel B shows the longitudinal section of top contributing rock--shield edges. Panel C lists the top edge-level provenance records.}
+\label{fig:edge-provenance}
+\end{figure}
+
+\FloatBarrier

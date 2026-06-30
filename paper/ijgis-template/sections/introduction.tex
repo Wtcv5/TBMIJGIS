@@ -35,7 +35,7 @@ which TBM component, which relation attributes were used to screen the pair,
 or whether the pair persists or disappears as the machine advances. The graph
 representation used here keeps the heterogeneous entities, component labels,
 edge attributes, and edge lifecycle explicit. The component $\times$
-excavation-step readout is therefore a relation aggregation over a screened
+excavation-step geological anomaly index is therefore a relation aggregation over a screened
 candidate-edge set, not a simple raster or voxel-field average.
 
 To address this gap, the paper treats rock--TBM interpretation as a spatial
@@ -47,7 +47,7 @@ excavation steps but are not graph entities. The method then constructs a
 dynamic rock--TBM spatial relation graph at each excavation step
 using active-zone, distance, normal-compatibility, and excavation-state
 constraints. Weighted rock--machine edges are aggregated by TBM component to
-compute a component $\times$ excavation-step geological anomaly readout field. The
+compute a component $\times$ excavation-step geological anomaly index. The
 field contains $I_c(t)$ and $\Delta I_c(t)$, can be aligned with monitoring
 responses, and remains traceable back to individual rock--machine edges. The
 graph is introduced first as a spatial data model and graph computation
@@ -61,7 +61,7 @@ excavation coordinate while keeping monitoring responses as aligned records;
 (ii) a per-step rock--machine spatial relation graph
 built from active-zone membership, distance decay, surface-normal
 compatibility, and excavation-state constraints; and (iii) a component
-$\times$ excavation-step geological anomaly readout field that aggregates
+$\times$ excavation-step geological anomaly index that aggregates
 fixed-reference geological anomaly scores over screened candidate relations per
 TBM component and tracks $I_c(t)$ and $\Delta I_c(t)$ over excavation steps.
 The empirical evidence is used to support representation, traceability, and
