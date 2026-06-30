@@ -6,7 +6,7 @@ This setting establishes the spatial representation problem addressed by the gra
 \subsection{Dynamic rock--TBM relation-support evolution}
 Figure~\ref{fig:dynamic_snapshots} shows three graph snapshots before and during the shield-jamming process. Before event development, the TBM is still separated from the strongest shield-related anomaly zone, and only a limited number of candidate rock--TBM relations are formed. At the beginning of the near-jamming window, more low-velocity voxels become connected to the front and middle shield components. Near the confirmed jammed state, candidate relations concentrate around the shield components, indicating that anomalous rock voxels are spatially associated with the shield rather than only with the cutterhead or the TBM as a whole.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig2_dynamic_rock_tbm_spatial_relation_snapshots.png}
 \caption{Dynamic rock--TBM spatial relation graph snapshots before and during shield jamming. Candidate edges are displayed with opacity proportional to $w_{ij}^{rm}(t)q_i$, and the side bar summarises edge contribution by TBM component.}
@@ -16,7 +16,7 @@ Figure~\ref{fig:dynamic_snapshots} shows three graph snapshots before and during
 \subsection{Component-indexed anomaly evolution}
 Figure~\ref{fig:component_heatmap} summarises the same process in a component--chainage form. The upper panel shows the TSP anomaly band along the TBM face distance to the confirmed event chainage. The middle panel shows the component-level geological anomaly index for the cutterhead, front shield, middle shield and tail shield. The shield components exhibit increasing anomaly support as the TBM approaches the confirmed jamming location. The lower monitoring strips show the corresponding machine response: shield pressure and thrust increase, shield displacement converges, and the advance rate drops during the near-jamming window while cutterhead rotation remains non-zero.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig3_space_time_component_indices_monitoring.png}
 \caption{Component-indexed geological anomaly evolution and monitoring responses. The figure aligns the TSP anomaly band, component-level geological anomaly indices, shield-specificity contrast and normalized monitoring response strips in the same excavation coordinate.}
@@ -28,11 +28,12 @@ The comparison is not interpreted as deterministic prediction. Instead, it shows
 \subsection{Comparison with alternative summaries}
 Table~\ref{tab:representation_comparison} summarises the representational capacity of the proposed graph against simpler alternatives. A global active-zone anomaly summary can indicate that weak ground exists near the tunnel, but it cannot identify which TBM component is spatially related to the anomaly. A pooled TBM anomaly summary can indicate that the machine is near anomalous ground, but it removes the distinction among cutterhead, front shield, middle shield and tail shield. The no-normal and no-state ablations retain some component information but either admit geometrically implausible edge directions or allow already excavated voxels to re-enter later snapshots. The full graph preserves component identity, relation screening, edge lifecycle and edge-level provenance.
 
-\begin{table}[t]
+\begin{table}[!htbp]
+\small
 \centering
 \caption{Interpretation capacity of the proposed graph and alternative geological summaries.}
 \label{tab:representation_comparison}
-\begin{tabular}{p{0.25\textwidth}ccccp{0.24\textwidth}}
+\begin{tabular}{@{}p{0.17\textwidth}p{0.11\textwidth}p{0.12\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.28\textwidth}@{}}
 \toprule
 Summary type & Component label & Normal compatibility & Edge lifecycle & Edge provenance & Interpretation supported \\
 \midrule
@@ -52,9 +53,9 @@ O_k(\theta,\theta_0)=\frac{|\mathcal{E}_k(\theta)\cap\mathcal{E}_k(\theta_0)|}{k
 \end{equation}
 where $\theta_0$ is the formal setting and $\mathcal{E}_k(\theta)$ is the top-$k$ candidate-edge set under parameter setting $\theta$.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\fbox{\parbox{0.92\textwidth}{\centering Placeholder for sensitivity figure: parameter-sensitivity heatmap and top-$k$ provenance-overlap bars.}}
+\fbox{\begin{minipage}[c][5cm][c]{0.92\textwidth}\centering\itshape Placeholder for sensitivity figure: parameter-sensitivity heatmap and top-$k$ provenance-overlap bars.\end{minipage}}
 \caption{Sensitivity of the component-level geological anomaly index and edge-level provenance to graph-construction settings. The panel reports stability of $I_{shield}^{A}(t)$, $S_{shield}(t)$ and top-$k$ edge overlap under variations in $\tau_{edge}$, $\eta_{min}$ and $\tau_{zone}$.}
 \label{fig:sensitivity}
 \end{figure}
@@ -64,18 +65,19 @@ Exploratory index--residual associations may be retained, but they should be pre
 \subsection{Edge-level provenance}
 Figure~\ref{fig:provenance} and Table~\ref{tab:edge_provenance_schema} provide edge-level provenance near the jammed state. The local graph view shows low-velocity voxels, shield surface nodes and top contributing candidate rock--TBM edges. The provenance table records the component label, relative chainage, distance, normal compatibility, geological anomaly score, spatial relation weight and edge contribution for the top candidate edges.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig4_edge_level_spatial_provenance.png}
 \caption{Edge-level provenance of the component-level geological anomaly index near the jammed state. Top contributing edges retain rock voxel identity, TBM surface-node identity, component label, relation geometry and geological anomaly score.}
 \label{fig:provenance}
 \end{figure}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Recommended edge-level provenance fields for the top candidate relations.}
 \label{tab:edge_provenance_schema}
-\begin{tabular}{p{0.20\textwidth}p{0.28\textwidth}p{0.40\textwidth}}
+\small
+\begin{tabular}{@{}p{0.20\textwidth}p{0.28\textwidth}p{0.42\textwidth}@{}}
 \toprule
 Field & Symbol or example & Purpose \\
 \midrule

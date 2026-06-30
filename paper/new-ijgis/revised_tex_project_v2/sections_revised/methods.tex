@@ -33,11 +33,12 @@ and TBM surface nodes are advanced along the excavation direction $d$:
 p_j(t+1)=p_j(t)+\Delta x d.
 \end{equation}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Entities, relations and indices in the revised rock--TBM spatial relation graph.}
 \label{tab:entity_model}
-\begin{tabular}{lll}
+\small
+\begin{tabular}{@{}p{0.16\textwidth}p{0.40\textwidth}p{0.32\textwidth}@{}}
 \toprule
 Entity or quantity & Definition & Role \\
 \midrule
@@ -53,7 +54,7 @@ $e_{t+h}^{(k)}$ & Persistence residual of response $k$ & Aligned monitoring resi
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\linewidth]{fig_method_workflow.png}
 \caption{Workflow of the dynamic rock--TBM spatial relation graph. Rock voxels, TBM surface nodes and aligned monitoring records are organised under a common excavation-step coordinate. Candidate rock--TBM relations are generated under active-zone, distance, surface-normal compatibility and excavation-state constraints, aggregated into component-level geological anomaly indices, and queried back to edge-level provenance.}
@@ -111,9 +112,9 @@ w_{ij}^{rm}(t)=\exp\left(-\frac{d_{ij}(t)}{\tau_{edge}}\right)\kappa_{ij}(t).
 \end{equation}
 This quantity is a spatial relation weight; it is not a contact force, pressure or friction estimate.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\fbox{\parbox{0.92\textwidth}{\centering Placeholder for candidate-relation construction: active-zone, distance, normal-compatibility and excavation-state filtering.}}
+\fbox{\begin{minipage}[c][5cm][c]{0.92\textwidth}\centering\itshape Placeholder for candidate-relation construction: active-zone, distance, normal-compatibility and excavation-state filtering.\end{minipage}}
 \caption{Geometry-constrained rock--TBM candidate relation construction. The graph is obtained by screening all possible rock voxel--TBM surface-node pairs through active-zone membership, distance, surface-normal compatibility and excavation-state constraints.}
 \label{fig:construction}
 \end{figure}

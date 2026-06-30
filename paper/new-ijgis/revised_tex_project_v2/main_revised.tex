@@ -23,6 +23,7 @@
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{lmodern}
+  \usepackage{microtype}
   \usepackage{graphicx}
   \usepackage{booktabs}
   \usepackage{amsmath,amssymb}
@@ -50,8 +51,20 @@
   \newcommand{\pagerange}[1]{}
 \fi
 
-\usepackage{placeins}
+\usepackage[section]{placeins}
 \graphicspath{{./figures/}{./}}
+
+% Typography refinements for journal-quality layout
+\widowpenalty=10000
+\clubpenalty=10000
+\emergencystretch=3em
+\tolerance=2000
+\hbadness=2500
+\vbadness=2500
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{5pt}
+\setlength{\abovecaptionskip}{8pt}
+\setlength{\belowcaptionskip}{4pt}
 
 \title{A dynamic rock--TBM spatial relation graph for component-level geological anomaly interpretation during TBM shield jamming}
 
