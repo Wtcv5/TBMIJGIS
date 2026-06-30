@@ -33,11 +33,12 @@ experiments/
   scripts/      descriptor collection, sensitivity, and figure scripts
   src/          reusable data, graph, diagnostics, and visualization code
   outputs/      generated descriptor tables and figures
+event_centered_experiment_figures/
+  figures/      reusable event-centred manuscript figures
+  tables/       event-centred figure/table source summaries
 paper/
-  ijgis-template/       LaTeX manuscript
-  rewriting_output/     planning, evidence, and revision artifacts
-IJGIS-papaers/          local target-journal and related-paper PDFs
-docs/                   project-structure notes
+  new-ijgis/                active revised manuscript
+tbm_shield_sticking/        event-alignment and edge-provenance evidence package
 ```
 
 ## Run From `experiments/`
@@ -61,6 +62,11 @@ python scripts/make_descriptor_figures.py
 ```
 
 ## Current Paper Positioning
+
+The active manuscript is `paper/new-ijgis/revised_tex_project_v2/main_revised.tex`.
+The previous `paper/ijgis-template/` draft has been removed after its usable
+bibliography, DOI audit, citation anchors, and figures were migrated into the
+active manuscript.
 
 The defensible contribution is:
 

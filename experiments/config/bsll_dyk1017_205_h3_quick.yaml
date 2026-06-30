@@ -1,15 +1,10 @@
-# Fast smoke-test configuration for BSLL with a 3-step prediction horizon.
-#
-# This tests whether the graph/geology signal becomes more useful when the task
-# is advance warning rather than one-step persistence matching.
+# Fast descriptor smoke-test configuration for BSLL with h=3.
 
 case:
   id: "bsll_dyk1017_205_h3_quick"
   tunnel: "BSLL"
   start_chainage: "DyK1017+205"
-  description: "Quick BSLL run with h=3 advance prediction."
-
-seed: 42
+  description: "Quick BSLL descriptor run with h=3 response horizon."
 
 data:
   tsp_path: "data/raw/tsp.csv"
@@ -38,38 +33,12 @@ graph:
 model:
   history_window: 5
   predict_horizon: 3
-  rock_node_dim: 16
-  tbm_node_dim: 16
-  edge_dim: 16
-  gnn_layers: 1
-  gru_hidden_dim: 32
-  gru_layers: 1
-  dropout: 0.25
-  residual_prediction: true
 
 training:
   batch_size: 32
-  epochs: 8
-  learning_rate: 0.001
-  weight_decay: 0.005
-  patience: 3
-  huber_delta: 1.0
-  target_weights: [1.0, 1.2, 1.8, 1.0, 1.4]
 
 split:
   method: "mileage"
   train_ratio: 0.70
   val_ratio: 0.15
   test_ratio: 0.15
-
-runtime:
-  output_dir: "outputs/bsll_dyk1017_205_h3_quick"
-  device: "auto"
-  cache_graph_sequence: true
-  calibrate_residual_blend: true
-  run_ablations: false
-  run_relaxed_ablation: false
-  bootstrap_samples: 0
-  permutation_samples: 0
-  xgb_n_estimators: 20
-  xgb_max_depth: 2

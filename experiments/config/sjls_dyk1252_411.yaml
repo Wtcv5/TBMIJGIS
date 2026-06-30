@@ -1,18 +1,14 @@
 # SJLS tunnel case starting from Dyk1252+411.
-#
-# This case uses the external paired Vp/Vs TSP field after conversion to the
-# project voxel schema, together with its paired TBM monitoring sequence.
+# Descriptor evidence run using the processed external TSP voxel field.
 
 case:
   id: "sjls_dyk1252_411"
   tunnel: "SJLS"
   start_chainage: "Dyk1252+411"
-  description: "SJLS tunnel case using the external Dyk1252+411 Vp/Vs TSP field and paired monitoring data."
-  tsp_source: "experiments/data/sjls_dyk1252_411_raw/出口右线Dyk1252+411-Vp.txt; experiments/data/sjls_dyk1252_411_raw/出口右线Dyk1252+411-Vs.txt"
+  description: "SJLS descriptor case using processed Dyk1252+411 TSP and monitoring data."
+  tsp_source: "experiments/data/processed/sjls_dyk1252_411/tsp_sjls_dyk1252_411.csv"
   monitoring_source: "experiments/data/processed/sjls_dyk1252_411/monitoring_sjls_dyk1252_411.csv"
   tsp_preprocessing: "2.5D X-Y velocity profile expanded over Z layers; see data/processed/sjls_dyk1252_411/tsp_sjls_dyk1252_411_audit.json."
-
-seed: 42
 
 data:
   tsp_path: "data/processed/sjls_dyk1252_411/tsp_sjls_dyk1252_411.csv"
@@ -41,50 +37,12 @@ graph:
 model:
   history_window: 5
   predict_horizon: 3
-  rock_node_dim: 16
-  tbm_node_dim: 16
-  edge_dim: 16
-  gnn_layers: 2
-  gru_hidden_dim: 32
-  gru_layers: 1
-  dropout: 0.25
-  residual_prediction: true
 
 training:
   batch_size: 32
-  epochs: 45
-  learning_rate: 0.001
-  weight_decay: 0.005
-  patience: 8
-  huber_delta: 1.0
 
 split:
   method: "mileage"
   train_ratio: 0.70
   val_ratio: 0.15
   test_ratio: 0.15
-
-metrics:
-  - mae
-  - rmse
-  - r2
-  - pearson
-  - spearman
-
-scenarios:
-  high_thrust_percentile: 80
-  high_torque_percentile: 80
-  low_penetration_percentile: 20
-  low_advance_rate_percentile: 20
-
-runtime:
-  output_dir: "outputs/sjls_dyk1252_411"
-  device: "auto"
-  cache_graph_sequence: true
-  calibrate_residual_blend: true
-  run_ablations: true
-  enable_a4: false
-  bootstrap_samples: 300
-  permutation_samples: 2000
-  xgb_n_estimators: 120
-  xgb_max_depth: 3

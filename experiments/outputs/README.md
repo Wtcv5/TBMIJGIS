@@ -1,19 +1,16 @@
-# Experiment Outputs
+# Generated Experiment Outputs
 
-This directory contains generated results. Most files here are reproducible
-artifacts and are ignored by git, except selected summaries and evidence tables.
+This directory is the target for regenerated experiment outputs. In the cleaned project, generated descriptor tables, diagnostics, and figures are not retained here.
 
-## Formal Output Directories
+Recreate formal outputs from `experiments/` with:
 
-- `bsll_dyk1017_205/`: BSLL one-step graph-sequence run.
-- `bsll_dyk1017_205_h3/`: BSLL three-step advance-prediction run.
-- `sjls_dyk1252_411/`: SJLS graph-sequence run.
-- `sjls_dyk1252_411_tabular/`: SJLS tabular control benchmark.
-- `evidence/`: checkpoint-derived interpretation evidence.
-- `figures/`: manuscript-oriented figure copies.
-
-## Summary Files
-
-- `case_summary.csv/json`: prediction metrics and split metadata by case.
-- `evidence/interpretation_summary.csv/json`: spatial interpretation evidence
-  by case.
+```powershell
+python scripts/collect_spatial_descriptors.py --config config/bsll_dyk1017_205.yaml --output-dir outputs/descriptors/bsll_dyk1017_205
+python scripts/collect_spatial_descriptors.py --config config/bsll_dyk1017_205_h3.yaml --output-dir outputs/descriptors/bsll_dyk1017_205_h3
+python scripts/collect_spatial_descriptors.py --config config/sjls_dyk1252_411.yaml --output-dir outputs/descriptors/sjls_dyk1252_411
+python scripts/summarize_spatial_descriptors.py
+python scripts/run_descriptor_sensitivity.py --config config/bsll_dyk1017_205.yaml
+python scripts/run_descriptor_sensitivity.py --config config/bsll_dyk1017_205_h3.yaml
+python scripts/run_descriptor_sensitivity.py --config config/sjls_dyk1252_411.yaml
+python scripts/make_descriptor_figures.py
+```

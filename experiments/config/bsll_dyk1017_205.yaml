@@ -1,18 +1,13 @@
 # BSLL tunnel case starting from DyK1017+205.
-#
-# This case uses the project raw TSP voxel field and TBM monitoring sequence.
-# Keep this configuration as the semantic, paper-facing entry for the BSLL
-# tunnel case.
+# Descriptor evidence run with a one-step response horizon.
 
 case:
   id: "bsll_dyk1017_205"
   tunnel: "BSLL"
   start_chainage: "DyK1017+205"
-  description: "BSLL tunnel case using the raw project TSP and TBM monitoring data."
+  description: "BSLL descriptor case using the project TSP and TBM monitoring data."
   tsp_source: "experiments/data/raw/tsp.csv"
   monitoring_source: "experiments/data/raw/monitoring.csv"
-
-seed: 42
 
 data:
   tsp_path: "data/raw/tsp.csv"
@@ -41,51 +36,12 @@ graph:
 model:
   history_window: 5
   predict_horizon: 1
-  rock_node_dim: 32
-  tbm_node_dim: 32
-  edge_dim: 32
-  gnn_layers: 2
-  gru_hidden_dim: 64
-  gru_layers: 1
-  dropout: 0.3
-  residual_prediction: true
 
 training:
   batch_size: 32
-  epochs: 80
-  learning_rate: 0.001
-  weight_decay: 0.01
-  patience: 15
-  huber_delta: 1.0
-  target_weights: [1.0, 1.2, 1.8, 1.0, 1.4]
 
 split:
   method: "mileage"
   train_ratio: 0.70
   val_ratio: 0.15
   test_ratio: 0.15
-
-metrics:
-  - mae
-  - rmse
-  - r2
-  - pearson
-  - spearman
-
-scenarios:
-  high_thrust_percentile: 80
-  high_torque_percentile: 80
-  low_penetration_percentile: 20
-  low_advance_rate_percentile: 20
-
-runtime:
-  output_dir: "outputs/bsll_dyk1017_205"
-  device: "auto"
-  cache_graph_sequence: true
-  calibrate_residual_blend: true
-  run_ablations: true
-  run_relaxed_ablation: false
-  bootstrap_samples: 300
-  permutation_samples: 2000
-  xgb_n_estimators: 100
-  xgb_max_depth: 4

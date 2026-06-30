@@ -1,0 +1,95 @@
+\subsection{Spatial setting of the shield-jamming event}
+Figure~\ref{fig:event_alignment} places the shield-jamming event in its geological and excavation context. The confirmed event location lies approximately 72 m before the F37 fault influence zone, while the TSP-derived geological anomaly score indicates weak ground both near the jamming location and further ahead toward the fault influence zone. The local cross-section shows that low-velocity voxels are distributed around the shield boundary, indicating that the event cannot be interpreted only from a one-dimensional geological profile. The aligned time--chainage panel further shows that the TBM face approached the confirmed event chainage during the monitoring period while shield pressure increased toward the event window.
+
+This setting establishes the spatial representation problem addressed by the graph. TSP data indicate anomalous ground, and monitoring data indicate shield jamming, but neither directly represents which rock voxels are spatially related to which TBM components during excavation.
+
+\subsection{Dynamic rock--TBM relation-support evolution}
+Figure~\ref{fig:dynamic_snapshots} shows three graph snapshots before and during the shield-jamming process. Before event development, the TBM is still separated from the strongest shield-related anomaly zone, and only a limited number of candidate rock--TBM relations are formed. At the beginning of the near-jamming window, more low-velocity voxels become connected to the front and middle shield components. Near the confirmed jammed state, candidate relations concentrate around the shield components, indicating that anomalous rock voxels are spatially associated with the shield rather than only with the cutterhead or the TBM as a whole.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig2_dynamic_rock_tbm_spatial_relation_snapshots.png}
+\caption{Dynamic rock--TBM spatial relation graph snapshots before and during shield jamming. Candidate edges are displayed with opacity proportional to $w_{ij}^{rm}(t)q_i$, and the side bar summarises edge contribution by TBM component.}
+\label{fig:dynamic_snapshots}
+\end{figure}
+
+\subsection{Component-indexed anomaly evolution}
+Figure~\ref{fig:component_heatmap} summarises the same process in a component--chainage form. The upper panel shows the TSP anomaly band along the TBM face distance to the confirmed event chainage. The middle panel shows the component-level geological anomaly index for the cutterhead, front shield, middle shield and tail shield. The shield components exhibit increasing anomaly support as the TBM approaches the confirmed jamming location. The lower monitoring strips show the corresponding machine response: shield pressure and thrust increase, shield displacement converges, and the advance rate drops during the near-jamming window while cutterhead rotation remains non-zero.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig3_space_time_component_indices_monitoring.png}
+\caption{Component-indexed geological anomaly evolution and monitoring responses. The figure aligns the TSP anomaly band, component-level geological anomaly indices, shield-specificity contrast and normalized monitoring response strips in the same excavation coordinate.}
+\label{fig:component_heatmap}
+\end{figure}
+
+The comparison is not interpreted as deterministic prediction. Instead, it shows spatial consistency among anomalous geological voxels, shield-related component-level indices and the observed shield-jamming response. This supports the event-centred claim that the graph represents an increase in candidate spatial relations between anomalous rock voxels and shield components.
+
+\subsection{Comparison with alternative summaries}
+Table~\ref{tab:representation_comparison} summarises the representational capacity of the proposed graph against simpler alternatives. A global active-zone anomaly summary can indicate that weak ground exists near the tunnel, but it cannot identify which TBM component is spatially related to the anomaly. A pooled TBM anomaly summary can indicate that the machine is near anomalous ground, but it removes the distinction among cutterhead, front shield, middle shield and tail shield. The no-normal and no-state ablations retain some component information but either admit geometrically implausible edge directions or allow already excavated voxels to re-enter later snapshots. The full graph preserves component identity, relation screening, edge lifecycle and edge-level provenance.
+
+\begin{table}[t]
+\centering
+\caption{Interpretation capacity of the proposed graph and alternative geological summaries.}
+\label{tab:representation_comparison}
+\begin{tabular}{p{0.25\textwidth}ccccp{0.24\textwidth}}
+\toprule
+Summary type & Component label & Normal compatibility & Edge lifecycle & Edge provenance & Interpretation supported \\
+\midrule
+Global active-zone anomaly & No & No & Partial & No & Weak ground exists near the tunnel \\
+Pooled TBM anomaly & No & Yes & Yes & Partial & The TBM is near anomalous ground \\
+No-normal component graph & Yes & No & Yes & Yes & Component relation may include implausible facing geometry \\
+No-state component graph & Yes & Yes & No & Yes & Component relation may be inflated by repeated excavated voxels \\
+Full proposed graph & Yes & Yes & Yes & Yes & Anomalous ground is spatially related to specific TBM components \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Sensitivity and null diagnostics}
+The sensitivity analysis should be reported as a compact robustness panel rather than as a prediction table. The expected result is not that every value is identical, but that the event-window shield-group index and shield-specificity contrast remain in the same chainage neighbourhood and that the top contributing edge set remains substantially overlapping under reasonable parameter changes. A useful stability measure is the top-$k$ provenance overlap:
+\begin{equation}
+O_k(\theta,\theta_0)=\frac{|\mathcal{E}_k(\theta)\cap\mathcal{E}_k(\theta_0)|}{k},
+\end{equation}
+where $\theta_0$ is the formal setting and $\mathcal{E}_k(\theta)$ is the top-$k$ candidate-edge set under parameter setting $\theta$.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.92\textwidth}{\centering Placeholder for sensitivity figure: parameter-sensitivity heatmap and top-$k$ provenance-overlap bars.}}
+\caption{Sensitivity of the component-level geological anomaly index and edge-level provenance to graph-construction settings. The panel reports stability of $I_{shield}^{A}(t)$, $S_{shield}(t)$ and top-$k$ edge overlap under variations in $\tau_{edge}$, $\eta_{min}$ and $\tau_{zone}$.}
+\label{fig:sensitivity}
+\end{figure}
+
+Exploratory index--residual associations may be retained, but they should be presented as supplementary response-alignment diagnostics. They should not be used as the primary evidence for the method because the paper's main claim is a spatial relation representation claim rather than a calibrated prediction claim.
+
+\subsection{Edge-level provenance}
+Figure~\ref{fig:provenance} and Table~\ref{tab:edge_provenance_schema} provide edge-level provenance near the jammed state. The local graph view shows low-velocity voxels, shield surface nodes and top contributing candidate rock--TBM edges. The provenance table records the component label, relative chainage, distance, normal compatibility, geological anomaly score, spatial relation weight and edge contribution for the top candidate edges.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig4_edge_level_spatial_provenance.png}
+\caption{Edge-level provenance of the component-level geological anomaly index near the jammed state. Top contributing edges retain rock voxel identity, TBM surface-node identity, component label, relation geometry and geological anomaly score.}
+\label{fig:provenance}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Recommended edge-level provenance fields for the top candidate relations.}
+\label{tab:edge_provenance_schema}
+\begin{tabular}{p{0.20\textwidth}p{0.28\textwidth}p{0.40\textwidth}}
+\toprule
+Field & Symbol or example & Purpose \\
+\midrule
+Rock voxel ID & $i$ & Identifies the geological spatial support \\
+TBM surface-node ID & $j$ & Identifies the machine-side spatial support \\
+Component label & $\rho_j$ & Links the edge to cutterhead/front/middle/tail shield \\
+Relative chainage & $x_i-x_{event}$ & Locates the rock voxel relative to the confirmed event \\
+Distance & $d_{ij}(t)$ & Reports metric proximity \\
+Normal compatibility & $\kappa_{ij}(t)$ & Reports facing-geometry plausibility \\
+Geometry weight & $w_{ij}^{rm}(t)$ & Reports edge relation weight \\
+Anomaly score & $q_i$ & Reports geological contribution \\
+Weighted contribution & $s_{ij}(t)=w_{ij}^{rm}(t)q_i$ & Ranks edge-level provenance \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This result shows that the component-level geological anomaly index is not an opaque aggregate. It can be traced back to specific anomalous rock voxels, shield surface nodes and candidate spatial relations. This traceability is the key advantage of representing the TBM excavation process as a dynamic rock--TBM spatial relation graph.

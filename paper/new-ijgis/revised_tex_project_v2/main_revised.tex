@@ -1,0 +1,134 @@
+\newif\ifijgisclass
+\IfFileExists{tGIS2e.cls}{\ijgisclasstrue}{\ijgisclassfalse}
+
+\ifijgisclass
+  \documentclass{tGIS2e}
+\else
+  \documentclass[11pt,a4paper]{article}
+\fi
+
+\ifijgisclass
+  \usepackage{graphicx}
+  \usepackage{booktabs}
+  \usepackage{amsmath,amssymb}
+  \usepackage{multirow}
+  \usepackage{array}
+  \usepackage{url}
+  \usepackage{algorithm}
+  \usepackage{algorithmic}
+  \usepackage{subcaption}
+  \citestyle{tGIS}
+\else
+  \usepackage[margin=1in]{geometry}
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{lmodern}
+  \usepackage{graphicx}
+  \usepackage{booktabs}
+  \usepackage{amsmath,amssymb}
+  \usepackage{multirow}
+  \usepackage{array}
+  \usepackage{url}
+  \usepackage[numbers,sort&compress]{natbib}
+  \usepackage{algorithm}
+  \usepackage{algorithmic}
+  \usepackage{subcaption}
+  \usepackage[hidelinks]{hyperref}
+  \newcommand{\name}[1]{#1}
+  \newcommand{\affil}[1]{#1}
+  \newcommand{\correspondence}[1]{\par\noindent\textbf{Correspondence:} #1}
+  \newenvironment{keywords}{\par\noindent\textbf{Keywords: }}{\par}
+  \newcommand{\jvol}[1]{}
+  \newcommand{\jnum}[1]{}
+  \newcommand{\jyear}[1]{}
+  \newcommand{\jmonth}[1]{}
+  \newcommand{\DOI}[1]{}
+  \newcommand{\received}[1]{}
+  \newcommand{\revised}[1]{}
+  \newcommand{\accepted}[1]{}
+  \newcommand{\pubyear}[1]{}
+  \newcommand{\pagerange}[1]{}
+\fi
+
+\usepackage{placeins}
+\graphicspath{{./figures/}{./}}
+
+\title{A dynamic rock--TBM spatial relation graph for component-level geological anomaly interpretation during TBM shield jamming}
+
+\author{
+\name{First Author\textsuperscript{a}\thanks{Email: first.author@example.com} and
+Second Author\textsuperscript{b}} \\
+\affil{\textsuperscript{a}Department of XXX, University A, City, Country; \\
+\textsuperscript{b}Institute of YYY, University B, City, Country}
+}
+
+\jvol{00}
+\jnum{00}
+\jyear{2026}
+\jmonth{Month}
+\DOI{00.0000/0000000000000000}
+\received{00 Month 2026}
+\revised{00 Month 2026}
+\accepted{00 Month 2026}
+\pubyear{2026}
+\pagerange{1--20}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Mechanized tunnelling creates a moving spatial configuration in which weak or anomalous ground becomes relevant to the tunnel boring machine (TBM) through changing relations with specific machine components rather than through a machine-wide contact zone. TBM monitoring records describe operational responses such as shield pressure, displacement, thrust and advance rate, while tunnel seismic prediction (TSP) data describe the spatial support of geological anomalies. These data sources do not, by themselves, identify which geological units are spatially related to the cutterhead, front shield, middle shield or tail shield at a given excavation step. This paper proposes a dynamic rock--TBM spatial relation graph that represents TSP-derived rock voxels and component-labelled TBM surface nodes as heterogeneous spatial entities and retains screened candidate rock--TBM relations as edge-level spatial supports. Candidate relations are generated under active-zone, distance, surface-normal compatibility and excavation-state constraints, and edge-weighted geological anomaly scores are aggregated into a component-level geological anomaly index. The evaluation is framed as event-centred representation validation using a confirmed TBM shield-jamming event in the Boshulaling Tunnel. It examines relation reconstruction, component specificity, comparisons with alternative geological summaries, sensitivity to graph-construction settings and edge-level provenance. The results show that the graph converts TSP-derived low-velocity anomalies into component-indexed relation evidence, distinguishes shield-related anomaly support from cutterhead or pooled TBM summaries, and allows the interpretation to be traced back to individual rock voxels, TBM surface nodes and candidate edges. The method is therefore intended as a queryable spatial relation representation for component-level TBM anomaly interpretation, rather than as a calibrated failure-prediction or contact-force estimation model.
+\end{abstract}
+
+\begin{keywords}
+dynamic spatial relation graph; rock--TBM relation; component-level geological anomaly index; TBM shield jamming; edge-level provenance; TSP-derived rock voxels
+\end{keywords}
+
+\ifijgisclass\else
+\correspondence{First Author. Email: first.author@example.com}
+\fi
+
+\section{Introduction}
+\input{sections_revised/introduction}
+
+\section{Related work}
+\input{sections_revised/related_work}
+
+\section{Methodology}
+\input{sections_revised/methods}
+
+\section{Case data and representation-validation design}
+\input{sections_revised/study_area_event_centred}
+
+\section{Results}
+\input{sections_revised/results_event_centred}
+
+\section{Discussion}
+\input{sections_revised/discussion_event_centred}
+
+\section{Conclusion}
+\input{sections_revised/conclusion_event_centred}
+
+\section*{Acknowledgements}
+The authors thank the project engineers and data managers who supported the organisation of the TBM monitoring and TSP-derived geological data used in this study.
+
+\section*{Disclosure statement}
+No potential conflict of interest was reported by the author(s).
+
+\section*{Funding}
+This work was supported by the National Natural Science Foundation of China [grant number XXXXXXXX]; and the Fundamental Research Funds for the Central Universities [grant number XXXXXXXX].
+
+\section*{Data availability statement}
+The raw TBM monitoring and TSP data are project data and are not publicly available because they contain engineering and site information. The shareable materials include experiment configurations, graph-construction scripts, figure scripts, derived component-index summaries, alternative-representation diagnostics, sensitivity summaries and edge-level provenance tables. These materials are available from the corresponding author upon reasonable request, subject to project data-use permissions. To support reproducibility without disclosing site data, the authors can provide a synthetic demonstration package containing a small voxel field, component-labelled TBM surface nodes, candidate edge lists, component-level geological anomaly-index scripts, and edge-level provenance examples.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\clearpage
+\appendix
+\section{Supplementary diagnostics and robustness checks}
+\label{app:descriptor_matrix}
+\input{sections_revised/appendix}
+
+\end{document}

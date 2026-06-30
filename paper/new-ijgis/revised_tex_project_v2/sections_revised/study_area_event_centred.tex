@@ -1,0 +1,86 @@
+\subsection{Shield-jamming event and aligned data}
+The evaluation uses a confirmed shield-jamming event in the right line of the Boshulaling Tunnel. The event was confirmed at 16:30 on 3 August 2024 after increasing shield pressure, converging shield displacement, increasing total thrust and nearly zero advance rate while the cutterhead continued rotating. The event occurred near chainage DyK1017+205, approximately 72 m before the mapped F37 fault influence zone. The engineering record therefore provides a shield-dominated abnormal episode rather than dense labels for every geological voxel or every TBM component.
+
+This case is used as an event-centred representation-validation test. The objective is not to train a general failure-prediction model, estimate ground--machine contact force or derive a calibrated risk probability. Instead, the evaluation asks whether the graph connects three forms of evidence in a common excavation coordinate: TSP-derived geological anomalies, component-labelled TBM geometry and monitoring responses during the shield-jamming process.
+
+\begin{table}[t]
+\centering
+\caption{Case event, input data and alignment used for representation validation.}
+\label{tab:case_data}
+\begin{tabular}{p{0.22\textwidth}p{0.38\textwidth}p{0.32\textwidth}}
+\toprule
+Data group & Main fields & Role in the evaluation \\
+\midrule
+Event log & Confirmed jamming time, event chainage, event-development window, engineering description & Defines the shield-jamming event and the event window \\
+TSP geological data & Rock voxel coordinates, $V_p$, $V_s$ where available, geological anomaly score $q_i$ & Provides rock voxels and TSP-derived geological anomaly scores \\
+TBM monitoring & Shield pressure, shield displacement, total thrust, advance rate, cutterhead RPM, timestamp and chainage & Describes machine response during the event \\
+TBM geometry & Cutterhead, front shield, middle shield and tail shield surface nodes & Provides component-labelled TBM surface nodes \\
+Alignment data & Timestamp--chainage mapping, TSP local coordinate and event chainage & Links geological field, monitoring records and graph snapshots \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig1_spatial_setting_event_tsp_anomalies.png}
+\caption{Spatial setting and data alignment for the shield-jamming event. Panel A shows the longitudinal event location, TSP-derived anomaly scores and the F37 fault influence zone. Panel B shows the local cross-section of the shield, surrounding rock and low-velocity voxels. Panel C aligns TBM face chainage, monitoring time and the event window.}
+\label{fig:event_alignment}
+\end{figure}
+
+\subsection{Representation-validation protocol}
+The event-centred evaluation is organised around five tasks. E1 tests whether the graph reconstructs a spatial relation process in which low-velocity rock voxels become associated with shield components as the TBM approaches the confirmed jamming location. E2 tests whether the component-level index carries information that is lost in global or pooled summaries. E3 tests whether the relation pattern remains stable under reasonable graph-construction settings. E4 tests whether the interpretation can be traced back to individual rock voxels, TBM surface nodes and candidate rock--TBM edges. E5 reports exploratory response alignment using persistence residuals, without converting the result into a prediction benchmark.
+
+\begin{table}[t]
+\centering
+\caption{Representation-validation tasks used in the event-centred evaluation.}
+\label{tab:evaluation_protocol}
+\begin{tabular}{p{0.12\textwidth}p{0.28\textwidth}p{0.28\textwidth}p{0.22\textwidth}}
+\toprule
+Task & Question & Main output & Claim supported \\
+\midrule
+E1 & Do candidate relations reconstruct a moving rock--shield relation process? & Dynamic graph snapshots; component edge shares; relation-support trajectories & Relation reconstruction \\
+E2 & Does the component-level index add information beyond simpler summaries? & Comparison against global active-zone anomaly, pooled TBM anomaly and ablated component summaries & Component specificity \\
+E3 & Is the pattern robust to graph-construction settings? & Sensitivity over $\tau_{edge}$, $\eta_{min}$ and $\tau_{zone}$ & Parameter robustness \\
+E4 & Can the interpretation be traced back to edges? & Top-$k$ edge-provenance table and graph view & Edge-level provenance \\
+E5 & Is the index aligned with response changes in the event interval? & Exploratory Spearman association with persistence residuals & Response-aligned interpretation \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Alternative representations and ablation settings}
+To avoid treating the event as a post-hoc visual explanation only, the proposed full graph is compared with four alternatives: (i) a global active-zone geological anomaly average, (ii) a pooled TBM anomaly summary without component labels, (iii) a component-level graph without surface-normal compatibility, and (iv) a component-level graph without the excavation-state constraint. These alternatives test whether the proposed representation adds value by retaining component labels, geometry-compatible candidate edges and edge lifecycle.
+
+\begin{table}[t]
+\centering
+\caption{Alternative summaries and ablation settings for representation validation.}
+\label{tab:alternative_representations}
+\begin{tabular}{p{0.22\textwidth}p{0.30\textwidth}p{0.35\textwidth}}
+\toprule
+Representation & What is retained & What it tests \\
+\midrule
+Global active-zone anomaly & Mean $q_i$ within $\Omega_t$ & Whether a moving geological buffer is sufficient \\
+Pooled TBM anomaly & Edge-weighted anomaly over all TBM surface nodes & Whether component labels are necessary \\
+No-normal component graph & Component labels and distance screening only & Whether surface-normal compatibility matters \\
+No-state component graph & Component labels, distance and normal compatibility, but no excavation-state filtering & Whether edge lifecycle matters \\
+Full proposed graph & Component labels, active zone, distance, normal compatibility and excavation state & Complete relation-support representation \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Sensitivity settings}
+Sensitivity checks vary the main graph-construction parameters around the formal setting. The formal run uses $\tau_{edge}=2.0$ m, $\eta_{min}=0.3$ and $\tau_{zone}=5.0$ m. The evaluation reports whether the event-window shield-group index, shield-specificity contrast and top-edge provenance remain stable under neighbouring settings.
+
+\begin{table}[t]
+\centering
+\caption{Recommended sensitivity checks for graph-construction parameters.}
+\label{tab:sensitivity_design}
+\begin{tabular}{lll}
+\toprule
+Parameter & Values & Stability output \\
+\midrule
+$\tau_{edge}$ & 1.0, 1.5, 2.0, 2.5, 3.0 m & Event-window $I_{shield}^{A}(t)$ peak and edge count \\
+$\eta_{min}$ & 0.1, 0.3, 0.5 & Shield/cutterhead contrast and candidate-edge sparsity \\
+$\tau_{zone}$ & 3.0, 5.0, 7.0 m & Active-zone anomaly support and top-edge provenance overlap \\
+\bottomrule
+\end{tabular}
+\end{table}

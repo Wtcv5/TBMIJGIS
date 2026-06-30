@@ -1,17 +1,13 @@
-# BSLL tunnel case starting from DyK1017+205 with a 3-step prediction horizon.
-#
-# This is the preferred BSLL prediction setting when the goal is advance
-# warning rather than one-step persistence matching.
+# BSLL tunnel case starting from DyK1017+205.
+# Descriptor evidence run with a three-step response horizon.
 
 case:
   id: "bsll_dyk1017_205_h3"
   tunnel: "BSLL"
   start_chainage: "DyK1017+205"
-  description: "BSLL tunnel case with h=3 advance response prediction."
+  description: "BSLL descriptor case with h=3 response horizon."
   tsp_source: "experiments/data/raw/tsp.csv"
   monitoring_source: "experiments/data/raw/monitoring.csv"
-
-seed: 42
 
 data:
   tsp_path: "data/raw/tsp.csv"
@@ -40,51 +36,12 @@ graph:
 model:
   history_window: 5
   predict_horizon: 3
-  rock_node_dim: 32
-  tbm_node_dim: 32
-  edge_dim: 32
-  gnn_layers: 2
-  gru_hidden_dim: 64
-  gru_layers: 1
-  dropout: 0.3
-  residual_prediction: true
 
 training:
   batch_size: 32
-  epochs: 80
-  learning_rate: 0.001
-  weight_decay: 0.01
-  patience: 15
-  huber_delta: 1.0
-  target_weights: [1.0, 1.2, 1.8, 1.0, 1.4]
 
 split:
   method: "mileage"
   train_ratio: 0.70
   val_ratio: 0.15
   test_ratio: 0.15
-
-metrics:
-  - mae
-  - rmse
-  - r2
-  - pearson
-  - spearman
-
-scenarios:
-  high_thrust_percentile: 80
-  high_torque_percentile: 80
-  low_penetration_percentile: 20
-  low_advance_rate_percentile: 20
-
-runtime:
-  output_dir: "outputs/bsll_dyk1017_205_h3"
-  device: "auto"
-  cache_graph_sequence: true
-  calibrate_residual_blend: true
-  run_ablations: true
-  run_relaxed_ablation: false
-  bootstrap_samples: 300
-  permutation_samples: 2000
-  xgb_n_estimators: 100
-  xgb_max_depth: 4

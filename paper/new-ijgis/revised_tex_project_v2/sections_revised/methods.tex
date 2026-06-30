@@ -1,0 +1,166 @@
+This section formalises rock--TBM interpretation as an excavation-step-indexed spatial entity--relation graph. The method starts from a TSP-derived rock voxel field, an advancing parameterized TBM surface and aligned monitoring records under a common excavation-step index. It then constructs a sparse dynamic rock--TBM spatial relation graph at each excavation step and aggregates edge-weighted geological anomaly scores into a component-level geological anomaly index. The graph is sparse because candidate rock--TBM relations are retained only when the four spatial and excavation-state constraints are jointly satisfied.
+
+Given geological voxels $D_{geo}$, a parameterized TBM surface $M_{TBM}$ and excavation step $t$, the graph-construction operator is
+\begin{equation}
+G : (D_{geo}, M_{TBM}, t) \mapsto G_t .
+\end{equation}
+The field-computation operator is
+\begin{equation}
+F : (G_t, \phi(g_i), \rho_j) \mapsto \{I_c(t), \Delta I_c(t)\}_{c\in C,t=1,\ldots,T},
+\end{equation}
+where $\phi(g_i)$ maps geological attributes to a rock-voxel anomaly score and $\rho_j$ is the TBM component label. Monitoring records are used to read the resulting index against excavation responses; they are not inputs to $G$ and do not define graph edges.
+
+
+\subsection{Rock, machine and monitoring data representation}
+The input data are organised into two graph entity types and aligned monitoring records: rock voxels, TBM surface nodes and excavation monitoring responses. Monitoring records are not graph nodes; they are used after graph computation to evaluate and interpret the component-indexed geological anomaly index.
+
+\textbf{Rock voxel.} The geological input is a TSP-derived voxel field $D_{geo}=\{(c_i,g_i)\}$, where $c_i=(x_i,y_i,z_i)$ is the coordinate of rock voxel $i$ and $g_i$ is its geological attribute vector, such as P-wave velocity $V_p$, S-wave velocity $V_s$, dynamic Young's modulus, velocity ratio, Poisson's ratio or density. Rock voxels are the geological spatial support of the graph.
+
+\textbf{TBM surface node.} The machine input is a parameterized TBM surface. Each surface node is represented by $(p_j(0),n_j,\rho_j)$, where $p_j(0)$ is the initial surface-node coordinate, $n_j$ is the local outward surface normal and $\rho_j$ is the machine component label. The current implementation partitions the machine surface into cutterhead, front shield, middle shield and tail shield components.
+
+\textbf{Aligned monitoring records.} At each excavation step $t$, the monitoring vector is
+\begin{equation}
+u_t=[\mathrm{AdvanceRate}_t,\mathrm{RPM}_t,\mathrm{Torque}_t,\mathrm{Thrust}_t,\mathrm{Penetration}_t,\mathrm{ShieldPressure}_t].
+\end{equation}
+The response variables used downstream are denoted $r_t^{(k)}$, where $k$ indexes a response channel. Monitoring responses are aligned to $I_c(t)$ and $\Delta I_c(t)$; they do not participate in graph construction.
+
+\textbf{Common chainage coordinate.} TSP coordinates, TBM geometry and monitoring records are mapped to a common local excavation coordinate. With $\mathrm{ShieldMileage}(t)$ the shield mileage stamp at step $t$,
+\begin{equation}
+x_{local}(t)=\mathrm{ShieldMileage}(t)-\mathrm{ShieldMileage}_{start},
+\end{equation}
+and TBM surface nodes are advanced along the excavation direction $d$:
+\begin{equation}
+p_j(t+1)=p_j(t)+\Delta x d.
+\end{equation}
+
+\begin{table}[t]
+\centering
+\caption{Entities, relations and indices in the revised rock--TBM spatial relation graph.}
+\label{tab:entity_model}
+\begin{tabular}{lll}
+\toprule
+Entity or quantity & Definition & Role \\
+\midrule
+$V_t^r$ & Active TSP-derived rock voxels & Geological spatial support \\
+$V_t^m$ & Component-labelled TBM surface nodes & Machine-side spatial support \\
+$E_t^{rr}$ & Rock--rock voxel neighbourhoods & Geological contiguity context \\
+$E_t^{mm}$ & TBM surface neighbourhoods & Machine-surface topology context \\
+$E_t^{rm}$ & Screened rock--TBM candidate relations & Candidate relation support \\
+$A_c(t)$ & Sum of geometry weights for component $c$ & Geometric exposure metric \\
+$I_c(t)$ & Edge-weighted anomaly intensity for component $c$ & Main component-level index \\
+$e_{t+h}^{(k)}$ & Persistence residual of response $k$ & Aligned monitoring residual \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig_method_workflow.png}
+\caption{Workflow of the dynamic rock--TBM spatial relation graph. Rock voxels, TBM surface nodes and aligned monitoring records are organised under a common excavation-step coordinate. Candidate rock--TBM relations are generated under active-zone, distance, surface-normal compatibility and excavation-state constraints, aggregated into component-level geological anomaly indices, and queried back to edge-level provenance.}
+\label{fig:overview}
+\end{figure}
+
+\subsection{Geometry-constrained sparse graph construction}
+At each excavation step, a graph snapshot is defined as
+\begin{equation}
+G_t=(V_t^r\cup V_t^m,E_t^{rr}\cup E_t^{mm}\cup E_t^{rm}).
+\end{equation}
+Rock node features are
+\begin{equation}
+x_i^r(t)=[c_i,g_i,s_i(t)],
+\end{equation}
+where $s_i(t)$ records whether voxel $i$ remains active and eligible for relation construction at step $t$. TBM node features are
+\begin{equation}
+x_j^m(t)=[p_j(t),n_j(t),\rho_j].
+\end{equation}
+The intra-rock edge set $E_t^{rr}$ is constructed from voxel neighbourhoods, and $E_t^{mm}$ is constructed from local neighbourhoods on the parameterized TBM surface. The central design decision is the construction of $E_t^{rm}$, the rock--TBM candidate relation set.
+
+A candidate edge $(i,j)$ is included in $E_t^{rm}$ only when four conditions are jointly satisfied:
+\begin{equation}
+\begin{cases}
+c_i\in \Omega_t,\\
+d_{ij}(t)\leq \tau_{edge},\\
+\kappa_{ij}(t)\geq \eta_{min},\\
+s_i(t)=1.
+\end{cases}
+\end{equation}
+The first rule restricts relations to the excavation-relevant active rock volume $\Omega_t$; the second uses
+\begin{equation}
+d_{ij}(t)=\|c_i-p_j(t)\|
+\end{equation}
+to retain spatially close rock--machine pairs; the third uses the signed surface-normal compatibility
+\begin{equation}
+\kappa_{ij}(t)=\max\left(0,\frac{n_j(t)^\top(c_i-p_j(t))}{d_{ij}(t)+\epsilon}\right)
+\end{equation}
+to retain geometrically plausible facing relations; and the fourth prevents already excavated voxels from repeatedly contributing to later graph snapshots.
+
+The active zone separates face-contact plausibility from shield-side proximity:
+\begin{equation}
+\Omega_t=\Omega_t^{face}\cup\Omega_t^{shield},
+\end{equation}
+with
+\begin{equation}
+\Omega_t^{face}=\{i\mid 0\leq x_i-x_f(t)\leq L_f,\; r_i\leq R_c+\tau_{zone}\},
+\end{equation}
+\begin{equation}
+\Omega_t^{shield}=\{i\mid x_{tail}(t)\leq x_i\leq x_f(t),\; R_s\leq r_i\leq R_s+\tau_{zone}\}.
+\end{equation}
+For each retained candidate relation, the geometry-compatibility weight is
+\begin{equation}
+w_{ij}^{rm}(t)=\exp\left(-\frac{d_{ij}(t)}{\tau_{edge}}\right)\kappa_{ij}(t).
+\end{equation}
+This quantity is a spatial relation weight; it is not a contact force, pressure or friction estimate.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.92\textwidth}{\centering Placeholder for candidate-relation construction: active-zone, distance, normal-compatibility and excavation-state filtering.}}
+\caption{Geometry-constrained rock--TBM candidate relation construction. The graph is obtained by screening all possible rock voxel--TBM surface-node pairs through active-zone membership, distance, surface-normal compatibility and excavation-state constraints.}
+\label{fig:construction}
+\end{figure}
+
+\subsection{Component-level geological anomaly index}
+The geological contribution of each rock voxel is represented by a bounded TSP-derived anomaly score
+\begin{equation}
+q_i=\phi(g_i).
+\end{equation}
+In the main formulation, $q_i$ is a low-velocity anomaly score derived from the training active-zone distribution of P-wave velocity:
+\begin{equation}
+q_i=\mathrm{clip}\left(\frac{Q_{95}^{train}(V_p)-V_{p,i}}{Q_{95}^{train}(V_p)-Q_{5}^{train}(V_p)+\epsilon},0,1\right).
+\end{equation}
+This fixed training-reference scaling avoids per-chainage min--max normalisation and keeps values comparable along chainage; lower $V_p$ values correspond to higher anomaly scores under the common reference distribution.
+
+For each TBM component $c$, let $V_c^m$ denote the TBM surface nodes with component label $c$. The geometric exposure is
+\begin{equation}
+A_c(t)=\sum_{j\in V_c^m}\sum_{i:(i,j)\in E_t^{rm}} w_{ij}^{rm}(t),
+\end{equation}
+and the component-level geological anomaly index is
+\begin{equation}
+I_c(t)=\frac{\sum_{j\in V_c^m}\sum_{i:(i,j)\in E_t^{rm}}w_{ij}^{rm}(t)q_i}{A_c(t)+\epsilon}.
+\end{equation}
+The index is computed for the cutterhead, front shield, middle shield and tail shield at each excavation step.
+
+Because the confirmed case is shield jamming, shield components are also summarised as an exposure-weighted shield-group index:
+\begin{equation}
+I_{shield}^{A}(t)=\frac{\sum_{c\in C_{shield}}A_c(t)I_c(t)}{\sum_{c\in C_{shield}}A_c(t)+\epsilon},
+\quad C_{shield}=\{\mathrm{front},\mathrm{middle},\mathrm{tail}\}.
+\end{equation}
+This replaces the unweighted arithmetic mean and avoids assigning equal influence to components with different relation supports. A shield-specificity contrast is further defined as
+\begin{equation}
+S_{shield}(t)=\frac{\sum_{c\in C_{shield}}A_c(t)I_c(t)}{A_{cutterhead}(t)I_{cutterhead}(t)+\epsilon}.
+\end{equation}
+The step-level change is
+\begin{equation}
+\Delta I_c(t)=I_c(t)-I_c(t-1).
+\end{equation}
+
+For response alignment, short-horizon TBM responses are evaluated through persistence residuals rather than raw responses:
+\begin{equation}
+e_{t+h}^{(k)}=r_{t+h}^{(k)}-r_t^{(k)}.
+\end{equation}
+Association statistics between $I_c(t)$ and $e_{t+h}^{(k)}$ are interpreted as exploratory index--residual co-variation within the evaluated chainage interval, not as causal attribution.
+
+For edge-level provenance, candidate edges for any diagnostic sample are ranked by
+\begin{equation}
+s_{ij}(t)=w_{ij}^{rm}(t)q_i.
+\end{equation}
+Each record retains rock voxel identity, TBM surface-node identity, component label $\rho_j$, distance $d_{ij}(t)$, normal compatibility $\kappa_{ij}(t)$, geometry weight $w_{ij}^{rm}(t)$, anomaly score $q_i$ and weighted contribution $s_{ij}(t)$.

@@ -208,7 +208,7 @@ def write_outputs(volume: pd.DataFrame, audit: dict, output_dir: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input-dir", default="data/sjls_dyk1252_411_raw")
+    parser.add_argument("--input-dir", required=True, help="Directory containing one Vp and one Vs raw external file.")
     parser.add_argument("--output-dir", default="data/processed/sjls_dyk1252_411")
     parser.add_argument("--chainage-length", type=float, default=120.0)
     parser.add_argument("--y-half-width", type=float, default=10.0)
